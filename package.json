@@ -1,0 +1,48 @@
+{
+  "name": "spark",
+  "version": "0.1.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron --ignore-certificate-errors ./app/main"
+  },
+  "bin": {
+    "electron": "./node_modules/.bin/electron"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sup3msc1/spark.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sup3msc1/spark/issues"
+  },
+  "homepage": "https://github.com/sup3msc1/spark#readme",
+  "author": "Team Kobalt",
+  "license": "MIT",
+  "dependencies": {
+    "babel-polyfill": "^6.20.0",
+    "electron": "^1.4.12",
+    "immutable": "^3.8.1",
+    "react": "^15.4.1",
+    "react-dom": "^15.4.1",
+    "react-redux": "^5.0.1",
+    "redux": "^3.6.0",
+    "socket.io": "^1.7.2",
+    "socket.io-client": "^1.7.2",
+    "webrtc-adapter": "^2.1.0"
+  },
+  "devDependencies": {
+    "babel-core": "^6.21.0",
+    "babel-loader": "^6.2.10",
+    "babel-preset-latest": "^6.16.0",
+    "babel-preset-react": "^6.16.0",
+    "babel-preset-stage-0": "^6.16.0",
+    "electron-debug": "^1.1.0",
+    "electron-devtools-installer": "^2.0.1",
+    "express": "^4.14.0",
+    "redux-logger": "^2.7.4",
+    "webpack": "^1.14.0",
+    "webpack-dev-middleware": "^1.9.0",
+    "ws": "^1.1.1"
+  }
+}
