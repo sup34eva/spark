@@ -1,25 +1,38 @@
-import * as WS from '../utils/websocket';
+// @flow
 import * as RTC from '../utils/rtc';
+import * as WS from '../utils/websocket';
 
 import {
     initCamera,
     createConnection,
 } from '../utils';
 
-export function join() {
+import type {
+    Action,
+    Dispatcher,
+    GetState,
+    Store,
+} from '../store';
+import type {
+    Connection,
+    Offer,
+    Candidate,
+} from '../utils/rtc';
+
+export function join(): Action {
     return {
         type: 'JOIN',
     };
 }
 
-export function localStream(stream) {
+export function localStream(stream: MediaStream): Action {
     return {
         type: 'LOCAL_STREAM',
         payload: stream,
     };
 }
 
-export function remoteConnection(remote, connection) {
+export function remoteConnection(remote: string, connection: Connection): Action {
     return {
         type: 'REMOTE_CONNECTION',
         payload: {
@@ -28,7 +41,7 @@ export function remoteConnection(remote, connection) {
     };
 }
 
-export function remoteStream(remote, stream) {
+export function remoteStream(remote: string, stream: MediaStream): Action {
     return {
         type: 'REMOTE_STREAM',
         payload: {
@@ -37,10 +50,10 @@ export function remoteStream(remote, stream) {
     };
 }
 
-export function sendOffer() {
+export function sendOffer(): Action {
     return {
         type: 'SEND_OFFER',
-        payload: async (dispatch, getState) => {
+        payload: async (dispatch: Dispatcher, getState: GetState) => {
             dispatch(join());
 
             const {
@@ -50,25 +63,27 @@ export function sendOffer() {
             const [
                 stream,
                 remotes,
+            ]: [
+                MediaStream,
+                Array<WS.Remote>,
             ] = await Promise.all([
                 initCamera(streamState.localStream),
-                WS.startCall(),
+                WS.joinRoom('default'),
             ]);
 
             return await Promise.all(
                 remotes
-                    .filter(remote => !streamState.remotes.has(remote))
+                    .filter(remote => !streamState.remotes.has(remote.id))
                     .map(async remote => {
                         const connection = createConnection(remote, stream);
 
                         connection.onaddstream = event => {
-                            dispatch(remoteStream(remote, event.stream));
+                            dispatch(remoteStream(remote.id, event.stream));
                         };
 
-                        dispatch(remoteConnection(remote, connection));
+                        dispatch(remoteConnection(remote.id, connection));
 
-                        const reply = await WS.sendOffer(
-                            remote,
+                        const reply = await remote.sendOffer(
                             await RTC.sendOffer(connection),
                         );
 
@@ -81,10 +96,10 @@ export function sendOffer() {
     };
 }
 
-export function acceptOffer(remote, offer) {
+export function acceptOffer(remote: WS.Remote, offer: Offer): Action {
     return {
         type: 'ACCEPT_OFFER',
-        payload: async (dispatch, getState) => {
+        payload: async (dispatch: Dispatcher, getState: GetState) => {
             const {
                 stream: streamState,
             } = getState();
@@ -92,17 +107,17 @@ export function acceptOffer(remote, offer) {
             const stream = await initCamera(streamState.localStream);
 
             const connection = createConnection(remote, stream);
-            dispatch(remoteConnection(remote, connection));
+            dispatch(remoteConnection(remote.id, connection));
 
             return await RTC.acceptOffer(connection, offer);
         },
     };
 }
 
-export function handleCandidate(store, remote, candidate) {
+export function handleCandidate(store: Store, remote: string, candidate: Candidate): Action {
     return {
         type: 'HANDLE_CANDIDATE',
-        payload: async (dispatch, getState) => {
+        payload: async (dispatch: Dispatcher, getState: GetState) => {
             const connection = await new Promise(resolve => {
                 let unsubscribe;
                 const handler = () => {

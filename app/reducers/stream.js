@@ -1,20 +1,24 @@
+// @flow
 import {
     Map, Record,
 } from 'immutable';
+import type {
+    Action,
+} from '../store';
 
-const Remote = Record({
+export const Remote = Record({
     connection: null,
     stream: null,
 });
 
-const StreamState = Record({
+export const StreamState = Record({
     joined: false,
     localStream: null,
     remotes: new Map(),
 });
 
-export default (state = new StreamState(), action) => {
-    switch(action.type) {
+export default (state: StreamState = new StreamState(), action: Action) => {
+    switch (action.type) {
         case 'JOIN':
             return state.set('joined', true);
 

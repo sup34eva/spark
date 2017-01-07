@@ -1,0 +1,15 @@
+// @flow
+import type {
+    Map,
+} from 'immutable';
+
+declare class Remote {
+    connection: ?Object,
+    stream: ?MediaStream,
+}
+
+declare class StreamState {
+    joined: boolean,
+    localStream: ?MediaStream,
+    remotes: Map<string, RemoteRecordType>,
+}

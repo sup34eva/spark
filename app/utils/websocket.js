@@ -1,3 +1,4 @@
+// @flow
 import io from 'socket.io-client';
 
 import {
@@ -11,32 +12,52 @@ import {
 } from '../actions/stream';
 import store from '../store';
 
-const socket = io(
-    `wss://${document.location.host || 'localhost'}:443`
-);
+import type {
+    Candidate,
+    Offer,
+    Answer,
+} from './rtc';
 
-socket.on('offer', wrapMessage((remote, offer) => {
-    return store.dispatch(acceptOffer(remote, offer));
-}));
+export class Remote {
+    id: string;
+    socket: io;
 
-socket.on('candidate', wrapMessage((remote, candidate) => {
-    return store.dispatch(handleCandidate(store, remote, candidate));
-}));
+    constructor(socket: io, id: string) {
+        this.socket = socket;
+        this.id = id;
+    }
 
-export function startCall() {
+    sendOffer(offer: Offer): Promise<Answer> {
+        return wrapSignal(cb => {
+            this.socket.emit('send-offer', this.id, offer, cb);
+        });
+    }
+
+    sendCandidate(candidate: Candidate): Promise<any> {
+        return wrapSignal(cb => {
+            this.socket.emit('send-candidate', this.id, candidate, cb);
+        });
+    }
+}
+
+export function joinRoom(name: string): Promise<Array<Remote>> {
+    console.log('name', name);
+
+    const socket = io(
+        `wss://${document.location.host || 'localhost'}:443`
+    );
+
+    socket.on('offer', wrapMessage((id: string, offer: Offer) =>
+        store.dispatch(acceptOffer(new Remote(socket, id), offer))
+    ));
+
+    socket.on('candidate', wrapMessage((remote: string, candidate: Candidate) =>
+        store.dispatch(handleCandidate(store, remote, candidate))
+    ));
+
     return wrapSignal(cb => {
         socket.emit('start-call', cb);
-    });
-}
-
-export function sendOffer(remote, offer) {
-    return wrapSignal(cb => {
-        socket.emit('send-offer', remote, offer, cb);
-    });
-}
-
-export function sendCandidate(remote, candidate) {
-    return wrapSignal(cb => {
-        socket.emit('send-candidate', remote, candidate, cb);
-    });
+    }).then(remotes =>
+        remotes.map(id => new Remote(socket, id))
+    );
 }
