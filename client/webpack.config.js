@@ -8,7 +8,6 @@ module.exports = {
     devtool: 'inline-source-map',
 
     entry: [
-        'webpack-hot-middleware/client',
         'babel-polyfill',
         './app/index.js',
     ],
@@ -31,7 +30,6 @@ module.exports = {
     },
 
     plugins: [
-        new webpack.HotModuleReplacementPlugin(),
         new webpack.NoErrorsPlugin(),
         new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify('development'),
@@ -40,7 +38,7 @@ module.exports = {
 
     output: {
         path: path.join(__dirname, 'app'),
-        publicPath: 'https://localhost/dist/',
+        publicPath: '/dist/',
         fileName: 'bundle.js',
     },
 };

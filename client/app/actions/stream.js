@@ -1,4 +1,9 @@
 // @flow
+import type {
+    Dispatch,
+    Store as ReduxStore,
+} from 'redux';
+
 import * as RTC from '../utils/rtc';
 import * as WS from '../utils/websocket';
 
@@ -8,16 +13,20 @@ import {
 } from '../utils';
 
 import type {
+    State,
+} from '../reducers';
+import type {
     Action,
-    Dispatcher,
-    GetState,
-    Store,
 } from '../store';
+
 import type {
     Connection,
     Offer,
     Candidate,
 } from '../utils/rtc';
+
+type GetState = () => State;
+type Store = ReduxStore<State, Action>;
 
 export function join(): Action {
     return {
@@ -53,7 +62,7 @@ export function remoteStream(remote: string, stream: MediaStream): Action {
 export function sendOffer(): Action {
     return {
         type: 'SEND_OFFER',
-        payload: async (dispatch: Dispatcher, getState: GetState) => {
+        payload: async (dispatch: Dispatch<Action>, getState: GetState) => {
             dispatch(join());
 
             const {
@@ -99,7 +108,7 @@ export function sendOffer(): Action {
 export function acceptOffer(remote: WS.Remote, offer: Offer): Action {
     return {
         type: 'ACCEPT_OFFER',
-        payload: async (dispatch: Dispatcher, getState: GetState) => {
+        payload: async (dispatch: Dispatch<Action>, getState: GetState) => {
             const {
                 stream: streamState,
             } = getState();
@@ -117,7 +126,7 @@ export function acceptOffer(remote: WS.Remote, offer: Offer): Action {
 export function handleCandidate(store: Store, remote: string, candidate: Candidate): Action {
     return {
         type: 'HANDLE_CANDIDATE',
-        payload: async (dispatch: Dispatcher, getState: GetState) => {
+        payload: async (dispatch: Dispatch<Action>, getState: GetState) => {
             const connection = await new Promise(resolve => {
                 let unsubscribe;
                 const handler = () => {

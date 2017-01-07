@@ -1,3 +1,4 @@
+const path = require('path');
 const {
     app, BrowserWindow, Menu,
 } = require('electron');
@@ -47,7 +48,7 @@ app.on('ready', installExtensions(() => {
         height: 728
     });
 
-    mainWindow.loadURL(`https://localhost/`);
+    mainWindow.loadURL(path.resolve(__dirname, 'index.html'));
 
     mainWindow.webContents.on('did-finish-load', () => {
         mainWindow.show();

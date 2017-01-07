@@ -2,9 +2,6 @@
 import {
     Map, Record,
 } from 'immutable';
-import type {
-    Action,
-} from '../store';
 
 export const Remote = Record({
     connection: null,
@@ -17,7 +14,7 @@ export const StreamState = Record({
     remotes: new Map(),
 });
 
-export default (state: StreamState = new StreamState(), action: Action) => {
+export default (state: StreamState = new StreamState(), action: any) => {
     switch (action.type) {
         case 'JOIN':
             return state.set('joined', true);

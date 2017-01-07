@@ -27,6 +27,12 @@ const logger = createLogger({
     collapsed: true,
 });
 
+export type Action = {
+    type: string,
+    payload?: any,
+    error?: boolean,
+};
+
 export default createStore(
     rootReducer,
     composeEnhancers(

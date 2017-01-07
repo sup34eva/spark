@@ -1,5 +1,9 @@
 // @flow
 import type {
+    Dispatch,
+    MiddlewareAPI,
+} from 'redux';
+import type {
     Remote,
 } from './websocket';
 
@@ -15,10 +19,13 @@ import {
 
 import store from '../store';
 import type {
-    Middleware,
-    Dispatcher,
+    State,
+} from '../reducers';
+import type {
     Action,
 } from '../store';
+
+type Middleware = MiddlewareAPI<State, Action>;
 
 export function createConnection(remote: Remote, stream: MediaStream): Connection {
     const connection = RTC.createConnection();
@@ -77,7 +84,7 @@ export function wrapSignal<T>(cb: SignalHandler<T>): Promise<T> {
 }
 
 export const thunk = ({ dispatch, getState }: Middleware) =>
-    (next: Dispatcher) =>
+    (next: Dispatch<Action>) =>
         async (action: Action) => {
             if (typeof action.payload === 'function') {
                 // eslint-disable-next-line no-param-reassign
