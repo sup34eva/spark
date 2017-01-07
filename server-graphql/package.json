@@ -1,0 +1,31 @@
+{
+  "name": "spark-graphql",
+  "version": "0.1.0",
+  "description": "The GraphQL microservice",
+  "main": "index.js",
+  "scripts": {
+    "start": "micro -p 3000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sup3msc1/spark.git"
+  },
+  "keywords": [
+    "spark",
+    "server",
+    "graphql"
+  ],
+  "author": "Team Kobalt",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sup3msc1/spark/issues"
+  },
+  "homepage": "https://github.com/sup3msc1/spark#readme",
+  "dependencies": {
+    "express": "^4.14.0",
+    "graphql": "^0.8.2",
+    "graphql-relay": "^0.4.4",
+    "kafka-node": "^1.1.0",
+    "socket.io": "^1.7.2"
+  }
+}
