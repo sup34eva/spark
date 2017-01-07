@@ -4,32 +4,20 @@ import {
     connect,
 } from 'react-redux';
 
-import {
-    sendOffer,
-} from '../actions/stream';
+import ChannelList from './list_channels';
+import Chat from './chat';
+
+type Props = {
+    currentChannel: ?string,
+};
+
+const App = (props: Props) => (
+    <div>
+        <ChannelList />
+        {props.currentChannel && <Chat channel={props.currentChannel} />}
+    </div>
+);
 
 export default connect(
-    ({ stream }) => stream.toObject(),
-    dispatch => ({
-        sendOffer: () => {
-            dispatch(sendOffer());
-        },
-    }),
-)(props => (
-    <div>
-        {props.localStream && (
-            <video src={URL.createObjectURL(props.localStream)} autoPlay muted />
-        )}
-        {
-            props.remotes
-                .filter(remote => !!remote.stream)
-                .map((remote, key) => (
-                    <video key={key} src={URL.createObjectURL(remote.stream)} autoPlay />
-                ))
-                .toArray()
-        }
-        {!props.joined && (
-            <button onClick={props.sendOffer}>Join</button>
-        )}
-    </div>
-));
+    ({ chat }) => chat.toObject(),
+)(App);

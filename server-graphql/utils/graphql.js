@@ -43,7 +43,9 @@ exports.subscriptionWithClientSubscriptionId = config => {
         },
         resolve(root, { input }, ctx, info) {
             const publish = data => {
-                ctx.socket.emit(input.clientSubscriptionId, data);
+                ctx.socket.emit(input.clientSubscriptionId, {
+                    [info.fieldName]: data,
+                });
             };
 
             return Promise.resolve(
@@ -53,7 +55,7 @@ exports.subscriptionWithClientSubscriptionId = config => {
                     stop(payload, input, ctx, info);
                 });
 
-                return null;
+                return input;
             });
         },
     };

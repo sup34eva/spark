@@ -4,7 +4,7 @@ const {
 } = require('electron');
 
 const __DEV__ = process.env.NODE_ENV !== 'production';
-if (__DEV__ ) {
+if (__DEV__) {
     require('electron-debug')();
     const path = require('path');
     const p = path.join(__dirname, '..', 'app', 'node_modules');
@@ -45,7 +45,7 @@ app.on('ready', installExtensions(() => {
     mainWindow = new BrowserWindow({
         show: false,
         width: 1024,
-        height: 728
+        height: 728,
     });
 
     mainWindow.loadURL(path.resolve(__dirname, 'index.html'));
@@ -68,7 +68,7 @@ app.on('ready', installExtensions(() => {
                 label: 'Inspect element',
                 click() {
                     mainWindow.inspectElement(x, y);
-                }
+                },
             }]).popup(mainWindow);
         });
     }

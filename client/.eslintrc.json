@@ -12,13 +12,15 @@
             "SwitchCase": 1
         }],
         "arrow-parens": ["off"],
-        "consistent-return": "off",
-        "comma-dangle": "off",
-        "generator-star-spacing": "off",
+        "consistent-return": "error",
+        "comma-dangle": ["error", "always-multiline"],
         "no-use-before-define": "off",
         "no-duplicate-imports": "off",
+        "no-plusplus": "off",
+        "class-methods-use-this": "off",
+        "no-console": "off",
 
-        "flowtype-errors/show-errors": 1,
+        "flowtype-errors/show-errors": "error",
 
         "react/jsx-first-prop-new-line": ["off"],
         "react/jsx-closing-bracket-location": ["off"],

@@ -74,7 +74,6 @@ export function wrapSignal<T>(cb: SignalHandler<T>): Promise<T> {
     return new Promise((resolve, reject) => {
         cb((err: ?any, result: T) => {
             if (err) {
-                console.error(err);
                 reject(err);
             } else {
                 resolve(result);

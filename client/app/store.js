@@ -33,6 +33,7 @@ export type Action = {
     error?: boolean,
 };
 
+// eslint-disable-next-line flowtype-errors/show-errors
 export default createStore(
     rootReducer,
     composeEnhancers(

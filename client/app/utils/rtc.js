@@ -15,10 +15,10 @@ export type Candidate = RTCIceCandidate;
 export function createConnection(): Connection {
     return new RTCPeerConnection({
         iceServers: [{
-            url: 'stun:stun.services.mozilla.com'
+            url: 'stun:stun.services.mozilla.com',
         }, {
-            url: 'stun:stun.l.google.com:19302'
-        }]
+            url: 'stun:stun.l.google.com:19302',
+        }],
     });
 }
 

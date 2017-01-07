@@ -27,7 +27,9 @@
     "react": "^15.4.1",
     "react-dom": "^15.4.1",
     "react-redux": "^5.0.1",
+    "react-relay": "^0.10.0",
     "redux": "^3.6.0",
+    "relay-subscriptions": "^1.0.1",
     "socket.io": "^1.7.2",
     "socket.io-client": "^1.7.2"
   },
@@ -38,6 +40,7 @@
     "babel-preset-latest": "^6.16.0",
     "babel-preset-react": "^6.16.0",
     "babel-preset-stage-0": "^6.16.0",
+    "babel-relay-plugin": "^0.10.0",
     "electron-debug": "^1.1.0",
     "electron-devtools-installer": "^2.0.1",
     "eslint": "^3.12.2",

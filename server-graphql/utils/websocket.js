@@ -2,12 +2,14 @@ const {
     graphql,
 } = require('graphql');
 
-const schema = require('./schema');
+const schema = require('../schema');
 
 module.exports = wss => socket => {
     console.log('connection', socket.id);
 
     socket.on('graphql', ({ query, variables, operationName }, cb) => {
+        console.log(query, variables);
+
         graphql(
             schema,
             query,
@@ -15,7 +17,9 @@ module.exports = wss => socket => {
             { socket }, // Context data
             variables,
             operationName
-        ).then(cb);
+        )
+        .then(result => cb(null, result))
+        .catch(err => cb(err));
     });
 
     socket.on('start-call', cb => {

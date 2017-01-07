@@ -4,8 +4,8 @@ const io = require('socket.io');
 const express = require('express');
 
 const schema = require('./schema');
-const graphiql = require('./graphiql');
-const websocket = require('./websocket');
+const graphiql = require('./utils/graphiql');
+const websocket = require('./utils/websocket');
 
 const app = express();
 

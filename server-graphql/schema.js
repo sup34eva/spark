@@ -1,4 +1,5 @@
 const {
+    GraphQLID,
     GraphQLInt,
     GraphQLString,
     GraphQLList,
@@ -8,20 +9,44 @@ const {
     GraphQLInputObjectType,
 } = require('graphql');
 const {
+    toGlobalId,
+    globalIdField,
+    offsetToCursor,
+    connectionArgs,
+    connectionFromArray,
+    nodeDefinitions,
+    connectionDefinitions,
     mutationWithClientMutationId,
 } = require('graphql-relay');
 
 const {
     subscriptionWithClientSubscriptionId,
-} = require('./graphql');
+} = require('./utils/graphql');
 const {
     sendMessage,
     createConsumer,
-} = require('./kafka');
+} = require('./utils/kafka');
 
-const Message = new GraphQLObjectType({
+const { nodeInterface, nodeField } = nodeDefinitions(
+    globalId => {
+        const { type, id } = fromGlobalId(globalId);
+        if (type === 'Message') {
+            return null;
+        }
+        if (type === 'Channel') {
+            return { };
+        }
+    },
+    obj => {
+        return obj.messages ? channelType : messageType;
+    }
+);
+
+const messageType = new GraphQLObjectType({
     name: 'Message',
+    interfaces: [ nodeInterface ],
     fields: {
+        id: globalIdField('Message', message => message.offset),
         offset: {
             type: GraphQLInt,
         },
@@ -31,15 +56,58 @@ const Message = new GraphQLObjectType({
     },
 });
 
+const {
+    connectionType: messageConnection,
+    edgeType: messageEdge,
+} = connectionDefinitions({
+    nodeType: messageType,
+});
+
+const channelType = new GraphQLObjectType({
+    name: 'Channel',
+    interfaces: [ nodeInterface ],
+    fields: {
+        id: globalIdField(
+            'Channel',
+            name => name
+        ),
+        name: {
+            type: GraphQLString,
+            resolve: name => name,
+        },
+        messages: {
+            type: messageConnection,
+            args: connectionArgs,
+            resolve: (_, args) => connectionFromArray([], args),
+        },
+    },
+});
+
+const {
+    connectionType: channelConnection,
+} = connectionDefinitions({
+    nodeType: channelType,
+});
+
 module.exports = new GraphQLSchema({
     query: new GraphQLObjectType({
         name: 'RootQuery',
         fields: {
             channels: {
-                type: new GraphQLList(GraphQLString),
-                resolve() {
-                    return [ 'test' ];
+                type: channelConnection,
+                args: connectionArgs,
+                resolve(_, args) {
+                    return connectionFromArray([ 'test' ], args);
                 },
+            },
+            channel: {
+                type: channelType,
+                args: {
+                    name: {
+                        type: new GraphQLNonNull(GraphQLString),
+                    },
+                },
+                resolve: (root, { name }) => name,
             },
         },
     }),
@@ -57,8 +125,15 @@ module.exports = new GraphQLSchema({
                     },
                 },
                 outputFields: {
-                    message: {
-                        type: Message,
+                    messageEdge: {
+                        type: messageEdge,
+                        resolve: ({ messageEdge }) => ({
+                            cursor: offsetToCursor(messageEdge.offset),
+                            node: messageEdge,
+                        }),
+                    },
+                    channel: {
+                        type: channelType,
                     },
                 },
                 mutateAndGetPayload({ channel, message }) {
@@ -66,7 +141,8 @@ module.exports = new GraphQLSchema({
                         topic: channel,
                         messages: message,
                     }).then(offset => ({
-                        message: {
+                        channel,
+                        messageEdge: {
                             offset,
                             value: message,
                         },
@@ -86,15 +162,33 @@ module.exports = new GraphQLSchema({
                     },
                 },
                 outputFields: {
-                    message: {
-                        type: Message,
+                    messageEdge: {
+                        type: messageEdge,
+                        resolve: () => null,
+                    },
+                    channel: {
+                        type: channelType,
+                        resolve: ({ channel }) => channel,
                     },
                 },
                 start(publish, { channel }) {
                     const consumer = createConsumer(channel);
 
                     consumer.on('message', message => {
-                        publish({ message });
+                        publish({
+                            channel: {
+                                id: toGlobalId('Channel', channel),
+                            },
+                            messageEdge: {
+                                __typename: 'MessageEdge',
+                                cursor: offsetToCursor(message.offset),
+                                node: {
+                                    id: toGlobalId('Message', message.offset),
+                                    offset: message.offset,
+                                    value: message.value,
+                                },
+                            },
+                        });
                     });
 
                     return consumer;
