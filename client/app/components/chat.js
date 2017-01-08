@@ -10,7 +10,7 @@ import {
 } from '../utils/relay';
 
 type Props = {
-    channel: any,
+    channel: Object,
 };
 
 const Chat = ({ channel }: Props) => (
@@ -31,7 +31,11 @@ const ChatContainer = Relay.createContainer(Chat, {
     },
 });
 
-export default (props: Props) => (
+type RendererProps = {
+    channel: string,
+};
+
+export default (props: RendererProps) => (
     <Relay.Renderer
         Container={ChatContainer}
         environment={environment}

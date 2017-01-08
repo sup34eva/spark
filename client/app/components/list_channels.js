@@ -11,7 +11,11 @@ import Channel from './item_channel';
 
 type Props = {
     channels: {
-        edges: Array<any>,
+        edges: Array<{
+            node: {
+                id: string,
+            },
+        }>,
     },
 };
 

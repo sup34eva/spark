@@ -5,11 +5,7 @@ const {
 const schema = require('../schema');
 
 module.exports = wss => socket => {
-    console.log('connection', socket.id);
-
     socket.on('graphql', ({ query, variables, operationName }, cb) => {
-        console.log(query, variables);
-
         graphql(
             schema,
             query,

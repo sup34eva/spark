@@ -9,7 +9,7 @@ const websocket = require('./utils/websocket');
 
 const app = express();
 
-app.use('/graphql', graphiql);
+app.use(graphiql);
 
 const server = https.createServer({
     key: fs.readFileSync('key.pem'),

@@ -8,16 +8,18 @@ import ChannelList from './list_channels';
 import Chat from './chat';
 
 type Props = {
-    currentChannel: ?string,
+    channel: ?string,
 };
 
 const App = (props: Props) => (
     <div>
         <ChannelList />
-        {props.currentChannel && <Chat channel={props.currentChannel} />}
+        {props.channel && <Chat channel={props.channel} />}
     </div>
 );
 
 export default connect(
-    ({ chat }) => chat.toObject(),
+    ({ chat }) => ({
+        channel: chat.channel,
+    }),
 )(App);

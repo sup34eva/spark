@@ -7,13 +7,22 @@ import Message from './item_message';
 import MessagesSubscription from '../subscriptions/messages';
 
 type Props = {
-    channel: any,
+    channel: {
+        messages: {
+            edges: Array<{
+                node: {
+                    id: string,
+                    time: number,
+                },
+            }>,
+        },
+    },
 };
 
 const MessageList = (props: Props) => (
     <div>
         {props.channel.messages.edges
-            .sort((a, b) => a.node.offset - b.node.offset)
+            .sort((a, b) => a.node.time - b.node.time)
             .map(({ node }) => (
                 <Message key={node.id} message={node} />
             ))
@@ -21,16 +30,25 @@ const MessageList = (props: Props) => (
     </div>
 );
 
+export const messageFragment = Relay.QL`
+    fragment on Message {
+        id
+        time
+        ${Message.getFragment('message')}
+    }
+`;
+
 export default RelaySubscriptions.createContainer(MessageList, {
+    initialVariables: {
+        count: 50,
+    },
     fragments: {
         channel: () => Relay.QL`
             fragment on Channel {
-                messages(last: 25) {
+                messages(last: $count) {
                     edges {
                         node {
-                            id
-                            offset
-                            ${Message.getFragment('message')}
+                            ${messageFragment}
                         }
                     }
                 }

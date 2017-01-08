@@ -1,4 +1,4 @@
 {
-    "plugins": ["./plugins/babelRelayPlugin"],
+    "plugins": ["flow-react-proptypes", "./plugins/babelRelayPlugin"],
     "presets": ["latest", "react", "stage-0"],
 }

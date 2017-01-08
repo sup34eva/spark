@@ -17,8 +17,35 @@
                     "description": null,
                     "fields": [
                         {
+                            "name": "node",
+                            "description": "Fetches an object given its ID",
+                            "args": [
+                                {
+                                    "name": "id",
+                                    "description": "The ID of an object",
+                                    "type": {
+                                        "kind": "NON_NULL",
+                                        "name": null,
+                                        "ofType": {
+                                            "kind": "SCALAR",
+                                            "name": "ID",
+                                            "ofType": null
+                                        }
+                                    },
+                                    "defaultValue": null
+                                }
+                            ],
+                            "type": {
+                                "kind": "INTERFACE",
+                                "name": "Node",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
                             "name": "channels",
-                            "description": null,
+                            "description": "Liste des channels disponible",
                             "args": [
                                 {
                                     "name": "after",
@@ -71,7 +98,7 @@
                         },
                         {
                             "name": "channel",
-                            "description": null,
+                            "description": "Obtiens une référence a un channel spécifique via son nom",
                             "args": [
                                 {
                                     "name": "name",
@@ -101,6 +128,54 @@
                     "interfaces": [],
                     "enumValues": null,
                     "possibleTypes": null
+                },
+                {
+                    "kind": "SCALAR",
+                    "name": "ID",
+                    "description": "The `ID` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as `\"4\"`) or integer (such as `4`) input value will be accepted as an ID.",
+                    "fields": null,
+                    "inputFields": null,
+                    "interfaces": null,
+                    "enumValues": null,
+                    "possibleTypes": null
+                },
+                {
+                    "kind": "INTERFACE",
+                    "name": "Node",
+                    "description": "An object with an ID",
+                    "fields": [
+                        {
+                            "name": "id",
+                            "description": "The id of the object.",
+                            "args": [],
+                            "type": {
+                                "kind": "NON_NULL",
+                                "name": null,
+                                "ofType": {
+                                    "kind": "SCALAR",
+                                    "name": "ID",
+                                    "ofType": null
+                                }
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        }
+                    ],
+                    "inputFields": null,
+                    "interfaces": null,
+                    "enumValues": null,
+                    "possibleTypes": [
+                        {
+                            "kind": "OBJECT",
+                            "name": "Channel",
+                            "ofType": null
+                        },
+                        {
+                            "kind": "OBJECT",
+                            "name": "Message",
+                            "ofType": null
+                        }
+                    ]
                 },
                 {
                     "kind": "SCALAR",
@@ -316,7 +391,7 @@
                         },
                         {
                             "name": "messages",
-                            "description": null,
+                            "description": "Cette connection est toujours vide, utiliser la subscription messagesSubscribe pour obtenir son contenu",
                             "args": [
                                 {
                                     "name": "after",
@@ -376,54 +451,6 @@
                             "ofType": null
                         }
                     ],
-                    "enumValues": null,
-                    "possibleTypes": null
-                },
-                {
-                    "kind": "INTERFACE",
-                    "name": "Node",
-                    "description": "An object with an ID",
-                    "fields": [
-                        {
-                            "name": "id",
-                            "description": "The id of the object.",
-                            "args": [],
-                            "type": {
-                                "kind": "NON_NULL",
-                                "name": null,
-                                "ofType": {
-                                    "kind": "SCALAR",
-                                    "name": "ID",
-                                    "ofType": null
-                                }
-                            },
-                            "isDeprecated": false,
-                            "deprecationReason": null
-                        }
-                    ],
-                    "inputFields": null,
-                    "interfaces": null,
-                    "enumValues": null,
-                    "possibleTypes": [
-                        {
-                            "kind": "OBJECT",
-                            "name": "Channel",
-                            "ofType": null
-                        },
-                        {
-                            "kind": "OBJECT",
-                            "name": "Message",
-                            "ofType": null
-                        }
-                    ]
-                },
-                {
-                    "kind": "SCALAR",
-                    "name": "ID",
-                    "description": "The `ID` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as `\"4\"`) or integer (such as `4`) input value will be accepted as an ID.",
-                    "fields": null,
-                    "inputFields": null,
-                    "interfaces": null,
                     "enumValues": null,
                     "possibleTypes": null
                 },
@@ -531,7 +558,19 @@
                             "deprecationReason": null
                         },
                         {
-                            "name": "offset",
+                            "name": "content",
+                            "description": null,
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "author",
                             "description": null,
                             "args": [],
                             "type": {
@@ -543,12 +582,12 @@
                             "deprecationReason": null
                         },
                         {
-                            "name": "value",
+                            "name": "time",
                             "description": null,
                             "args": [],
                             "type": {
                                 "kind": "SCALAR",
-                                "name": "String",
+                                "name": "Float",
                                 "ofType": null
                             },
                             "isDeprecated": false,
@@ -563,6 +602,16 @@
                             "ofType": null
                         }
                     ],
+                    "enumValues": null,
+                    "possibleTypes": null
+                },
+                {
+                    "kind": "SCALAR",
+                    "name": "Float",
+                    "description": "The `Float` scalar type represents signed double-precision fractional values as specified by [IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point). ",
+                    "fields": null,
+                    "inputFields": null,
+                    "interfaces": null,
                     "enumValues": null,
                     "possibleTypes": null
                 },
@@ -707,7 +756,7 @@
                     "fields": [
                         {
                             "name": "messagesSubscribe",
-                            "description": null,
+                            "description": "Emet tous les messages d'un channel",
                             "args": [
                                 {
                                     "name": "input",

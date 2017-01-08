@@ -26,7 +26,9 @@ const Channel = (props: Props) => (
 );
 
 const ChannelContainer = connect(
-    ({ chat }) => chat.toObject(),
+    ({ chat }) => ({
+        currentChannel: chat.channel,
+    }),
     dispatch => ({
         selectChannel: name => {
             dispatch(selectChannel(name));

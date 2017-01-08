@@ -1,6 +1,7 @@
 const {
     GraphQLID,
     GraphQLInt,
+    GraphQLFloat,
     GraphQLString,
     GraphQLList,
     GraphQLNonNull,
@@ -14,6 +15,7 @@ const {
     offsetToCursor,
     connectionArgs,
     connectionFromArray,
+    connectionFromPromisedArray,
     nodeDefinitions,
     connectionDefinitions,
     mutationWithClientMutationId,
@@ -23,6 +25,7 @@ const {
     subscriptionWithClientSubscriptionId,
 } = require('./utils/graphql');
 const {
+    listChannels,
     sendMessage,
     createConsumer,
 } = require('./utils/kafka');
@@ -34,7 +37,7 @@ const { nodeInterface, nodeField } = nodeDefinitions(
             return null;
         }
         if (type === 'Channel') {
-            return { };
+            return id;
         }
     },
     obj => {
@@ -46,12 +49,15 @@ const messageType = new GraphQLObjectType({
     name: 'Message',
     interfaces: [ nodeInterface ],
     fields: {
-        id: globalIdField('Message', message => message.offset),
-        offset: {
+        id: globalIdField('Message'),
+        content: {
+            type: GraphQLString,
+        },
+        author: {
             type: GraphQLInt,
         },
-        value: {
-            type: GraphQLString,
+        time: {
+            type: GraphQLFloat,
         },
     },
 });
@@ -76,9 +82,10 @@ const channelType = new GraphQLObjectType({
             resolve: name => name,
         },
         messages: {
+            description: 'Cette connection est toujours vide, utiliser la subscription messagesSubscribe pour obtenir son contenu',
             type: messageConnection,
             args: connectionArgs,
-            resolve: (_, args) => connectionFromArray([], args),
+            resolve: (_, args) => connectionFromArray([], args)
         },
     },
 });
@@ -93,14 +100,15 @@ module.exports = new GraphQLSchema({
     query: new GraphQLObjectType({
         name: 'RootQuery',
         fields: {
+            node: nodeField,
             channels: {
+                description: 'Liste des channels disponible',
                 type: channelConnection,
                 args: connectionArgs,
-                resolve(_, args) {
-                    return connectionFromArray([ 'test' ], args);
-                },
+                resolve: (_, args) => connectionFromPromisedArray(listChannels(), args),
             },
             channel: {
+                description: 'Obtiens une référence a un channel spécifique via son nom',
                 type: channelType,
                 args: {
                     name: {
@@ -127,24 +135,26 @@ module.exports = new GraphQLSchema({
                 outputFields: {
                     messageEdge: {
                         type: messageEdge,
-                        resolve: ({ messageEdge }) => ({
-                            cursor: offsetToCursor(messageEdge.offset),
-                            node: messageEdge,
-                        }),
                     },
                     channel: {
                         type: channelType,
                     },
                 },
                 mutateAndGetPayload({ channel, message }) {
+                    const value = {
+                        content: message,
+                        author: 0,
+                        time: Date.now(),
+                    };
+
                     return sendMessage({
                         topic: channel,
-                        messages: message,
+                        messages: JSON.stringify(value),
                     }).then(offset => ({
                         channel,
                         messageEdge: {
-                            offset,
-                            value: message,
+                            cursor: offsetToCursor(offset),
+                            node: Object.assign({}, value, { id: offset }),
                         },
                     }));
                 },
@@ -156,6 +166,7 @@ module.exports = new GraphQLSchema({
         fields: {
             messagesSubscribe: subscriptionWithClientSubscriptionId({
                 name: 'MessagesSubscribe',
+                description: `Emet tous les messages d'un channel`,
                 inputFields: {
                     channel: {
                         type: new GraphQLNonNull(GraphQLString),
@@ -167,21 +178,20 @@ module.exports = new GraphQLSchema({
                     },
                     channel: {
                         type: channelType,
-                        resolve: ({ channel }) => channel,
                     },
                 },
                 start(publish, { channel }) {
                     const consumer = createConsumer(channel);
 
-                    consumer.on('message', message => {
+                    consumer.on('message', ({ offset, value }) => {
+                        const node = JSON.parse(value);
                         publish({
                             channel,
                             messageEdge: {
-                                cursor: offsetToCursor(message.offset),
-                                node: {
-                                    offset: message.offset,
-                                    value: message.value,
-                                },
+                                cursor: offsetToCursor(offset),
+                                node: Object.assign({}, node, {
+                                    id: offset,
+                                }),
                             },
                         });
                     });

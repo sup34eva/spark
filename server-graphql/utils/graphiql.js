@@ -27,21 +27,20 @@ module.exports = (req, res) => {
                         \`wss://\${document.location.host || 'localhost'}:443\`
                     );
 
-                    // Defines a GraphQL fetcher using the fetch API.
-                    function graphQLFetcher(graphQLParams) {
-                        if (graphQLParams.query.startsWith('subscription')) {
-                            socket.on(graphQLParams.variables.input.clientSubscriptionId, console.log.bind(console));
-                        }
-
-                        return new Promise(resolve => {
-                            socket.emit('graphql', graphQLParams, resolve);
-                        });
-                    }
-
                     // Render <GraphiQL /> into the body.
                     ReactDOM.render(
                         React.createElement(GraphiQL, {
-                            fetcher: graphQLFetcher,
+                            fetcher(params) {
+                                return new Promise((resolve, reject) => {
+                                    socket.emit('graphql', params, (err, data) => {
+                                        if (err) {
+                                            reject(err);
+                                        } else {
+                                            resolve(data);
+                                        }
+                                    });
+                                });
+                            },
                         }),
                         document.body
                     );

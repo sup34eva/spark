@@ -50,8 +50,9 @@ export default class PostMessageMutation extends Relay.Mutation {
             messageEdge: {
                 node: {
                     id: 'optimistic',
-                    offset: Infinity,
-                    value: this.props.message,
+                    content: this.props.message,
+                    time: Date.now(),
+                    author: 0,
                 },
             },
             channel: {

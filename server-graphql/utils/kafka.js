@@ -2,8 +2,8 @@ const {
     Client, Producer, Consumer,
 } = require('kafka-node');
 
-const produceClient = new Client();
-const producer = new Producer(produceClient);
+const client = new Client();
+const producer = new Producer(client);
 
 exports.sendMessage = message =>
     new Promise((resolve, reject) => {
@@ -27,3 +27,16 @@ exports.createConsumer = channel => {
 
     return consumer;
 };
+
+exports.listChannels = () =>
+    new Promise((resolve, reject) => {
+        client.loadMetadataForTopics([], (error, results) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(
+                    Object.keys(results[1].metadata)
+                );
+            }
+        });
+    });

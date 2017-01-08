@@ -43,8 +43,6 @@ exports.subscriptionWithClientSubscriptionId = config => {
             },
         },
         resolve(root, { input }, ctx, info) {
-            console.log(info);
-
             if (ctx.__subscription) {
                 return ctx.__subscription;
             }

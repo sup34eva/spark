@@ -5,52 +5,51 @@ import {
     connect,
 } from 'react-redux';
 
+import {
+    setMessage,
+} from '../actions/chat';
+
 import PostMessageMutation from '../mutations/postMessage';
 
-class PostForm extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            message: '',
-        };
-    }
+type Props = {
+    // eslint-disable-next-line react/no-unused-prop-types
+    relay: Object,
+    // eslint-disable-next-line react/no-unused-prop-types
+    channel: Object,
+    message: string,
+    setMessage: (string) => void,
+};
 
-    state: {
-        message: string,
-    };
-    props: {
-        relay: any,
-        channel: any,
-    };
-
-    render() {
-        const onSubmit = evt => {
-            evt.preventDefault();
-            this.props.relay.commitUpdate(
-                new PostMessageMutation({
-                    channel: this.props.channel,
-                    message: this.state.message,
-                }),
-            );
-            this.setState({
-                message: '',
-            });
-        };
-
-        return (
-            <form onSubmit={onSubmit}>
-                <input
-                    type="text" value={this.state.message}
-                    onChange={evt => this.setState({ message: evt.target.value })} />
-                <button type="submit">&rarr;</button>
-            </form>
+const PostForm = (props: Props) => (
+    <form onSubmit={evt => {
+        evt.preventDefault();
+        props.setMessage('');
+        props.relay.commitUpdate(
+            new PostMessageMutation({
+                channel: props.channel,
+                message: props.message,
+            }),
         );
-    }
-}
+    }}>
+        <input type="text" value={props.message} onChange={evt => {
+            props.setMessage(evt.target.value);
+        }} />
+        <button type="submit">&rarr;</button>
+    </form>
+);
 
-export default Relay.createContainer(connect(
-    ({ chat }) => chat.toObject()
-)(PostForm), {
+const PostFormContainer = connect(
+    ({ chat }) => ({
+        message: chat.message,
+    }),
+    dispatch => ({
+        setMessage: text => {
+            dispatch(setMessage(text));
+        },
+    }),
+)(PostForm);
+
+export default Relay.createContainer(PostFormContainer, {
     fragments: {
         channel: () => Relay.QL`
             fragment on Channel {

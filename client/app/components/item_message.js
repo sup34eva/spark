@@ -4,19 +4,19 @@ import Relay from 'react-relay';
 
 type Props = {
     message: {
-        value: string,
+        content: string,
     },
 };
 
 const Message = (props: Props) => (
-    <p>{props.message.value}</p>
+    <p>{props.message.content}</p>
 );
 
 export default Relay.createContainer(Message, {
     fragments: {
         message: () => Relay.QL`
             fragment on Message {
-                value
+                content
             }
         `,
     },

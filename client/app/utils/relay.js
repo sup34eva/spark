@@ -50,6 +50,8 @@ function formatRequestErrors(request, errors) {
 
 environment.injectNetworkLayer({
     sendRequest(req) {
+        console.log(req);
+
         return runQuery({
             query: req.getQueryString(),
             variables: req.getVariables(),
@@ -104,3 +106,12 @@ environment.injectNetworkLayer({
         return false;
     },
 });
+
+/* eslint-disable no-underscore-dangle */
+if (window.__REACT_DEVTOOLS_GLOBAL_HOOK__) {
+    window.__REACT_DEVTOOLS_GLOBAL_HOOK__._relayInternals = {
+        DefaultStoreData: environment._storeData,
+        NetworkLayer: environment._storeData.getNetworkLayer(),
+    };
+}
+/* eslint-enable no-underscore-dangle */
