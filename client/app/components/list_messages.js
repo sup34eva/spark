@@ -6,6 +6,8 @@ import RelaySubscriptions from 'relay-subscriptions';
 import Message from './item_message';
 import MessagesSubscription from '../subscriptions/messages';
 
+import styles from './list_messages.css';
+
 type Props = {
     channel: {
         messages: {
@@ -20,7 +22,7 @@ type Props = {
 };
 
 const MessageList = (props: Props) => (
-    <div>
+    <div className={styles.messageList}>
         {props.channel.messages.edges
             .sort((a, b) => a.node.time - b.node.time)
             .map(({ node }) => (

@@ -50,8 +50,6 @@ function formatRequestErrors(request, errors) {
 
 environment.injectNetworkLayer({
     sendRequest(req) {
-        console.log(req);
-
         return runQuery({
             query: req.getQueryString(),
             variables: req.getVariables(),

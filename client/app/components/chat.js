@@ -9,12 +9,14 @@ import {
     ChannelQuery,
 } from '../utils/relay';
 
+import styles from './app.css';
+
 type Props = {
     channel: Object,
 };
 
 const Chat = ({ channel }: Props) => (
-    <div>
+    <div className={styles.chat}>
         <MessageList channel={channel} />
         <PostForm channel={channel} />
     </div>

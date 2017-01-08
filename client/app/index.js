@@ -1,16 +1,42 @@
 // @flow
 import React from 'react';
 import ReactDOM from 'react-dom';
+import injectTapEventPlugin from 'react-tap-event-plugin';
+
+import {
+    AppContainer,
+} from 'react-hot-loader';
 import {
     Provider,
 } from 'react-redux';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
 import store from './store';
 import App from './components/app';
 
-ReactDOM.render(
-    <Provider store={store}>
-        <App />
-    </Provider>,
-    document.querySelector('main'),
+import './app.global.css';
+
+injectTapEventPlugin();
+
+const renderRoot = AppComponent => (
+    <AppContainer>
+        <MuiThemeProvider>
+            <Provider store={store}>
+                <AppComponent />
+            </Provider>
+        </MuiThemeProvider>
+    </AppContainer>
 );
+
+const main = document.querySelector('main');
+
+ReactDOM.render(renderRoot(App), main);
+
+if (module.hot) {
+    // eslint-disable-next-line flowtype-errors/show-errors
+    module.hot.accept('./components/app', () => {
+        // eslint-disable-next-line global-require
+        const NextApp = require('./components/app').default;
+        ReactDOM.render(renderRoot(NextApp), main);
+    });
+}

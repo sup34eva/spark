@@ -7,14 +7,18 @@ import {
 import ChannelList from './list_channels';
 import Chat from './chat';
 
+import styles from './app.css';
+
 type Props = {
     channel: ?string,
 };
 
 const App = (props: Props) => (
-    <div>
+    <div className={styles.app}>
         <ChannelList />
-        {props.channel && <Chat channel={props.channel} />}
+        <div className={styles.chatContainer}>
+            {props.channel && <Chat channel={props.channel} />}
+        </div>
     </div>
 );
 

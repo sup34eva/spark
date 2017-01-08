@@ -1,0 +1,20 @@
+.messageList {
+    padding: 16px;
+    overflow-y: auto;
+    margin-top: auto;
+}
+
+.message {
+    display: flex;
+    flex-direction: row;
+    margin-top: 16px;
+}
+
+.avatar {
+    margin-right: 16px;
+}
+
+.content {
+    flex: 1;
+    padding: 8px;
+}

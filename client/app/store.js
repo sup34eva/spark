@@ -34,7 +34,7 @@ export type Action = {
 };
 
 // eslint-disable-next-line flowtype-errors/show-errors
-export default createStore(
+const store = createStore(
     rootReducer,
     composeEnhancers(
         applyMiddleware(
@@ -43,3 +43,12 @@ export default createStore(
         ),
     ),
 );
+
+if (module.hot) {
+    // eslint-disable-next-line flowtype-errors/show-errors
+    module.hot.accept('./reducers', () =>
+        store.replaceReducer(require('./reducers')) // eslint-disable-line global-require
+    );
+}
+
+export default store;

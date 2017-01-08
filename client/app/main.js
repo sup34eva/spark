@@ -52,16 +52,17 @@ app.on('ready', installExtensions(() => {
 
     if (__DEV__) {
         const exec = require('child_process').exec;
-        const webpack = exec('npm run serve', {
-            cwd: path.join(__dirname, '..'),
-        }, error => {
-            if (error) {
-                console.error(error);
+        const server = exec('npm run serve', {
+            cwd: path.resolve(__dirname, '..'),
+            maxBuffer: Math.pow(1024, 2),
+        }, err => {
+            if (err) {
+                console.error(err);
             }
         });
 
-        webpack.stdout.pipe(process.stdout);
-        webpack.stderr.pipe(process.stderr);
+        server.stdout.pipe(process.stdout);
+        server.stderr.pipe(process.stderr);
 
         mainWindow.openDevTools();
         mainWindow.webContents.on('context-menu', (e, props) => {
@@ -74,9 +75,11 @@ app.on('ready', installExtensions(() => {
                 },
             }]).popup(mainWindow);
         });
-    }
 
-    mainWindow.loadURL(path.resolve(__dirname, 'index.html'));
+        mainWindow.loadURL('http://localhost:8080/');
+    } else {
+        mainWindow.loadURL(path.resolve(__dirname, 'index.html'));
+    }
 
     mainWindow.webContents.on('did-finish-load', () => {
         mainWindow.show();

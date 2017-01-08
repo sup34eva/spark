@@ -1,0 +1,16 @@
+.app {
+    height: 100vh;
+}
+
+.chatContainer, .chat {
+    height: 100%;
+}
+
+.chatContainer {
+    padding-left: 256px;
+}
+
+.chat {
+    display: flex;
+    flex-direction: column;
+}

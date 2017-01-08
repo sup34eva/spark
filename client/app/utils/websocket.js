@@ -19,7 +19,7 @@ import type {
 } from './rtc';
 
 const socket = io(
-    `wss://${document.location.host || 'localhost'}:443`
+    `wss://${document.location.hostname || 'localhost'}:443`
 );
 
 export class Remote {
