@@ -21,6 +21,7 @@ function installExtensions(then) {
             default: installer,
             REACT_DEVELOPER_TOOLS,
             REDUX_DEVTOOLS,
+            REACT_PERF,
         } = require('electron-devtools-installer');
 
         return () => {
@@ -28,6 +29,7 @@ function installExtensions(then) {
                 [
                     REACT_DEVELOPER_TOOLS,
                     REDUX_DEVTOOLS,
+                    REACT_PERF,
                 ]
                     .map(installer)
                     .map(prom => prom.catch(
@@ -48,18 +50,19 @@ app.on('ready', installExtensions(() => {
         height: 728,
     });
 
-    mainWindow.loadURL(path.resolve(__dirname, 'index.html'));
-
-    mainWindow.webContents.on('did-finish-load', () => {
-        mainWindow.show();
-        mainWindow.focus();
-    });
-
-    mainWindow.on('closed', () => {
-        mainWindow = null;
-    });
-
     if (__DEV__) {
+        const exec = require('child_process').exec;
+        const webpack = exec('npm run serve', {
+            cwd: path.join(__dirname, '..'),
+        }, error => {
+            if (error) {
+                console.error(error);
+            }
+        });
+
+        webpack.stdout.pipe(process.stdout);
+        webpack.stderr.pipe(process.stderr);
+
         mainWindow.openDevTools();
         mainWindow.webContents.on('context-menu', (e, props) => {
             const { x, y } = props;
@@ -72,4 +75,15 @@ app.on('ready', installExtensions(() => {
             }]).popup(mainWindow);
         });
     }
+
+    mainWindow.loadURL(path.resolve(__dirname, 'index.html'));
+
+    mainWindow.webContents.on('did-finish-load', () => {
+        mainWindow.show();
+        mainWindow.focus();
+    });
+
+    mainWindow.on('closed', () => {
+        mainWindow = null;
+    });
 }));
