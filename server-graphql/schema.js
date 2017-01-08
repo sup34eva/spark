@@ -164,7 +164,6 @@ module.exports = new GraphQLSchema({
                 outputFields: {
                     messageEdge: {
                         type: messageEdge,
-                        resolve: () => null,
                     },
                     channel: {
                         type: channelType,
@@ -176,14 +175,10 @@ module.exports = new GraphQLSchema({
 
                     consumer.on('message', message => {
                         publish({
-                            channel: {
-                                id: toGlobalId('Channel', channel),
-                            },
+                            channel,
                             messageEdge: {
-                                __typename: 'MessageEdge',
                                 cursor: offsetToCursor(message.offset),
                                 node: {
-                                    id: toGlobalId('Message', message.offset),
                                     offset: message.offset,
                                     value: message.value,
                                 },
@@ -191,7 +186,13 @@ module.exports = new GraphQLSchema({
                         });
                     });
 
-                    return consumer;
+                    return {
+                        data: consumer,
+                        result: {
+                            channel,
+                            messageEdge: null,
+                        },
+                    };
                 },
                 stop(consumer) {
                     consumer.close();

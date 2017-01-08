@@ -50,8 +50,13 @@ export function runQuery(data: any): Promise<any> {
 
 export function subscribe(request: any) {
     const id = request.getClientSubscriptionId();
-    socket.on(id, message => {
-        request.onNext(message);
+    socket.on(id, result => {
+        if (result.errors) {
+            result.errors
+                .forEach(err => request.onError(err));
+        }
+
+        request.onNext(result.data);
     });
 
     return {

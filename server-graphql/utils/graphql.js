@@ -1,4 +1,5 @@
 const {
+    execute,
     GraphQLString,
     GraphQLNonNull,
     GraphQLObjectType,
@@ -19,18 +20,18 @@ exports.subscriptionWithClientSubscriptionId = config => {
     const augmentedInputFields = () =>
         Object.assign({}, resolveMaybeThunk(inputFields), {
             clientSubscriptionId: {
-                type: GraphQLString
-            }
+                type: GraphQLString,
+            },
         });
 
     const inputType = new GraphQLInputObjectType({
         name: name + 'Input',
-        fields: augmentedInputFields
+        fields: augmentedInputFields,
     });
 
     const outputType = new GraphQLObjectType({
         name: name + 'Message',
-        fields: outputFields
+        fields: outputFields,
     });
 
     return {
@@ -42,20 +43,43 @@ exports.subscriptionWithClientSubscriptionId = config => {
             },
         },
         resolve(root, { input }, ctx, info) {
+            console.log(info);
+
+            if (ctx.__subscription) {
+                return ctx.__subscription;
+            }
+
             const publish = data => {
-                ctx.socket.emit(input.clientSubscriptionId, {
-                    [info.fieldName]: data,
+                execute(
+                    info.schema,
+                    {
+                        kind: 'Document',
+                        definitions: [
+                            info.operation,
+                        ].concat(
+                            Object.keys(info.fragments)
+                                .map(key => info.fragments[key])
+                        ),
+                    },
+                    root,
+                    Object.assign({}, ctx, {
+                        __subscription: data,
+                    }),
+                    info.variableValues
+                )
+                .then(result => {
+                    ctx.socket.emit(input.clientSubscriptionId, result);
                 });
             };
 
             return Promise.resolve(
                 start(publish, input, ctx, info)
-            ).then(payload => {
+            ).then(({ data, result }) => {
                 ctx.socket.on('disconnect', () => {
-                    stop(payload, input, ctx, info);
+                    stop(data, input, ctx, info);
                 });
 
-                return input;
+                return result;
             });
         },
     };
