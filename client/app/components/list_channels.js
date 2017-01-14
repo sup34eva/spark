@@ -1,9 +1,12 @@
 // @flow
 import React from 'react';
 import Relay from 'react-relay';
+
 import Drawer from 'material-ui/Drawer';
-import { List, makeSelectable, ListItem } from 'material-ui/List';
 import Subheader from 'material-ui/Subheader';
+import { List, makeSelectable, ListItem } from 'material-ui/List';
+import IconButton from 'material-ui/IconButton';
+import ContentAdd from 'material-ui/svg-icons/content/add';
 
 import {
     connect,
@@ -40,6 +43,13 @@ const ChannelList = (props: Props) => (
                 <ListItem key={node.id} value={node.name} primaryText={node.name} />
             ))}
         </SelectableList>
+        <IconButton style={{
+            position: 'absolute',
+            bottom: 8,
+            right: 8,
+        }}>
+            <ContentAdd />
+        </IconButton>
     </Drawer>
 );
 

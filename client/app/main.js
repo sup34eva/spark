@@ -3,6 +3,24 @@ const {
     app, BrowserWindow, Menu,
 } = require('electron');
 
+let server = null;
+function startServer() {
+    if (!server) {
+        const exec = require('child_process').exec;
+        server = exec('npm run serve', {
+            cwd: path.resolve(__dirname, '..'),
+            maxBuffer: Math.pow(1024, 3),
+        }, err => {
+            if (err) {
+                console.error(err);
+            }
+        });
+
+        server.stdout.pipe(process.stdout);
+        server.stderr.pipe(process.stderr);
+    }
+}
+
 const __DEV__ = process.env.NODE_ENV !== 'production';
 if (__DEV__) {
     require('electron-debug')();
@@ -51,18 +69,7 @@ app.on('ready', installExtensions(() => {
     });
 
     if (__DEV__) {
-        const exec = require('child_process').exec;
-        const server = exec('npm run serve', {
-            cwd: path.resolve(__dirname, '..'),
-            maxBuffer: Math.pow(1024, 2),
-        }, err => {
-            if (err) {
-                console.error(err);
-            }
-        });
-
-        server.stdout.pipe(process.stdout);
-        server.stderr.pipe(process.stderr);
+        startServer();
 
         mainWindow.openDevTools();
         mainWindow.webContents.on('context-menu', (e, props) => {
@@ -90,3 +97,10 @@ app.on('ready', installExtensions(() => {
         mainWindow = null;
     });
 }));
+
+process.on('exit', () => {
+    if (server) {
+        server.kill();
+        server = null;
+    }
+});

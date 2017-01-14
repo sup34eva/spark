@@ -1,7 +1,8 @@
 .messageList {
     padding: 16px;
-    overflow-y: auto;
     margin-top: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .message {
