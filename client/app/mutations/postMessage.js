@@ -1,5 +1,10 @@
 // @flow
 import Relay from 'react-relay';
+import {
+    cursorToOffset,
+    offsetToCursor,
+    toGlobalId,
+ } from 'graphql-relay';
 
 export default class PostMessageMutation extends Relay.Mutation {
     static fragments = {
@@ -7,6 +12,11 @@ export default class PostMessageMutation extends Relay.Mutation {
             fragment on Channel {
                 id
                 name
+                messages(last: 1) {
+                    pageInfo {
+                        endCursor
+                    }
+                }
             }
         `,
     };
@@ -46,17 +56,27 @@ export default class PostMessageMutation extends Relay.Mutation {
     }
 
     getOptimisticResponse() {
+        let offset = 0;
+        if (this.props.channel.messages.pageInfo.endCursor !== undefined) {
+            offset = cursorToOffset(this.props.channel.messages.pageInfo.endCursor) + 1;
+        }
+
         return {
+            channel: this.props.channel,
             messageEdge: {
+                cursor: offsetToCursor(offset),
                 node: {
-                    id: 'optimistic',
+                    id: toGlobalId(
+                        'Message',
+                        `${this.props.channel.name}:${offset}`,
+                    ),
                     content: this.props.message,
                     time: Date.now(),
-                    author: 0,
+                    author: {
+                        id: toGlobalId('User', 0),
+                        avatar: 'http://i.imgur.com/pv1tBmT.png',
+                    },
                 },
-            },
-            channel: {
-                id: this.props.channel.id,
             },
         };
     }

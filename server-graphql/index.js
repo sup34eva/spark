@@ -1,5 +1,5 @@
 const fs = require('fs');
-const https = require('https');
+const spdy = require('spdy');
 const io = require('socket.io');
 const express = require('express');
 
@@ -11,9 +11,9 @@ const app = express();
 
 app.use(graphiql);
 
-const server = https.createServer({
-    key: fs.readFileSync('key.pem'),
-    cert: fs.readFileSync('cert.pem'),
+const server = spdy.createServer({
+    key: fs.readFileSync('../key.pem'),
+    cert: fs.readFileSync('../cert.pem'),
 }, app);
 
 const wss = io(server, {
@@ -22,4 +22,7 @@ const wss = io(server, {
 
 wss.on('connection', websocket(wss));
 
-server.listen(443);
+const port = process.env.PORT || 8443;
+server.listen(port, () => {
+    console.log('Listening on port ' + port);
+});

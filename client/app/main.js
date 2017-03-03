@@ -3,24 +3,6 @@ const {
     app, BrowserWindow, Menu,
 } = require('electron');
 
-let server = null;
-function startServer() {
-    if (!server) {
-        const exec = require('child_process').exec;
-        server = exec('npm run serve', {
-            cwd: path.resolve(__dirname, '..'),
-            maxBuffer: Math.pow(1024, 3),
-        }, err => {
-            if (err) {
-                console.error(err);
-            }
-        });
-
-        server.stdout.pipe(process.stdout);
-        server.stderr.pipe(process.stderr);
-    }
-}
-
 const __DEV__ = process.env.NODE_ENV !== 'production';
 if (__DEV__) {
     require('electron-debug')();
@@ -66,11 +48,10 @@ app.on('ready', installExtensions(() => {
         show: false,
         width: 1024,
         height: 728,
+        frame: false,
     });
 
     if (__DEV__) {
-        startServer();
-
         mainWindow.openDevTools();
         mainWindow.webContents.on('context-menu', (e, props) => {
             const { x, y } = props;
@@ -83,7 +64,7 @@ app.on('ready', installExtensions(() => {
             }]).popup(mainWindow);
         });
 
-        mainWindow.loadURL('http://localhost:8080/');
+        mainWindow.loadURL('https://spark.leops.me:8080/');
     } else {
         mainWindow.loadURL(path.resolve(__dirname, 'index.html'));
     }
@@ -97,10 +78,3 @@ app.on('ready', installExtensions(() => {
         mainWindow = null;
     });
 }));
-
-process.on('exit', () => {
-    if (server) {
-        server.kill();
-        server = null;
-    }
-});

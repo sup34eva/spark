@@ -15,7 +15,7 @@ export default class MessagesSubscription extends Subscription {
 
     getSubscription() {
         // eslint-disable-next-line global-require
-        const { messageFragment } = require('../components/list_messages');
+        const { messageFragment } = require('../components/list/messages');
 
         return Relay.QL`
             subscription {

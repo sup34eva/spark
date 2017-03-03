@@ -8,78 +8,46 @@ import {
 
 export const environment = new RelaySubscriptions.Environment();
 
-export class ChannelsQuery extends Relay.Route {
-    static routeName = 'ChannelsQuery';
+export class RootQuery extends Relay.Route {
+    static routeName = 'RootQuery';
     static queries = {
-        channels: () => Relay.QL`query { channels }`,
+        viewer: () => Relay.QL`query { viewer }`,
     };
 }
 
 export class ChannelQuery extends Relay.Route {
     static routeName = 'ChannelQuery';
     static paramDefinitions = {
-        name: { required: true },
+        channel: { required: true },
     };
     static queries = {
-        channel: () => Relay.QL`query { channel(name: $name) }`,
+        viewer: (Component, variables) => Relay.QL`
+            query {
+                viewer {
+                    ${Component.getFragment('viewer', variables)}
+                }
+            }
+        `,
     };
 }
 
-function formatRequestErrors(request, errors) {
-    const CONTEXT_BEFORE = 20;
-    const CONTEXT_LENGTH = 60;
-
-    const queryLines = request.getQueryString().split('\n');
-    return errors.map(({ locations, message }, ii) => {
-        const prefix = `${ii + 1}. `;
-        const indent = ' '.repeat(prefix.length);
-        const locationMessage = locations ?
-            `\n${locations.map(({ column, line }) => {
-                const queryLine = queryLines[line - 1];
-                const offset = Math.min(column - 1, CONTEXT_BEFORE);
-                return [
-                    queryLine.substr(column - 1 - offset, CONTEXT_LENGTH),
-                    `${' '.repeat(Math.max(0, offset))}^^^`,
-                ].map(messageLine => indent + messageLine).join('\n');
-            }).join('\n')}` :
-            '';
-
-        return prefix + message + locationMessage;
-    }).join('\n');
-}
-
-environment.injectNetworkLayer({
-    sendRequest(req) {
+class SocketNetworkLayer extends Relay.DefaultNetworkLayer {
+    runQuery(req) {
         return runQuery({
             query: req.getQueryString(),
             variables: req.getVariables(),
-        })
-        .then(result => {
-            if (result.errors) {
-                throw result;
-            }
+        }).then(res => ({
+            json: () => Promise.resolve(res),
+        }));
+    }
 
-            req.resolve({
-                response: result.data,
-            });
+    _sendQuery(req) {
+        return this.runQuery(req);
+    }
+    _sendMutation(req) {
+        return this.runQuery(req);
+    }
 
-            return result;
-        })
-        .catch(({ errors }) => {
-            req.reject(new Error(
-                formatRequestErrors(req, errors)
-            ));
-        });
-    },
-
-    sendMutation(mutationRequest) {
-        return this.sendRequest(mutationRequest);
-    },
-    sendQueries(queryRequests) {
-        return Promise.all(
-            queryRequests.map(this.sendRequest)
-        );
-    },
     sendSubscription(req) {
         const { connection, request } = subscribe(req);
 
@@ -92,18 +60,16 @@ environment.injectNetworkLayer({
                 return result;
             })
             .catch(({ errors }) => {
-                req.onError(new Error(
-                    formatRequestErrors(req, errors)
-                ));
+                req.onError(new Error(errors[0]));
             });
 
         return connection;
-    },
+    }
+}
 
-    supports() {
-        return false;
-    },
-});
+environment.injectNetworkLayer(
+    new SocketNetworkLayer('')
+);
 
 /* eslint-disable no-underscore-dangle */
 if (window.__REACT_DEVTOOLS_GLOBAL_HOOK__) {

@@ -1,0 +1,57 @@
+.messageList {
+    display: flex;
+    flex-direction: column;
+
+    padding: 16px;
+    margin-top: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    span {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+.date {
+    margin: 16px;
+    align-self: center;
+    color: #9c9c9c;
+}
+
+:global(.message-enter),
+:global(.message-appear) {
+    &.date {
+        opacity: 0;
+        transform: scale(0.2, 0.2);
+        will-change: opacity, transform;
+    }
+
+    &:global(.message-enter-active),
+    &:global(.message-appear-active) {
+        &.date {
+            opacity: 1;
+            transform: scale(1, 1);
+            animation: spring(transform, 50, 6, 0.2, 1, scale({0}, {0}));
+            transition: opacity 400ms cubic-bezier(0.69, 2.18, 0.63, 0.76);
+        }
+    }
+}
+
+:global(.message-leave) {
+    &.date {
+        opacity: 1;
+        transform: scale(1, 1);
+        will-change: opacity, transform;
+    }
+
+    &:global(.message-leave-active),
+    &:global(.message-leave-active) {
+        &.date {
+            opacity: 0;
+            transform: scale(0.2, 0.2);
+            animation: spring(transform, 50, 6, 1, 0.2, scale({0}, {0})) forwards;
+            transition: opacity 400ms ease-in;
+        }
+    }
+}

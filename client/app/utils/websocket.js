@@ -18,9 +18,7 @@ import type {
     Answer,
 } from './rtc';
 
-const socket = io(
-    `wss://${document.location.hostname || 'localhost'}:443`
-);
+const socket = io('wss://api.spark.leops.me:8443');
 
 export class Remote {
     id: string;

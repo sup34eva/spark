@@ -1,0 +1,48 @@
+.form {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 16px;
+}
+
+.content {
+    flex: 1;
+    margin-right: 16px;
+}
+
+.btn {
+    transition: filter 250ms cubic-bezier(.25, .8, .25, 1);
+}
+
+.btn[data-enabled="true"] {
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.12)) drop-shadow(0 1px 2px rgba(0,0,0,0.24));
+}
+
+.btn[data-enabled="true"]:hover {
+    filter: drop-shadow(0 14px 28px rgba(0,0,0,0.25)) drop-shadow(0 10px 10px rgba(0,0,0,0.22));
+}
+
+.btn rect {
+    fill: #ebebeb;
+    transition: fill 450ms cubic-bezier(.23, 1, .32, 1);
+}
+
+.btn[data-enabled="true"] rect {
+    fill: #4caf50;
+}
+
+.btn g path {
+    transition: fill 450ms cubic-bezier(.23, 1, .32, 1), transform 100ms cubic-bezier(.5, 1.5, .5, 2);
+    transform-origin: 50% 50%;
+    fill: rgba(0, 0, 0, 0.38);
+    transform: rotate(0deg);
+}
+
+.btn[data-enabled="true"] g path {
+    fill: #fff;
+    transform: rotate(-10deg);
+}
+
+.btn[data-enabled="true"]:hover g path {
+    transform: rotate(-20deg);
+}

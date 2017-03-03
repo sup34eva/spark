@@ -1,4 +1,14 @@
 {
-    "plugins": ["flow-react-proptypes", "./plugins/babelRelayPlugin"],
-    "presets": ["latest", "react", "stage-0"]
+    "plugins": [
+        "react-hot-loader/babel",
+        "flow-react-proptypes",
+        "./plugins/babelRelayPlugin"
+    ],
+    "presets": [
+        ["env", {
+            "modules": false
+        }],
+        "react",
+        "stage-0"
+    ]
 }

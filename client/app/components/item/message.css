@@ -1,0 +1,128 @@
+.message {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: row;
+    margin: 8px 16px;
+
+    .avatar {
+        margin-right: 8px;
+        align-self: flex-end;
+    }
+
+    .bubble {
+        flex: 1;
+        padding: 16px;
+
+        border-top-left-radius: 15px;
+        border-top-right-radius: 15px;
+
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        align-items: stretch;
+        align-content: stretch;
+        justify-content: flex-end;
+
+        &.incoming {
+            background: #efefef;
+            margin-right: 40px;
+            border-bottom-right-radius: 15px;
+
+            .content {
+                color: #191a1b;
+            }
+
+            .time {
+                color: #979797;
+            }
+        }
+
+        &.outgoing {
+            background: #4f62d7;
+            margin-left: 88px;
+            border-bottom-left-radius: 15px;
+
+            .content {
+                color: #fff;
+            }
+
+            .time {
+                color: rgba(255, 255, 255, .6);
+            }
+        }
+
+        p {
+            margin: 0;
+        }
+
+        .time {
+            margin-right: 8px;
+            align-self: flex-end;;
+        }
+    }
+}
+
+@define-mixin state $opacity, $scale, $translation {
+    &.message {
+        opacity: $opacity;
+        will-change: opacity;
+    }
+
+    .avatar {
+        transform: scale($scale, $scale);
+        will-change: transform;
+    }
+
+    .bubble {
+        will-change: transform;
+
+        &.incoming {
+            transform: translateX(-$translation%);
+        }
+
+        &.outgoing {
+            transform: translateX($translation%);
+        }
+    }
+}
+
+@define-mixin anim $asc, $bsc, $atr, $btr {
+    &.message {
+        transition: opacity 400ms cubic-bezier(.68, 1.84, .65, .83);
+    }
+
+    .avatar {
+        animation: spring(transform, 40, 3, $asc, $bsc, scale({0}, {0}));
+    }
+
+    .bubble {
+        &.incoming {
+            animation: spring(transform, 50, 5, -$atr, $btr, translateX({}%));
+        }
+
+        &.outgoing {
+            animation: spring(transform, 50, 5, $atr, $btr, translateX({}%));
+        }
+    }
+}
+
+:global(.message-enter),
+:global(.message-appear) {
+    @mixin state 0, .2, 75;
+
+    &:global(.message-enter-active),
+    &:global(.message-appear-active) {
+        @mixin state 1, 1, 0;
+        @mixin anim .2, 1, 75, 0;
+    }
+}
+
+:global(.message-leave) {
+    @mixin state 1, 1, 0;
+
+    &:global(.message-leave-active),
+    &:global(.message-leave-active) {
+        @mixin state 0, .2, 75;
+        @mixin anim 1, .2, 0, 75;
+    }
+}

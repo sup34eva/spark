@@ -70,15 +70,15 @@ exports.subscriptionWithClientSubscriptionId = config => {
                 });
             };
 
-            return Promise.resolve(
-                start(publish, input, ctx, info)
-            ).then(({ data, result }) => {
-                ctx.socket.on('disconnect', () => {
-                    stop(data, input, ctx, info);
-                });
+            return Promise.resolve()
+                .then(() => start(publish, input, ctx, info))
+                .then(({ data, result }) => {
+                    ctx.socket.on('disconnect', () => {
+                        stop(data, input, ctx, info);
+                    });
 
-                return result;
-            });
+                    return result;
+                });
         },
     };
 };

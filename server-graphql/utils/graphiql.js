@@ -24,7 +24,7 @@ module.exports = (req, res) => {
             <body>
                 <script>
                     const socket = io(
-                        \`wss://\${document.location.host || 'localhost'}:443\`
+                        \`wss://\${document.location.host || 'api.spark.leops.me'}\`
                     );
 
                     // Render <GraphiQL /> into the body.

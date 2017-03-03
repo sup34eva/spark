@@ -10,5 +10,6 @@
 flow-typed/npm/
 
 [options]
+suppress_comment=.*\\$FlowIssue
 esproposal.class_static_fields=enable
 esproposal.class_instance_fields=enable
