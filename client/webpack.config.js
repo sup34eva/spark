@@ -1,10 +1,11 @@
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
-const precss = require('precss');
-const springCss = require('./plugins/postcssSpringPlugin');
-const autoprefixer = require('autoprefixer');
 const formatter = require('eslint-formatter-pretty');
+
+const precss = require('precss');
+const autoprefixer = require('autoprefixer');
+const springCss = require('./plugins/postcssSpringPlugin');
 
 function cssConfig(isModule) {
     return [
