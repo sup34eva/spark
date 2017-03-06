@@ -11,6 +11,14 @@ import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
 
 import type {
+    Dispatch,
+} from 'redux';
+
+import type {
+    Action,
+} from '../../store';
+
+import type {
     // eslint-disable-next-line flowtype-errors/show-errors
     Channel as ChannelType,
 } from '../../schema';
@@ -67,7 +75,7 @@ const postFormConnect = connect(
     ({ chat }) => ({
         message: chat.message,
     }),
-    dispatch => ({
+    (dispatch: Dispatch<Action>) => ({
         setMessage: (evt, text) => {
             dispatch(setMessage(text));
         },

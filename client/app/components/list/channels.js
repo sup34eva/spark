@@ -12,8 +12,17 @@ import {
     connect,
 } from 'react-redux';
 
+import type {
+    Dispatch,
+} from 'redux';
+
+import type {
+    Action,
+} from '../../store';
+
 import RelayRenderer from '../base/renderer';
 import { RootQuery } from '../../utils/relay';
+
 import type {
     Viewer,
 } from '../../schema';
@@ -64,7 +73,7 @@ const listConnect = connect(
     ({ chat }) => ({
         channel: chat.channel,
     }),
-    dispatch => ({
+    (dispatch: Dispatch<Action>) => ({
         selectChannel: (evt, name) => {
             dispatch(selectChannel(name));
         },

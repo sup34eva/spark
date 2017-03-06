@@ -13,6 +13,14 @@ import {
 } from 'react-redux';
 
 import type {
+    Dispatch,
+} from 'redux';
+
+import type {
+    Action,
+} from '../../store';
+
+import type {
     // eslint-disable-next-line flowtype-errors/show-errors
     Viewer,
 } from '../../schema';
@@ -61,7 +69,7 @@ const modalConnect = connect(
     ({ chat }) => ({
         modalText: chat.channelModal,
     }),
-    dispatch => ({
+    (dispatch: Dispatch<Action>) => ({
         closeModal() {
             dispatch(setChannelModal(null));
         },
