@@ -42,13 +42,15 @@ type Props = {
 const PostForm = (props: Props) => {
     const onSubmit = evt => {
         evt.preventDefault();
-        props.setMessage(null, '');
-        props.relay.commitUpdate(
-            new PostMessageMutation({
-                channel: props.channel,
-                message: props.message,
-            }),
-        );
+        if (props.message.trim().length > 0) {
+            props.setMessage(null, '');
+            props.relay.commitUpdate(
+                new PostMessageMutation({
+                    channel: props.channel,
+                    message: props.message,
+                }),
+            );
+        }
     };
 
     const enabled = props.message.length > 0;
