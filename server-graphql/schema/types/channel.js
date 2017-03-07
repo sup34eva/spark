@@ -36,17 +36,8 @@ const nodeType = exports.channelType = new GraphQLObjectType({
         users: {
             type: userConnection,
             args: connectionArgs,
-            resolve(name, args) {
-                let array;
-                if(cache[name]) {
-                    array = cache[name];
-                } else {
-                    const length = Math.ceil(Math.random() * 10);
-                    array = new Array(length).fill(null).map((_, i) => i);
-                    cache[name] = array;
-                }
-
-                return connectionFromArray(array, args);
+            resolve(_, args) {
+                return connectionFromArray([], args);
             },
         },
         messages: {

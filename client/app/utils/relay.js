@@ -11,16 +11,6 @@ export const environment = new RelaySubscriptions.Environment();
 export class RootQuery extends Relay.Route {
     static routeName = 'RootQuery';
     static queries = {
-        viewer: () => Relay.QL`query { viewer }`,
-    };
-}
-
-export class ChannelQuery extends Relay.Route {
-    static routeName = 'ChannelQuery';
-    static paramDefinitions = {
-        channel: { required: true },
-    };
-    static queries = {
         viewer: (Component, variables) => Relay.QL`
             query {
                 viewer {

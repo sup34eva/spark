@@ -9,14 +9,19 @@ const {
     connectionFromPromisedArray,
 } = require('graphql-relay');
 
+const { getUserByToken } = require('../../utils/auth');
 const { listChannels } = require('../../utils/kafka');
 const { channelType, channelConnection } = require('./channel');
+const { userType } = require('./user');
 
-exports.VIEWER_SINGLETON = { id: 0 };
-exports.viewerType = new GraphQLObjectType({
+module.exports = new GraphQLObjectType({
     name: 'Viewer',
     fields: {
-        id: globalIdField('Viewer'),
+        id: globalIdField(
+            'Viewer',
+            (_, { token }) => token
+        ),
+
         channels: {
             description: 'Liste des channels disponible',
             type: channelConnection,
@@ -31,7 +36,13 @@ exports.viewerType = new GraphQLObjectType({
                     type: new GraphQLNonNull(GraphQLString),
                 },
             },
-            resolve: (root, { name }) => name,
+            resolve: (_, { name }) => name,
+        },
+
+        me: {
+            description: 'Get the profile for the current user',
+            type: userType,
+            resolve: (_, args, { token }) => getUserByToken(token),
         },
     },
 });

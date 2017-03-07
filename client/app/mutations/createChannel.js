@@ -40,6 +40,7 @@ export default class CreateChannelMutation extends Relay.Mutation {
 
     getVariables() {
         return {
+            token: this.props.token,
             name: this.props.name,
         };
     }

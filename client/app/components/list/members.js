@@ -22,8 +22,8 @@ const MemberList = (props: Props) => (
             <Chip key={node.id} className={styles.chip} style={{
                 margin: null,
             }}>
-                <Avatar src={node.avatar} />
-                {node.name}
+                <Avatar src={node.picture} />
+                {node.username}
             </Chip>
         ))}
     </Paper>
@@ -37,8 +37,8 @@ export default Relay.createContainer(MemberList, {
                     edges {
                         node {
                             id
-                            name
-                            avatar
+                            username
+                            picture
                         }
                     }
                 }

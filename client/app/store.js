@@ -7,10 +7,15 @@ import {
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 import createLogger from 'redux-logger';
-
+import localForage from 'localforage';
 import {
-    thunk,
-} from './utils';
+    autoRehydrate,
+    createTransform,
+    persistStore,
+} from 'redux-persist';
+
+import { thunk } from './utils';
+import { AuthState } from './reducers/auth';
 
 import * as actionCreators from './actions/stream';
 import rootReducer from './reducers';
@@ -41,8 +46,21 @@ const store = createStore(
             thunk,
             logger,
         ),
+        autoRehydrate(),
     ),
 );
+
+const transform = createTransform(
+    state => state.toJS(),
+    state => new AuthState(state),
+    { whitelist: ['auth'] },
+);
+
+persistStore(store, {
+    whitelist: ['auth'],
+    storage: localForage,
+    transforms: [transform],
+});
 
 if (module.hot) {
     // eslint-disable-next-line flowtype-errors/show-errors

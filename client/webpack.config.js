@@ -38,7 +38,7 @@ module.exports = {
 
     entry: [
         'react-hot-loader/patch',
-        'webpack-hot-middleware/client?http://localhost:8080',
+        'webpack-hot-middleware/client?https://localhost:8080',
         'webpack/hot/only-dev-server',
         'babel-polyfill',
         './app/index.js',
@@ -75,6 +75,7 @@ module.exports = {
         new webpack.NoEmitOnErrorsPlugin(),
         new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify('development'),
+            'global.GENTLY': false,
         }),
     ],
 

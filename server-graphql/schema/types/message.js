@@ -8,6 +8,7 @@ const {
     connectionDefinitions,
 } = require('graphql-relay');
 
+const { getUserById } = require('../../utils/auth');
 const { userType } = require('./user');
 const { nodeInterface } = require('../node');
 
@@ -24,6 +25,7 @@ const nodeType = exports.messageType = new GraphQLObjectType({
         },
         author: {
             type: userType,
+            resolve: ({ author }) => getUserById(author),
         },
         time: {
             type: GraphQLFloat,

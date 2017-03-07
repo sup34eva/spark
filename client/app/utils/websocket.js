@@ -41,8 +41,9 @@ export class Remote {
 }
 
 export function runQuery(data: any): Promise<any> {
+    const { auth } = store.getState();
     return wrapSignal(cb => {
-        socket.emit('graphql', data, cb);
+        socket.emit('graphql', { data, token: auth.token }, cb);
     });
 }
 

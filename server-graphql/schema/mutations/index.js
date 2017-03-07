@@ -6,6 +6,7 @@ const {
 } = require('graphql');
 const {
     offsetToCursor,
+    cursorForObjectInConnection,
     mutationWithClientMutationId,
 } = require('graphql-relay');
 
@@ -14,10 +15,11 @@ const {
     listChannels,
     sendMessage,
 } = require('../../utils/kafka');
+const { getUserByToken } = require('../../utils/auth');
 
-const { viewerType, VIEWER_SINGLETON } = require('../types/viewer');
 const { channelType, channelEdge } = require('../types/channel');
 const { messageEdge } = require('../types/message');
+const viewerType = require('../types/viewer');
 
 module.exports = new GraphQLObjectType({
     name: 'RootMutation',
@@ -37,11 +39,13 @@ module.exports = new GraphQLObjectType({
                     type: viewerType,
                 },
             },
-            mutateAndGetPayload({ name }) {
+            mutateAndGetPayload({ name }, { token }) {
                 return createChannel(name)
                     .then(() => listChannels())
                     .then(channels => ({
-                        viewer: VIEWER_SINGLETON,
+                        viewer: {
+                            id: token,
+                        },
                         channelEdge: {
                             cursor: cursorForObjectInConnection(channels, name),
                             node: name,
@@ -67,32 +71,32 @@ module.exports = new GraphQLObjectType({
                     type: channelType,
                 },
             },
-            mutateAndGetPayload({ channel, message }) {
-                const key = uuid.v1();
-                const value = {
-                    content: message,
-                    author: 0,
-                    time: Date.now(),
-                };
+            mutateAndGetPayload: ({ channel, message }, { token }) =>
+                getUserByToken(token)
+                    .then(user => {
+                        const key = uuid.v1();
+                        const value = {
+                            content: message,
+                            author: user.user_id,
+                            time: Date.now(),
+                        };
 
-                return sendMessage({
-                    key,
-                    topic: channel,
-                    value: JSON.stringify(value),
-                }).then(offset => ({
-                    channel,
-                    messageEdge: {
-                        cursor: offsetToCursor(offset),
-                        node: Object.assign({}, value, {
-                            id: `${channel}:${offset}`,
-                            uuid: key,
-                            author: {
-                                id: value.author,
+                        return sendMessage({
+                            key,
+                            topic: channel,
+                            value: JSON.stringify(value),
+                        }).then(offset => ({
+                            channel,
+                            messageEdge: {
+                                cursor: offsetToCursor(offset),
+                                node: Object.assign({}, value, {
+                                    id: `${channel}:${offset}`,
+                                    uuid: key,
+                                    author: user,
+                                }),
                             },
-                        }),
-                    },
-                }));
-            },
+                        }));
+                    }),
         }),
     },
 });

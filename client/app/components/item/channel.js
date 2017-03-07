@@ -21,12 +21,12 @@ const Channel = ({ channel, style, onTouchTap }: Props) => (
         style={style}
         onTouchTap={onTouchTap}
         leftAvatar={
-            <Mosaic images={channel.users.edges.map(({ node: user }) => user.avatar)} />
+            <Mosaic images={channel.users.edges.map(({ node: user }) => user.picture)} />
         }
         primaryText={channel.name}
         secondaryText={
             channel.messages.edges.map(
-                ({ node: { content, author } }) => `${author.name}: ${content}`
+                ({ node: { content, author } }) => `${author.username}: ${content}`
             ).join('')
         } />
 );
@@ -39,7 +39,7 @@ const ChannelContainer = Relay.createContainer(Channel, {
                 users(first: 4) {
                     edges {
                         node {
-                            avatar
+                            picture
                         }
                     }
                 }
@@ -48,7 +48,7 @@ const ChannelContainer = Relay.createContainer(Channel, {
                         node {
                             content
                             author {
-                                name
+                                username
                             }
                         }
                     }

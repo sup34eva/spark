@@ -135,8 +135,9 @@ type RootSubscription {
 type User implements Node {
   # The ID of an object
   id: ID!
-  name: String
-  avatar: String
+  username: String
+  email: String
+  picture: String
 }
 
 # A connection to a list of items.
@@ -166,4 +167,7 @@ type Viewer {
 
   # Obtiens une référence a un channel spécifique via son nom
   channel(name: String!): Channel
+
+  # Get the profile for the current user
+  me: User
 }

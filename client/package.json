@@ -25,6 +25,7 @@
   "author": "Team Kobalt",
   "license": "MIT",
   "dependencies": {
+    "auth0-lock": "^10.12.2",
     "babel-polyfill": "^6.20.0",
     "bytebuffer": "^5.0.1",
     "electron": "^1.4.12",
@@ -43,6 +44,7 @@
     "react-visibility-sensor": "^3.6.2",
     "rebound": "0.0.13",
     "redux": "^3.6.0",
+    "redux-persist": "^4.4.2",
     "relay-subscriptions": "^1.0.1",
     "socket.io": "^1.7.2",
     "socket.io-client": "^1.7.2"

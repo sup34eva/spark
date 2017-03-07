@@ -104,8 +104,9 @@ export type RootSubscription = {
 
 export type User = {
     id: ID,
-    name: string,
-    avatar: string,
+    username: string,
+    email: string,
+    picture: string,
 };
 
 export type UserConnection = {
@@ -122,4 +123,5 @@ export type Viewer = {
     id: ID,
     channels: ChannelConnection,
     channel: Channel,
+    me: User,
 };

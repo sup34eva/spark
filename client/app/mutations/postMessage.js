@@ -50,6 +50,7 @@ export default class PostMessageMutation extends Relay.Mutation {
 
     getVariables() {
         return {
+            token: this.props.token,
             channel: this.props.channel.name,
             message: this.props.message,
         };

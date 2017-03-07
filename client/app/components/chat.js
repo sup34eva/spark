@@ -6,7 +6,7 @@ import RelayRenderer from './base/renderer';
 import MemberList from './list/members';
 import MessageList from './list/messages';
 import MessageForm from './input/message';
-import { ChannelQuery } from '../utils/relay';
+import { RootQuery } from '../utils/relay';
 import type {
     Viewer,
 } from '../schema';
@@ -47,5 +47,5 @@ type RendererProps = {
 };
 
 export default (query: RendererProps) => (
-    <RelayRenderer Container={ChatContainer} queryConfig={new ChannelQuery(query)} padding={128} />
+    <RelayRenderer Container={ChatContainer} queryConfig={new RootQuery(query)} padding={128} />
 );

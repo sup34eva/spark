@@ -15,40 +15,16 @@ const nodeType = exports.userType = new GraphQLObjectType({
     fields: {
         id: globalIdField(
             'User',
-            id => id
+            ({ user_id }) => user_id
         ),
-        name: {
+        username: {
             type: GraphQLString,
-            resolve(id) {
-                const names = [
-                    'Julia Goldman',
-                    'Kyle Hardman',
-                    'Zoe Milton',
-                    'Samuel Reynolds',
-                    'Zoe Milton',
-                    'Kyle Oswald',
-                    'Angelina Mackenzie',
-                    'Jordan Gill',
-                    'Abigail Stevenson',
-                    'Angel Ogden',
-                    'Michelle Macey',
-                ];
-
-                return names[id % names.length];
-            },
         },
-        avatar: {
+        email: {
             type: GraphQLString,
-            resolve(id) {
-                const avatars = [
-                    'https://i.imgur.com/pv1tBmT.png',
-                    'https://i.imgur.com/R3Jm1CL.png',
-                    'https://i.imgur.com/ROz4Jgh.png',
-                    'https://i.imgur.com/Qn9UesZ.png',
-                ];
-
-                return avatars[id % avatars.length];
-            },
+        },
+        picture: {
+            type: GraphQLString,
         },
     },
 });

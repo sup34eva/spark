@@ -13,12 +13,14 @@ import MenuItem from 'material-ui/MenuItem';
 import FlatButton from 'material-ui/FlatButton';
 import Divider from 'material-ui/Divider';
 
+import LockDialog from './dialog/lock';
 import ChannelList from './list/channels';
 import Chat from './chat';
 
 import styles from './app.css';
 
 type Props = {
+    token: ?string,
     channel: ?string,
 };
 
@@ -177,14 +179,19 @@ const App = (props: Props) => (
             <MenuBar />
         </AppBar>
         <div className={styles.body}>
-            <ChannelList />
-            {props.channel && <Chat channel={props.channel} />}
+            {props.token ? [
+                <ChannelList key="list" />,
+                props.channel && <Chat key="chat" token={props.token} channel={props.channel} />,
+            ] : (
+                <LockDialog />
+            )}
         </div>
     </div>
 );
 
 export default connect(
-    ({ chat }) => ({
+    ({ auth, chat }) => ({
+        token: auth.token,
         channel: chat.channel,
     }),
 )(App);
