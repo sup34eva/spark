@@ -1,0 +1,32 @@
+.app {
+    user-select: none;
+
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+
+    .appBar {
+        flex: 0 0 64px;
+        -webkit-app-region: drag;
+
+        .menuBar {
+            order: 1;
+            flex: 1;
+
+            display: flex;
+            align-items: center;
+            flex-direction: row;
+            padding-left: 24px;
+        }
+
+        button {
+            -webkit-app-region: no-drag;
+        }
+    }
+
+    .body {
+        border: 5px solid rgb(0, 188, 212);
+        border-top-width: 0;
+        flex: 1;
+    }
+}

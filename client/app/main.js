@@ -64,9 +64,9 @@ app.on('ready', installExtensions(() => {
             }]).popup(mainWindow);
         });
 
-        mainWindow.loadURL('https://spark.leops.me:8080/');
+        mainWindow.loadURL('https://spark.leops.me:8080/window.html');
     } else {
-        mainWindow.loadURL(path.resolve(__dirname, 'index.html'));
+        mainWindow.loadURL(path.resolve(__dirname, '../window', 'window.html'));
     }
 
     mainWindow.webContents.on('did-finish-load', () => {

@@ -36,13 +36,22 @@ function cssConfig(isModule) {
 module.exports = {
     devtool: 'cheap-eval-source-map',
 
-    entry: [
-        'react-hot-loader/patch',
-        'webpack-hot-middleware/client?https://localhost:8080',
-        'webpack/hot/only-dev-server',
-        'babel-polyfill',
-        './app/index.js',
-    ],
+    entry: {
+        window: [
+            'react-hot-loader/patch',
+            'webpack-hot-middleware/client?https://localhost:8080',
+            'webpack/hot/only-dev-server',
+            'babel-polyfill',
+            './window/index.js',
+        ],
+        app: [
+            'react-hot-loader/patch',
+            'webpack-hot-middleware/client?https://localhost:8080',
+            'webpack/hot/only-dev-server',
+            'babel-polyfill',
+            './app/index.js',
+        ],
+    },
 
     module: {
         rules: [{
@@ -88,7 +97,10 @@ module.exports = {
     devServer: {
         hot: true,
         overlay: true,
-        contentBase: path.join(__dirname, 'app'),
+        contentBase: [
+            path.join(__dirname, 'window'),
+            path.join(__dirname, 'app'),
+        ],
         publicPath: '/dist/',
         https: {
             key: fs.readFileSync(path.join(__dirname, '..', 'key.pem')),
@@ -101,8 +113,8 @@ module.exports = {
     },
 
     output: {
-        path: path.join(__dirname, 'app'),
+        path: path.join(__dirname, 'dist'),
         publicPath: '/dist/',
-        filename: 'bundle.js',
+        filename: '[name].js',
     },
 };
