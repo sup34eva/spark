@@ -38,16 +38,12 @@ module.exports = {
 
     entry: {
         window: [
-            'react-hot-loader/patch',
-            'webpack-hot-middleware/client?https://localhost:8080',
-            'webpack/hot/only-dev-server',
             'babel-polyfill',
             './window/index.js',
         ],
         app: [
             'react-hot-loader/patch',
-            'webpack-hot-middleware/client?https://localhost:8080',
-            'webpack/hot/only-dev-server',
+            'webpack-hot-middleware/client',
             'babel-polyfill',
             './app/index.js',
         ],
@@ -81,10 +77,13 @@ module.exports = {
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
         new webpack.NamedModulesPlugin(),
-        new webpack.NoEmitOnErrorsPlugin(),
         new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify('development'),
             'global.GENTLY': false,
+        }),
+        new webpack.optimize.CommonsChunkPlugin({
+            name: 'common',
+            filename: 'common.js',
         }),
     ],
 
@@ -96,15 +95,20 @@ module.exports = {
 
     devServer: {
         hot: true,
-        overlay: true,
+        // inline: true,
+        host: 'spark.leops.me',
+        publicPath: '/dist/',
         contentBase: [
             path.join(__dirname, 'window'),
             path.join(__dirname, 'app'),
         ],
-        publicPath: '/dist/',
         https: {
             key: fs.readFileSync(path.join(__dirname, '..', 'key.pem')),
             cert: fs.readFileSync(path.join(__dirname, '..', 'cert.pem')),
+        },
+        overlay: {
+            warnings: false,
+            errors: true,
         },
     },
 

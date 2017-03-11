@@ -21,7 +21,7 @@ function installExtensions(then) {
             default: installer,
             REACT_DEVELOPER_TOOLS,
             REDUX_DEVTOOLS,
-            REACT_PERF,
+            // REACT_PERF,
         } = require('electron-devtools-installer');
 
         return () => {
@@ -29,7 +29,7 @@ function installExtensions(then) {
                 [
                     REACT_DEVELOPER_TOOLS,
                     REDUX_DEVTOOLS,
-                    REACT_PERF,
+                    // REACT_PERF,
                 ]
                     .map(installer)
                     .map(prom => prom.catch(
@@ -52,7 +52,6 @@ app.on('ready', installExtensions(() => {
     });
 
     if (__DEV__) {
-        mainWindow.openDevTools();
         mainWindow.webContents.on('context-menu', (e, props) => {
             const { x, y } = props;
 
@@ -66,7 +65,7 @@ app.on('ready', installExtensions(() => {
 
         mainWindow.loadURL('https://spark.leops.me:8080/window.html');
     } else {
-        mainWindow.loadURL(path.resolve(__dirname, '../window', 'window.html'));
+        mainWindow.loadURL(path.resolve(__dirname, 'window.html'));
     }
 
     mainWindow.webContents.on('did-finish-load', () => {

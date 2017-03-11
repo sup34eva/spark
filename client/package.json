@@ -5,8 +5,9 @@
   "main": "main.js",
   "scripts": {
     "postinstall": "flow-typed install",
-    "start": "electron --ignore-certificate-errors ./app/main",
-    "serve": "webpack-dev-server"
+    "start": "concurrently --kill-others -p \"[{name}]\" -n \"SERVER,CLIENT\" -c \"bgRed.bold,bgGreen.bold\" \"npm run server\" \"npm run client\"",
+    "client": "electron --ignore-certificate-errors --allow-insecure-localhost --unsafely-treat-insecure-origin-as-secure=\"chrome-extension://\" ./window/main",
+    "server": "webpack-dev-server"
   },
   "bin": {
     "electron": "./node_modules/.bin/electron"
@@ -59,6 +60,7 @@
     "babel-preset-react": "^6.16.0",
     "babel-preset-stage-0": "^6.16.0",
     "babel-relay-plugin": "^0.10.0",
+    "concurrently": "^3.4.0",
     "css-loader": "^0.26.2",
     "electron-debug": "^1.1.0",
     "electron-devtools-installer": "^2.0.1",

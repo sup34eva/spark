@@ -22,20 +22,19 @@ export default class SignalProtocolStore {
         return this.store.setItem(key, value);
     }
 
-    get(key, defaultValue) {
+    async get(key, defaultValue) {
         if (key === null || key === undefined) {
             throw new Error('Tried to get value for undefined/null key');
         }
 
-        return this.store.getItem(key)
-            .then(storedValue => {
-                // console.log('get', key, storedValue);
-                if (storedValue === null) {
-                    return defaultValue;
-                }
+        const storedValue = await this.store.getItem(key);
+        // console.log('get', key, storedValue);
 
-                return storedValue;
-            });
+        if (storedValue === null) {
+            return defaultValue;
+        }
+
+        return storedValue;
     }
 
     remove(key) {
@@ -46,7 +45,7 @@ export default class SignalProtocolStore {
         return this.store.removeItem(key);
     }
 
-    isTrustedIdentity(identifier, identityKey) {
+    async isTrustedIdentity(identifier, identityKey) {
         if (identifier === null || identifier === undefined) {
             throw new Error('tried to check identity key for undefined/null key');
         }
@@ -55,14 +54,12 @@ export default class SignalProtocolStore {
             throw new Error('Expected identityKey to be an ArrayBuffer');
         }
 
-        return this.get(`identityKey${identifier}`)
-            .then(trusted => {
-                if (trusted === undefined) {
-                    return true;
-                }
+        const trusted = await this.get(`identityKey${identifier}`);
+        if (trusted === undefined) {
+            return true;
+        }
 
-                return identityKey.toString('binary') === trusted.toString('binary');
-            });
+        return identityKey.toString('binary') === trusted.toString('binary');
     }
 
     loadIdentityKey(identifier) {
@@ -88,15 +85,13 @@ export default class SignalProtocolStore {
         return this.put(`identityKey${identifier}`, identityKey);
     }
 
-    loadPreKey(keyId) {
-        return this.get(`25519KeypreKey${keyId}`)
-            .then(res => {
-                if (res !== undefined) {
-                    return { pubKey: res.pubKey, privKey: res.privKey };
-                }
+    async loadPreKey(keyId) {
+        const res = await this.get(`25519KeypreKey${keyId}`);
+        if (res !== undefined) {
+            return { pubKey: res.pubKey, privKey: res.privKey };
+        }
 
-                return res;
-            });
+        return res;
     }
 
     storePreKey(keyId, keyPair) {
@@ -107,15 +102,13 @@ export default class SignalProtocolStore {
         return this.remove(`25519KeypreKey${keyId}`);
     }
 
-    loadSignedPreKey(keyId) {
-        return this.get(`25519KeysignedKey${keyId}`)
-            .then(res => {
-                if (res !== undefined) {
-                    return { pubKey: res.pubKey, privKey: res.privKey };
-                }
+    async loadSignedPreKey(keyId) {
+        const res = await this.get(`25519KeysignedKey${keyId}`);
+        if (res !== undefined) {
+            return { pubKey: res.pubKey, privKey: res.privKey };
+        }
 
-                return res;
-            });
+        return res;
     }
 
     storeSignedPreKey(keyId, keyPair) {
@@ -138,11 +131,11 @@ export default class SignalProtocolStore {
         return this.remove(`session${identifier}`);
     }
 
-    removeAllSessions(identifier) {
-        return this.store.keys()
-            .then(keys => Promise.all(
-                keys.filter(id => id.startsWith(`session${identifier}`))
-                    .map(this.store.removeItem)
-            ));
+    async removeAllSessions(identifier) {
+        const keys = await this.store.keys();
+        return await Promise.all(
+            keys.filter(id => id.startsWith(`session${identifier}`))
+                .map(this.store.removeItem)
+        );
     }
 }

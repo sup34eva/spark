@@ -5,17 +5,22 @@ const {
 const schema = require('../schema');
 
 module.exports = wss => socket => {
-    socket.on('graphql', ({ token, data: { query, variables, operationName }}, cb) => {
-        graphql(
-            schema,
-            query,
-            { }, // Root data
-            { socket, token }, // Context data
-            variables,
-            operationName
-        )
-        .then(result => cb(null, result))
-        .catch(err => cb(err));
+    socket.on('graphql', async ({ token, data: { query, variables, operationName }}, cb) => {
+        try {
+            const result = await graphql(
+                schema,
+                query,
+                { }, // Root data
+                { socket, token }, // Context data
+                variables,
+                operationName
+            );
+
+            cb(null, result);
+        } catch (err) {
+            console.error(err);
+            cb(err);
+        }
     });
 
     socket.on('start-call', cb => {

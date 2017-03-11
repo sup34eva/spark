@@ -37,14 +37,17 @@ const getCurrentOffset = topic =>
 
 exports.getCurrentOffset = getCurrentOffset;
 
-exports.createConsumer = topic =>
-    getCurrentOffset(topic)
-        .then(offset =>
-            new Consumer(new Client(), [{ topic, offset }], {
-                autoCommit: false,
-                fromOffset: true,
-            })
-        );
+exports.createConsumer = async topic => {
+    const offset = await getCurrentOffset(topic);
+    return new Consumer(
+        new Client(),
+        [{ topic, offset }],
+        {
+            autoCommit: false,
+            fromOffset: true,
+        }
+    );
+};
 
 exports.listChannels = () =>
     new Promise((resolve, reject) => {

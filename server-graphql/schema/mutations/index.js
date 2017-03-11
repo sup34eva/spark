@@ -39,18 +39,19 @@ module.exports = new GraphQLObjectType({
                     type: viewerType,
                 },
             },
-            mutateAndGetPayload({ name }, { token }) {
-                return createChannel(name)
-                    .then(() => listChannels())
-                    .then(channels => ({
-                        viewer: {
-                            id: token,
-                        },
-                        channelEdge: {
-                            cursor: cursorForObjectInConnection(channels, name),
-                            node: name,
-                        },
-                    }));
+            async mutateAndGetPayload({ name }, { token }) {
+                await createChannel(name);
+
+                const channels = listChannels();
+                return {
+                    viewer: {
+                        id: token,
+                    },
+                    channelEdge: {
+                        cursor: cursorForObjectInConnection(channels, name),
+                        node: name,
+                    },
+                };
             },
         }),
         postMessage: mutationWithClientMutationId({
@@ -71,32 +72,33 @@ module.exports = new GraphQLObjectType({
                     type: channelType,
                 },
             },
-            mutateAndGetPayload: ({ channel, message }, { token }) =>
-                getUserByToken(token)
-                    .then(user => {
-                        const key = uuid.v1();
-                        const value = {
-                            content: message,
-                            author: user.user_id,
-                            time: Date.now(),
-                        };
+            async mutateAndGetPayload({ channel, message }, { token }) {
+                const user = await getUserByToken(token);
+                const key = uuid.v1();
+                const value = {
+                    content: message,
+                    author: user.user_id,
+                    time: Date.now(),
+                };
 
-                        return sendMessage({
-                            key,
-                            topic: channel,
-                            value: JSON.stringify(value),
-                        }).then(offset => ({
-                            channel,
-                            messageEdge: {
-                                cursor: offsetToCursor(offset),
-                                node: Object.assign({}, value, {
-                                    id: `${channel}:${offset}`,
-                                    uuid: key,
-                                    author: user,
-                                }),
-                            },
-                        }));
-                    }),
+                const offset = await sendMessage({
+                    key,
+                    topic: channel,
+                    value: JSON.stringify(value),
+                });
+
+                return {
+                    channel,
+                    messageEdge: {
+                        cursor: offsetToCursor(offset),
+                        node: Object.assign({}, value, {
+                            id: `${channel}:${offset}`,
+                            uuid: key,
+                            author: user,
+                        }),
+                    },
+                };
+            },
         }),
     },
 });

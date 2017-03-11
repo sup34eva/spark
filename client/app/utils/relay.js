@@ -6,8 +6,6 @@ import {
     subscribe,
 } from './websocket';
 
-export const environment = new RelaySubscriptions.Environment();
-
 export class RootQuery extends Relay.Route {
     static routeName = 'RootQuery';
     static queries = {
@@ -21,14 +19,18 @@ export class RootQuery extends Relay.Route {
     };
 }
 
+export const environment = new RelaySubscriptions.Environment();
+
 class SocketNetworkLayer extends Relay.DefaultNetworkLayer {
-    runQuery(req) {
-        return runQuery({
+    async runQuery(req) {
+        const res = await runQuery({
             query: req.getQueryString(),
             variables: req.getVariables(),
-        }).then(res => ({
+        });
+
+        return {
             json: () => Promise.resolve(res),
-        }));
+        };
     }
 
     _sendQuery(req) {
@@ -41,17 +43,16 @@ class SocketNetworkLayer extends Relay.DefaultNetworkLayer {
     sendSubscription(req) {
         const { connection, request } = subscribe(req);
 
-        request
-            .then(result => {
+        (async () => {
+            try {
+                const result = await request;
                 if (result.errors) {
                     throw result;
                 }
-
-                return result;
-            })
-            .catch(({ errors }) => {
+            } catch ({ errors }) {
                 req.onError(new Error(errors[0]));
-            });
+            }
+        })();
 
         return connection;
     }

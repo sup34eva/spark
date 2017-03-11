@@ -42,13 +42,13 @@ exports.subscriptionWithClientSubscriptionId = config => {
                 type: new GraphQLNonNull(inputType),
             },
         },
-        resolve(root, { input }, ctx, info) {
+        async resolve(root, { input }, ctx, info) {
             if (ctx.__subscription) {
                 return ctx.__subscription;
             }
 
-            const publish = data => {
-                execute(
+            const publish = async data => {
+                const result = await execute(
                     info.schema,
                     {
                         kind: 'Document',
@@ -64,21 +64,17 @@ exports.subscriptionWithClientSubscriptionId = config => {
                         __subscription: data,
                     }),
                     info.variableValues
-                )
-                .then(result => {
-                    ctx.socket.emit(input.clientSubscriptionId, result);
-                });
+                );
+
+                ctx.socket.emit(input.clientSubscriptionId, result);
             };
 
-            return Promise.resolve()
-                .then(() => start(publish, input, ctx, info))
-                .then(({ data, result }) => {
-                    ctx.socket.on('disconnect', () => {
-                        stop(data, input, ctx, info);
-                    });
+            const { data, result } = await start(publish, input, ctx, info);
+            ctx.socket.on('disconnect', () => {
+                stop(data, input, ctx, info);
+            });
 
-                    return result;
-                });
+            return result;
         },
     };
 };

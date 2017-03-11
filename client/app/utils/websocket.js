@@ -71,7 +71,7 @@ export function subscribe(request: any) {
     };
 }
 
-export function joinRoom(name: string): Promise<Array<Remote>> {
+export async function joinRoom(name: string): Promise<Array<Remote>> {
     console.log('joinRoom', name);
 
     socket.on('offer', wrapMessage((id: string, offer: Offer) =>
@@ -83,9 +83,9 @@ export function joinRoom(name: string): Promise<Array<Remote>> {
         store.dispatch(handleCandidate(store, remote, candidate))
     ));
 
-    return wrapSignal(cb => {
+    const remotes = await wrapSignal(cb => {
         socket.emit('start-call', cb);
-    }).then(remotes =>
-        remotes.map(id => new Remote(socket, id))
-    );
+    });
+
+    return remotes.map(id => new Remote(socket, id));
 }

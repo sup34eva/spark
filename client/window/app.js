@@ -165,7 +165,9 @@ export default class App extends React.Component {
             wrapped: null,
         }, {
             get({ wrapped }, name) {
+                // eslint-disable-next-line flowtype-errors/show-errors
                 const field = wrapped[name];
+
                 if (typeof field === 'function') {
                     return field.bind(wrapped);
                 }
@@ -177,9 +179,11 @@ export default class App extends React.Component {
 
     componentDidMount() {
         this.proxy.setAttribute('nodeIntegration', true);
-        this.proxy.addEventListener('dom-ready', () => {
-            this.proxy.openDevTools();
-        });
+        if (process.env.NODE_ENV !== 'production') {
+            this.proxy.addEventListener('dom-ready', () => {
+                this.proxy.openDevTools();
+            });
+        }
     }
 
     proxy: any;

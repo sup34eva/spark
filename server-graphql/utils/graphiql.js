@@ -32,7 +32,7 @@ module.exports = (req, res) => {
                         React.createElement(GraphiQL, {
                             fetcher(params) {
                                 return new Promise((resolve, reject) => {
-                                    socket.emit('graphql', params, (err, data) => {
+                                    socket.emit('graphql', { data: params }, (err, data) => {
                                         if (err) {
                                             reject(err);
                                         } else {

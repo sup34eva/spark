@@ -36,31 +36,29 @@ module.exports = new GraphQLObjectType({
                     type: channelType,
                 },
             },
-            start(publish, { channel }) {
-                return createConsumer(channel)
-                    .then(consumer => {
-                        consumer.on('message', ({ key, offset, value }) => {
-                            const node = JSON.parse(value);
-                            publish({
-                                channel,
-                                messageEdge: {
-                                    cursor: offsetToCursor(offset),
-                                    node: Object.assign({}, node, {
-                                        id: `${channel}:${offset}`,
-                                        uuid: key,
-                                    }),
-                                },
-                            });
-                        });
-
-                        return {
-                            data: consumer,
-                            result: {
-                                channel,
-                                messageEdge: null,
-                            },
-                        };
+            async start(publish, { channel }) {
+                const consumer = await createConsumer(channel);
+                consumer.on('message', ({ key, offset, value }) => {
+                    const node = JSON.parse(value);
+                    publish({
+                        channel,
+                        messageEdge: {
+                            cursor: offsetToCursor(offset),
+                            node: Object.assign({}, node, {
+                                id: `${channel}:${offset}`,
+                                uuid: key,
+                            }),
+                        },
                     });
+                });
+
+                return {
+                    data: consumer,
+                    result: {
+                        channel,
+                        messageEdge: null,
+                    },
+                };
             },
             stop(consumer) {
                 consumer.close();

@@ -12,7 +12,8 @@ const {
 const schema = require('../schema');
 const outputFile = path.join(__dirname, '../data', 'schema');
 
-graphql(schema, introspectionQuery).then(result => {
+(async () => {
+    const result = await graphql(schema, introspectionQuery);
     fs.writeFileSync(
         `${outputFile}.json`,
         JSON.stringify(result, null, 4)
@@ -24,4 +25,4 @@ graphql(schema, introspectionQuery).then(result => {
     );
 
     process.exit(0);
-});
+})();
