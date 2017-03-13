@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const fs = require('fs');
 const spdy = require('spdy');
 const io = require('socket.io');

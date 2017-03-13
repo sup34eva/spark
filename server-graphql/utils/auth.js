@@ -11,6 +11,8 @@ const token = (async () => {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
             grant_type: 'client_credentials',
+            client_id: process.env.AUTH0_MGT_CLIENT_ID,
+            client_secret: process.env.AUTH0_MGT_CLIENT_SECRET,
             audience: 'https://l3ops.eu.auth0.com/api/v2/',
         }),
     });
@@ -25,14 +27,14 @@ const token = (async () => {
 const management = (async () => {
     const { access_token } = await token;
     return new ManagementClient({
-        domain: 'l3ops.eu.auth0.com',
+        domain: process.env.AUTH0_DOMAIN,
         token: access_token,
     });
 })();
 
 const client = new AuthenticationClient({
-    domain: 'l3ops.eu.auth0.com',
-    clientID: 'Xwle6vHxKZhPlYUfSetetsRCrio6uKxS'
+    domain: process.env.AUTH0_DOMAIN,
+    clientID: process.env.AUTH0_AUTH_CLIENT_ID,
 });
 
 exports.getUserById = async id => {
