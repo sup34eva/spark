@@ -1,0 +1,4 @@
+#!/bin/sh
+
+app_name=`config-get app_name`
+stop ${app_name} || true
