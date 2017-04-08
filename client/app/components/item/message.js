@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import Relay from 'react-relay';
+import { gql } from 'react-apollo';
 import { toGlobalId } from 'graphql-relay';
 import { connect } from 'react-redux';
 
@@ -36,24 +36,22 @@ const Message = (props: Props) => {
     );
 };
 
-const msgConnect = connect(
+const reduxConnector = connect(
     ({ auth }) => ({
         user: auth.user,
     }),
 );
 
-export default Relay.createContainer(msgConnect(Message), {
-    fragments: {
-        message: () => Relay.QL`
-            fragment on Message {
-                uuid
-                content
-                time
-                author {
-                    id
-                    picture
-                }
-            }
-        `,
-    },
-});
+export const fragment = gql`
+    fragment MessageFragment on Message {
+        uuid
+        content
+        time
+        author {
+            id
+            picture
+        }
+    }
+`;
+
+export default reduxConnector(Message);

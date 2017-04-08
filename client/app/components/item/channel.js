@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import Relay from 'react-relay';
+import { gql } from 'react-apollo';
 
 import { ListItem } from 'material-ui/List';
 import Mosaic from '../base/avatars';
@@ -12,8 +12,8 @@ import type {
 
 type Props = {
     channel: ChannelType,
-    onTouchTap: () => void,
-    style: Object,
+    onTouchTap?: () => void,
+    style?: Object,
 };
 
 const Channel = ({ channel, style, onTouchTap }: Props) => (
@@ -31,36 +31,32 @@ const Channel = ({ channel, style, onTouchTap }: Props) => (
         } />
 );
 
-const ChannelContainer = Relay.createContainer(Channel, {
-    fragments: {
-        channel: () => Relay.QL`
-            fragment on Channel {
-                name
-                users(first: 4) {
-                    edges {
-                        node {
-                            picture
-                        }
-                    }
+Channel.fragment = gql`
+    fragment ChannelFragment on Channel {
+        name
+        users(first: 4) {
+            edges {
+                node {
+                    picture
                 }
-                messages(last: 1) {
-                    edges {
-                        node {
-                            content
-                            author {
-                                username
-                            }
-                        }
+            }
+        }
+        messages(last: 1) {
+            edges {
+                node {
+                    content
+                    author {
+                        username
                     }
                 }
             }
-        `,
-    },
-});
+        }
+    }
+`;
 
-ChannelContainer.muiName = 'ListItem';
-ChannelContainer.defaultProps = {
+Channel.muiName = 'ListItem';
+Channel.defaultProps = {
     nestedItems: [],
 };
 
-export default ChannelContainer;
+export default Channel;

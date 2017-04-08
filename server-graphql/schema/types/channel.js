@@ -51,19 +51,25 @@ const nodeType = exports.channelType = new GraphQLObjectType({
                 const { after, before, first, last } = args;
                 const lastOffset = length - 1;
 
-                const from = Math.max(
-                    getOffsetWithDefault(after, 0),
-                    typeof first === 'number' ? first : 0
-                );
-                const to = Math.min(
-                    getOffsetWithDefault(before, lastOffset),
-                    typeof last === 'number' ? Math.max(lastOffset - last, 0) : lastOffset
-                );
+                let from = getOffsetWithDefault(after, 1);
+                let to = getOffsetWithDefault(before, lastOffset);
+
+                if (typeof last === 'number') {
+                    from = Math.max(to - last, 1);
+                }
+
+                if(typeof first === 'number') {
+                    to = Math.min(from + first, lastOffset);
+                }
+
+                console.log(name, args, length, from, to);
 
                 const list = await listMessages(name, from, to);
+                console.log(list);
+
                 return connectionFromArraySlice(list, args, {
-                    sliceStart: from,
-                    arrayLength: length,
+                    sliceStart: from - 1,
+                    arrayLength: lastOffset,
                 });
             },
         },

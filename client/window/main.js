@@ -30,6 +30,7 @@ function installExtensions(then) {
                     REACT_DEVELOPER_TOOLS,
                     REDUX_DEVTOOLS,
                     // REACT_PERF,
+                    'jdkknkkbebbapilgoeccciglkfbmbnfm',
                 ]
                     .map(installer)
                     .map(prom => prom.catch(

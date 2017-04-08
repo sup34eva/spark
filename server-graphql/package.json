@@ -31,6 +31,7 @@
     "kafka-node": "^1.1.0",
     "node-fetch": "^1.6.3",
     "node-uuid": "^1.4.7",
+    "relay-composite-network-layer": "0.0.4",
     "socket.io": "^1.7.2",
     "spdy": "^3.4.4"
   }

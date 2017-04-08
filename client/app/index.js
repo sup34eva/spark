@@ -3,16 +3,13 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 
-import {
-    AppContainer,
-} from 'react-hot-loader';
-import {
-    Provider,
-} from 'react-redux';
+import { AppContainer } from 'react-hot-loader';
+import { ApolloProvider } from 'react-apollo';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import 'normalize.css';
 
 import store from './store';
+import client from './utils/apollo';
 import App from './components/app';
 
 import './app.global.css';
@@ -22,9 +19,9 @@ injectTapEventPlugin();
 const renderRoot = AppComponent => (
     <AppContainer>
         <MuiThemeProvider>
-            <Provider store={store}>
+            <ApolloProvider store={store} client={client}>
                 <AppComponent />
-            </Provider>
+            </ApolloProvider>
         </MuiThemeProvider>
     </AppContainer>
 );

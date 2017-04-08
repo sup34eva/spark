@@ -18,7 +18,13 @@ import type {
     Answer,
 } from './rtc';
 
-const socket = io('wss://api.spark.leops.me:8443');
+export const socket = io('wss://api.spark.leops.me:8443');
+
+['connect_error', 'connect_timeout', 'error', 'reconnect_error', 'reconnect_failed'].forEach(evt => {
+    socket.on(evt, (...args) => {
+        console.error(evt, ...args);
+    });
+});
 
 export class Remote {
     id: string;

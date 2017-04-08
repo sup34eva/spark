@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import Relay from 'react-relay';
+import { gql, graphql } from 'react-apollo';
 
 import Paper from 'material-ui/Paper';
 import Avatar from 'material-ui/Avatar';
@@ -9,16 +9,19 @@ import Chip from 'material-ui/Chip';
 import styles from './members.css';
 import type {
     // eslint-disable-next-line flowtype-errors/show-errors
-    Channel as ChannelType,
+    Viewer,
 } from '../../schema';
 
 type Props = {
-    channel: ChannelType,
+    data: {
+        loading: boolean,
+        viewer: Viewer,
+    },
 };
 
-const MemberList = (props: Props) => (
+const MemberList = ({ data: { loading, viewer } }: Props) => !loading && (
     <Paper className={styles.wrapper} rounded={false}>
-        {props.channel.users.edges.map(({ node }) => (
+        {viewer.channel.users.edges.map(({ node }) => (
             <Chip key={node.id} className={styles.chip} style={{
                 margin: null,
             }}>
@@ -29,10 +32,10 @@ const MemberList = (props: Props) => (
     </Paper>
 );
 
-export default Relay.createContainer(MemberList, {
-    fragments: {
-        channel: () => Relay.QL`
-            fragment on Channel {
+const apolloConnector = graphql(gql`
+    query ChannelMembers($name: String!) {
+        viewer {
+            channel(name: $name) {
                 users(first: 10) {
                     edges {
                         node {
@@ -43,6 +46,14 @@ export default Relay.createContainer(MemberList, {
                     }
                 }
             }
-        `,
-    },
+        }
+    }
+`, {
+    options: ({ channel }) => ({
+        variables: {
+            name: channel,
+        },
+    }),
 });
+
+export default apolloConnector(MemberList);

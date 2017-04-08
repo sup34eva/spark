@@ -6,6 +6,7 @@ import {
 import stream from './stream';
 import chat from './chat';
 import auth from './auth';
+import client from '../utils/apollo';
 
 import type {
     // eslint-disable-next-line flowtype-errors/show-errors
@@ -25,5 +26,8 @@ export type State = {
 };
 
 export default combineReducers({
-    stream, chat, auth,
+    chat,
+    auth,
+    stream,
+    apollo: client.reducer(),
 });

@@ -1,8 +1,7 @@
 // @flow
 import React from 'react';
-import Relay, {
-    RelayProp,
-} from 'react-relay';
+import { gql, graphql } from 'react-apollo';
+import { toGlobalId } from 'graphql-relay';
 
 import TextField from 'material-ui/TextField';
 import Dialog from 'material-ui/Dialog';
@@ -16,25 +15,19 @@ import type {
     Dispatch,
 } from 'redux';
 
+import ChannelItem from '../item/channel';
+
 import type {
     Action,
 } from '../../store';
-
-import type {
-    // eslint-disable-next-line flowtype-errors/show-errors
-    Viewer,
-} from '../../schema';
-
-import CreateChannelMutation from '../../mutations/createChannel';
 
 import {
     setChannelModal,
 } from '../../actions/chat';
 
 type Props = {
-    relay: RelayProp,
-    viewer: Viewer,
     modalText: ?string,
+    createChannel: () => void,
     closeModal: () => void,
     setModalText: (any, string) => void,
 };
@@ -51,12 +44,7 @@ const ChannelModal = (props: Props) => (
                 label="Create" primary
                 onTouchTap={() => {
                     props.closeModal();
-                    props.relay.commitUpdate(
-                        new CreateChannelMutation({
-                            viewer: props.viewer,
-                            name: props.modalText,
-                        }),
-                    );
+                    props.createChannel();
                 }} />,
         ]}>
         <TextField
@@ -65,7 +53,54 @@ const ChannelModal = (props: Props) => (
     </Dialog>
 );
 
-const modalConnect = connect(
+const apolloConnector = graphql(gql`
+    mutation createChannel($input: CreateChannelInput!) {
+        createChannel(input: $input) {
+            channelEdge {
+                node {
+                    ...ChannelFragment
+                }
+            }
+            viewer {
+                id
+            }
+        }
+    }
+
+    ${ChannelItem.fragment}
+`, {
+    props: ({ ownProps, mutate }) => ({
+        createChannel: () => mutate({
+            variables: {
+                input: {
+                    name: ownProps.modalText,
+                },
+            },
+            optimisticResponse: {
+                __typename: 'RootMutation',
+                createChannel: {
+                    __typename: 'CreateChannelMutation',
+                    channelEdge: {
+                        __typename: 'ChannelEdge',
+                        node: {
+                            __typename: 'Channel',
+                            id: toGlobalId('Channel', ownProps.modalText),
+                            name: ownProps.modalText,
+                            users: { edges: [] },
+                            messages: { edges: [] },
+                        },
+                    },
+                    viewer: {
+                        __typename: 'Viewer',
+                        id: ownProps.viewer.id,
+                    },
+                },
+            },
+        }),
+    }),
+});
+
+const reduxConnector = connect(
     ({ chat }) => ({
         modalText: chat.channelModal,
     }),
@@ -79,12 +114,4 @@ const modalConnect = connect(
     }),
 );
 
-export default Relay.createContainer(modalConnect(ChannelModal), {
-    fragments: {
-        viewer: () => Relay.QL`
-            fragment on Viewer {
-                ${CreateChannelMutation.getFragment('viewer')}
-            }
-        `,
-    },
-});
+export default reduxConnector(apolloConnector(ChannelModal));

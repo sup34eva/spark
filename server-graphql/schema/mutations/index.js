@@ -94,7 +94,6 @@ module.exports = new GraphQLObjectType({
                         node: Object.assign({}, value, {
                             id: `${channel}:${offset}`,
                             uuid: key,
-                            author: user,
                         }),
                     },
                 };

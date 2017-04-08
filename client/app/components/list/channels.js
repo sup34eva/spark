@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import Relay from 'react-relay';
+import { gql, graphql } from 'react-apollo';
 
 import Paper from 'material-ui/Paper';
 import Subheader from 'material-ui/Subheader';
@@ -20,9 +20,6 @@ import type {
     Action,
 } from '../../store';
 
-import RelayRenderer from '../base/renderer';
-import { RootQuery } from '../../utils/relay';
-
 import type {
     Viewer,
 } from '../../schema';
@@ -38,21 +35,24 @@ import {
 const SelectableList = makeSelectable(List);
 
 type Props = {
-    viewer: Viewer,
+    data: {
+        loading: boolean,
+        viewer: Viewer,
+    },
 
     channel: ?string,
     selectChannel: (any, string) => void,
     openModal: () => void,
 };
 
-const ChannelList = (props: Props) => (
+const ChannelList = ({ data: { loading, viewer }, channel, ...props }: Props) => !loading && (
     <Paper style={{
         position: 'relative',
         width: 256,
     }}>
-        <SelectableList value={props.channel} onChange={props.selectChannel}>
+        <SelectableList value={channel} onChange={props.selectChannel}>
             <Subheader>Channels</Subheader>
-            {props.viewer.channels.edges.map(({ node }) => (
+            {viewer.channels.edges.map(({ node }) => (
                 <ChannelItem key={node.id} value={node.name} channel={node} />
             ))}
         </SelectableList>
@@ -65,11 +65,11 @@ const ChannelList = (props: Props) => (
             <ContentAdd />
         </IconButton>
 
-        <CreateChannelDialog viewer={props.viewer} />
+        <CreateChannelDialog viewer={viewer} />
     </Paper>
 );
 
-const listConnect = connect(
+const reduxConnector = connect(
     ({ chat }) => ({
         channel: chat.channel,
     }),
@@ -83,26 +83,22 @@ const listConnect = connect(
     }),
 );
 
-const ListContainer = Relay.createContainer(listConnect(ChannelList), {
-    fragments: {
-        viewer: () => Relay.QL`
-            fragment on Viewer {
-                channels(first: 10) {
-                    edges {
-                        node {
-                            id
-                            name
-                            ${ChannelItem.getFragment('channel')}
-                        }
+const apolloConnector = graphql(gql`
+    query ChannelList {
+        viewer {
+            channels(first: 10) {
+                edges {
+                    node {
+                        id
+                        name
+                        ...ChannelFragment
                     }
                 }
-
-                ${CreateChannelDialog.getFragment('viewer')}
             }
-        `,
-    },
-});
+        }
+    }
 
-export default () => (
-    <RelayRenderer Container={ListContainer} queryConfig={new RootQuery()} />
-);
+    ${ChannelItem.fragment}
+`);
+
+export default apolloConnector(reduxConnector(ChannelList));

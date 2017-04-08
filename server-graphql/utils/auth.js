@@ -39,10 +39,18 @@ const client = new AuthenticationClient({
 
 exports.getUserById = async id => {
     const { users } = await management;
+    console.log('getUserById', id);
     return users.get({ id });
 };
 
 exports.getUserByToken = async token => {
+    console.log('getUserByToken', token);
     const json = await client.getProfile(token);
-    return JSON.parse(json);
+
+    try {
+        return JSON.parse(json);
+    } catch(err) {
+        console.error(err);
+        throw json;
+    }
 };

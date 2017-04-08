@@ -16,6 +16,7 @@ import {
 
 import { thunk } from './utils';
 import { AuthState } from './reducers/auth';
+import client from './utils/apollo';
 
 import * as actionCreators from './actions/stream';
 import rootReducer from './reducers';
@@ -43,6 +44,7 @@ const store = createStore(
     rootReducer,
     composeEnhancers(
         applyMiddleware(
+            client.middleware(),
             thunk,
             logger,
         ),

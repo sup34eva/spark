@@ -84,16 +84,18 @@ exports.listMessages = (topic, from, to) =>
             [{ topic, offset: from }],
             {
                 autoCommit: false,
-                fromOffset: from > 0,
+                fromOffset: true,
             }
         );
 
         const messages = [];
         consumer.on('message', ({ value, offset, key }) => {
+            console.log('message', value, offset, key);
+
             const node = JSON.parse(value);
             messages.push(Object.assign({}, node, {
                 id: `${topic}:${offset}`,
-                uuid: key,
+                uuid: key.toString(),
             }));
 
             if (offset === to) {
@@ -101,4 +103,13 @@ exports.listMessages = (topic, from, to) =>
                 consumer.close();
             }
         });
+
+        const onError = err => {
+            console.error('error', err);
+            reject(err);
+            consumer.close();
+        };
+
+        consumer.on('error', onError);
+        consumer.on('offsetOutOfRange', onError);
     });

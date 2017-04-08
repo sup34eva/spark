@@ -1,55 +1,38 @@
 // @flow
 import React from 'react';
-import Relay, {
-    RelayProp,
-} from 'react-relay';
+import { gql, graphql } from 'react-apollo';
+import { connect } from 'react-redux';
+import update from 'immutability-helper';
 import {
-    connect,
-} from 'react-redux';
+    // cursorToOffset,
+    offsetToCursor,
+    toGlobalId,
+} from 'graphql-relay';
 
 import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
 
-import type {
-    Dispatch,
-} from 'redux';
+import type { Dispatch } from 'redux';
+import type { Action } from '../../store';
 
-import type {
-    Action,
-} from '../../store';
-
-import type {
-    // eslint-disable-next-line flowtype-errors/show-errors
-    Channel as ChannelType,
-} from '../../schema';
-
-import {
-    setMessage,
-} from '../../actions/chat';
+import { fragment as messageFragment } from '../item/message';
+import { setMessage } from '../../actions/chat';
 
 import Squircle from '../base/squircle';
-import PostMessageMutation from '../../mutations/postMessage';
-
 import styles from './message.css';
 
 type Props = {
-    relay: RelayProp,
-    channel: ChannelType,
     message: string,
     setMessage: (any, string) => void,
+    postMessage: () => void,
 };
 
 const PostForm = (props: Props) => {
     const onSubmit = evt => {
         evt.preventDefault();
         if (props.message.trim().length > 0) {
+            props.postMessage();
             props.setMessage(null, '');
-            props.relay.commitUpdate(
-                new PostMessageMutation({
-                    channel: props.channel,
-                    message: props.message,
-                }),
-            );
         }
     };
 
@@ -73,7 +56,81 @@ const PostForm = (props: Props) => {
     );
 };
 
-const postFormConnect = connect(
+const apolloConnector = graphql(gql`
+    mutation PostMessageMutation($input: PostMessageInput!) {
+        postMessage(input: $input) {
+            messageEdge {
+                cursor
+                node {
+                    id
+                    ...MessageFragment
+                }
+            }
+        }
+    }
+
+    ${messageFragment}
+`, {
+    props: ({ ownProps, mutate }) => ({
+        postMessage: () => {
+            const offset = 0;
+            /* if (ownProps.channel.messages.pageInfo.endCursor !== undefined) {
+                offset = cursorToOffset(ownProps.channel.messages.pageInfo.endCursor) + 1;
+            }*/
+
+            return mutate({
+                variables: {
+                    input: {
+                        channel: ownProps.channel,
+                        message: ownProps.message,
+                    },
+                },
+                optimisticResponse: {
+                    __typename: 'RootMutation',
+                    postMessage: {
+                        __typename: 'PostMessagePayload',
+                        messageEdge: {
+                            __typename: 'MessageEdge',
+                            cursor: offsetToCursor(offset),
+                            node: {
+                                __typename: 'Message',
+                                id: toGlobalId(
+                                    'Message',
+                                    `${ownProps.channel}:${offset}`,
+                                ),
+                                content: ownProps.message,
+                                time: Date.now(),
+                                author: {
+                                    __typename: 'User',
+                                    id: toGlobalId('User', 0),
+                                    avatar: 'http://i.imgur.com/pv1tBmT.png',
+                                },
+                            },
+                        },
+                    },
+                },
+                updateQueries: {
+                    MessageList: (prev, { mutationResult }) => {
+                        console.log('updateQueries', prev, mutationResult);
+                        return update(prev, {
+                            viewer: {
+                                channel: {
+                                    messages: {
+                                        edges: {
+                                            $push: [mutationResult.data.postMessage.messageEdge],
+                                        },
+                                    },
+                                },
+                            },
+                        });
+                    },
+                },
+            });
+        },
+    }),
+});
+
+const reduxConnector = connect(
     ({ chat }) => ({
         message: chat.message,
     }),
@@ -84,12 +141,4 @@ const postFormConnect = connect(
     }),
 );
 
-export default Relay.createContainer(postFormConnect(PostForm), {
-    fragments: {
-        channel: () => Relay.QL`
-            fragment on Channel {
-                ${PostMessageMutation.getFragment('channel')}
-            }
-        `,
-    },
-});
+export default reduxConnector(apolloConnector(PostForm));
