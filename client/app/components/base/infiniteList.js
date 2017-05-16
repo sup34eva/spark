@@ -1,16 +1,16 @@
 // @flow
-import React from 'react';
+import React, { Element, Component } from 'react';
 
 import RefreshIndicator from 'material-ui/RefreshIndicator';
 import VisibilitySensor from 'react-visibility-sensor';
 
-type Props = {
+export type Props = {
     canLoadMore: bool,
     onLoadMore: () => void,
-    children: React.Element<*>,
+    children?: Element<any>,
 };
 
-export default class InfiniteList extends React.Component {
+export default class InfiniteList extends Component<void, Props, void> {
     componentWillMount() {
         this.scrollBottom = 0;
     }

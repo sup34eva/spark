@@ -6,7 +6,8 @@ import {
 import stream from './stream';
 import chat from './chat';
 import auth from './auth';
-import client from '../utils/apollo';
+import mainClient from '../utils/apollo/mainClient';
+import kafkaClient from '../utils/apollo/kafkaClient';
 
 import type {
     // eslint-disable-next-line flowtype-errors/show-errors
@@ -29,5 +30,6 @@ export default combineReducers({
     chat,
     auth,
     stream,
-    apollo: client.reducer(),
+    apollo: mainClient.reducer(),
+    kafka: kafkaClient.reducer(),
 });

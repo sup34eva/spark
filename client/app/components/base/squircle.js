@@ -1,11 +1,11 @@
 // @flow
-import React from 'react';
+import React, { Element } from 'react';
 import transitions from 'material-ui/styles/transitions';
 
 type Props = {
-    children: React.Element<*>, // Children passed into the paper element.
+    children?: Element<any>, // Children passed into the paper element.
     style?: Object, // Override the inline-styles of the root element.
-    transitionEnabled: bool, // Set to false to disable CSS transitions for the squircle element.
+    transitionEnabled?: bool, // Set to false to disable CSS transitions for the squircle element.
     zDepth: number, // This number represents the zDepth of the squircle shadow.
 };
 

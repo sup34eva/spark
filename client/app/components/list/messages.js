@@ -4,10 +4,9 @@ import { gql, graphql } from 'react-apollo';
 import update from 'immutability-helper';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
-import type { Viewer } from '../../schema';
-
 import Message, { fragment as messageFragment } from '../item/message';
 import InfiniteList from '../base/infiniteList';
+import withApollo from '../../utils/apollo/enhancer';
 
 import styles from './messages.css';
 
@@ -23,7 +22,7 @@ class MessageList extends React.Component {
     unsubscribe: () => void;
     props: {
         loading: boolean,
-        viewer: Viewer,
+        viewer: ?Object,
         fetchMore: () => void,
         subscribeToMore: () => (() => void),
     };
@@ -34,14 +33,15 @@ class MessageList extends React.Component {
             return null;
         }
 
-        const messages = [...this.props.viewer.channel.messages.edges];
+        const viewer = (this.props.viewer: Object);
+        const messages = [...viewer.channel.messages.edges];
         messages.sort((a, b) => a.node.time - b.node.time);
 
         return (
             <InfiniteList
-                key={this.props.viewer.channel.id}
+                key={viewer.channel.id}
                 className={styles.messageList}
-                canLoadMore={this.props.viewer.channel.messages.pageInfo.hasPreviousPage}
+                canLoadMore={viewer.channel.messages.pageInfo.hasPreviousPage}
                 onLoadMore={this.props.fetchMore}>
                 <ReactCSSTransitionGroup
                     transitionName="message"
@@ -75,7 +75,7 @@ class MessageList extends React.Component {
     }
 }
 
-const apolloConnector = graphql(gql`
+const apolloConnector = withApollo('kafka', graphql(gql`
     query MessageList($name: String!, $count: Int!) {
         viewer {
             channel(name: $name) {
@@ -166,6 +166,6 @@ const apolloConnector = graphql(gql`
             },
         }),
     }),
-});
+}));
 
 export default apolloConnector(MessageList);

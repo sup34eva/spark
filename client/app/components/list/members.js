@@ -5,46 +5,37 @@ import { gql, graphql } from 'react-apollo';
 import Paper from 'material-ui/Paper';
 import Avatar from 'material-ui/Avatar';
 import Chip from 'material-ui/Chip';
+import withApollo from '../../utils/apollo/enhancer';
 
 import styles from './members.css';
-import type {
-    // eslint-disable-next-line flowtype-errors/show-errors
-    Viewer,
-} from '../../schema';
 
 type Props = {
     data: {
         loading: boolean,
-        viewer: Viewer,
+        Channel: ?Object,
     },
 };
 
-const MemberList = ({ data: { loading, viewer } }: Props) => !loading && (
+const MemberList = ({ data: { loading, Channel } }: Props) => !loading && Channel && (
     <Paper className={styles.wrapper} rounded={false}>
-        {viewer.channel.users.edges.map(({ node }) => (
+        {Channel.users.map(node => (
             <Chip key={node.id} className={styles.chip} style={{
                 margin: null,
             }}>
                 <Avatar src={node.picture} />
-                {node.username}
+                {node.displayName}
             </Chip>
         ))}
     </Paper>
 );
 
-const apolloConnector = graphql(gql`
+const apolloConnector = withApollo('apollo', graphql(gql`
     query ChannelMembers($name: String!) {
-        viewer {
-            channel(name: $name) {
-                users(first: 10) {
-                    edges {
-                        node {
-                            id
-                            username
-                            picture
-                        }
-                    }
-                }
+        Channel(name: $name) {
+            users(first: 10) {
+                id
+                displayName
+                picture
             }
         }
     }
@@ -54,6 +45,6 @@ const apolloConnector = graphql(gql`
             name: channel,
         },
     }),
-});
+}));
 
 export default apolloConnector(MemberList);

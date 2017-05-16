@@ -16,7 +16,8 @@ import {
 
 import { thunk } from './utils';
 import { AuthState } from './reducers/auth';
-import client from './utils/apollo';
+import mainClient from './utils/apollo/mainClient';
+import kafkaClient from './utils/apollo/kafkaClient';
 
 import * as actionCreators from './actions/stream';
 import rootReducer from './reducers';
@@ -39,12 +40,14 @@ export type Action = {
     error?: boolean,
 };
 
-// eslint-disable-next-line flowtype-errors/show-errors
+// $FlowIssue
 const store = createStore(
     rootReducer,
     composeEnhancers(
+        // $FlowIssue
         applyMiddleware(
-            client.middleware(),
+            mainClient.middleware(),
+            kafkaClient.middleware(),
             thunk,
             logger,
         ),

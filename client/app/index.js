@@ -4,13 +4,14 @@ import ReactDOM from 'react-dom';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 
 import { AppContainer } from 'react-hot-loader';
-import { ApolloProvider } from 'react-apollo';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import 'normalize.css';
 
 import store from './store';
-import client from './utils/apollo';
 import App from './components/app';
+import ApolloMultiProvider from './utils/apollo/multiProvider';
+import mainClient from './utils/apollo/mainClient';
+import kafkaClient from './utils/apollo/kafkaClient';
 
 import './app.global.css';
 
@@ -19,9 +20,9 @@ injectTapEventPlugin();
 const renderRoot = AppComponent => (
     <AppContainer>
         <MuiThemeProvider>
-            <ApolloProvider store={store} client={client}>
+            <ApolloMultiProvider store={store} clients={{ apollo: mainClient, kafka: kafkaClient }}>
                 <AppComponent />
-            </ApolloProvider>
+            </ApolloMultiProvider>
         </MuiThemeProvider>
     </AppContainer>
 );

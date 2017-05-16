@@ -17,6 +17,7 @@ import type { Action } from '../../store';
 
 import { fragment as messageFragment } from '../item/message';
 import { setMessage } from '../../actions/chat';
+import withApollo from '../../utils/apollo/enhancer';
 
 import Squircle from '../base/squircle';
 import styles from './message.css';
@@ -56,7 +57,7 @@ const PostForm = (props: Props) => {
     );
 };
 
-const apolloConnector = graphql(gql`
+const apolloConnector = withApollo('kafka', graphql(gql`
     mutation PostMessageMutation($input: PostMessageInput!) {
         postMessage(input: $input) {
             messageEdge {
@@ -128,7 +129,7 @@ const apolloConnector = graphql(gql`
             });
         },
     }),
-});
+}));
 
 const reduxConnector = connect(
     ({ chat }) => ({

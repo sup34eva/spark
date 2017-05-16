@@ -15,10 +15,10 @@ class AuthService {
 
         this.login = this.login.bind(this);
         this.lock.on('authenticated', ({ idToken, accessToken, idTokenPayload }) => {
-            console.log(idToken);
             this.setToken({
                 user: idTokenPayload.sub,
                 token: accessToken,
+                idToken,
             });
         });
     }

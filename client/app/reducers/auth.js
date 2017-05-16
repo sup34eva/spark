@@ -4,6 +4,7 @@ import {
 } from 'immutable';
 
 export const AuthState = Record({
+    idToken: null,
     token: null,
     user: null,
 });
@@ -13,7 +14,8 @@ export default (state: AuthState = new AuthState(), action: any) => {
         case 'SET_TOKEN':
             return state
                 .set('user', action.payload.user)
-                .set('token', action.payload.token);
+                .set('token', action.payload.token)
+                .set('idToken', action.payload.idToken);
 
         default:
             return state;

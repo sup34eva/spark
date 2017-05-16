@@ -25,6 +25,8 @@ import {
     setChannelModal,
 } from '../../actions/chat';
 
+import withApollo from '../../utils/apollo/enhancer';
+
 type Props = {
     modalText: ?string,
     createChannel: () => void,
@@ -53,7 +55,7 @@ const ChannelModal = (props: Props) => (
     </Dialog>
 );
 
-const apolloConnector = graphql(gql`
+const apolloConnector = withApollo('apollo', graphql(gql`
     mutation createChannel($input: CreateChannelInput!) {
         createChannel(input: $input) {
             channelEdge {
@@ -98,7 +100,7 @@ const apolloConnector = graphql(gql`
             },
         }),
     }),
-});
+}));
 
 const reduxConnector = connect(
     ({ chat }) => ({

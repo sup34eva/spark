@@ -34,7 +34,7 @@ function cssConfig(isModule) {
 }
 
 module.exports = {
-    devtool: 'cheap-eval-source-map',
+    devtool: 'source-map',
 
     entry: {
         window: [

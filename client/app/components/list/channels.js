@@ -20,12 +20,9 @@ import type {
     Action,
 } from '../../store';
 
-import type {
-    Viewer,
-} from '../../schema';
-
 import ChannelItem from '../item/channel';
 import CreateChannelDialog from '../dialog/createChannel';
+import withApollo from '../../utils/apollo/enhancer';
 
 import {
     selectChannel,
@@ -37,7 +34,7 @@ const SelectableList = makeSelectable(List);
 type Props = {
     data: {
         loading: boolean,
-        viewer: Viewer,
+        allChannels: ?Array<Object>,
     },
 
     channel: ?string,
@@ -45,28 +42,30 @@ type Props = {
     openModal: () => void,
 };
 
-const ChannelList = ({ data: { loading, viewer }, channel, ...props }: Props) => !loading && (
-    <Paper style={{
-        position: 'relative',
-        width: 256,
-    }}>
-        <SelectableList value={channel} onChange={props.selectChannel}>
-            <Subheader>Channels</Subheader>
-            {viewer.channels.edges.map(({ node }) => (
-                <ChannelItem key={node.id} value={node.name} channel={node} />
-            ))}
-        </SelectableList>
-
-        <IconButton onTouchTap={props.openModal} style={{
-            position: 'absolute',
-            bottom: 8,
-            right: 8,
+const ChannelList = ({ data: { loading, allChannels }, ...props }: Props) => (
+    !loading && allChannels && (
+        <Paper style={{
+            position: 'relative',
+            width: 256,
         }}>
-            <ContentAdd />
-        </IconButton>
+            <SelectableList value={props.channel} onChange={props.selectChannel}>
+                <Subheader>Channels</Subheader>
+                {allChannels.map(node => (
+                    <ChannelItem key={node.id} value={node.name} channel={node} />
+                ))}
+            </SelectableList>
 
-        <CreateChannelDialog viewer={viewer} />
-    </Paper>
+            <IconButton onTouchTap={props.openModal} style={{
+                position: 'absolute',
+                bottom: 8,
+                right: 8,
+            }}>
+                <ContentAdd />
+            </IconButton>
+
+            <CreateChannelDialog />
+        </Paper>
+    )
 );
 
 const reduxConnector = connect(
@@ -83,22 +82,16 @@ const reduxConnector = connect(
     }),
 );
 
-const apolloConnector = graphql(gql`
+const apolloConnector = withApollo('apollo', graphql(gql`
     query ChannelList {
-        viewer {
-            channels(first: 10) {
-                edges {
-                    node {
-                        id
-                        name
-                        ...ChannelFragment
-                    }
-                }
-            }
+        allChannels(first: 10) {
+            id
+            name
+            ...ChannelFragment
         }
     }
 
     ${ChannelItem.fragment}
-`);
+`));
 
 export default apolloConnector(reduxConnector(ChannelList));

@@ -35,10 +35,10 @@ module.exports = {
         'promise/catch-or-return': 2,
         'promise/no-native': 0,
 
-        'graphql/template-strings': ['error', {
+        /*'graphql/template-strings': ['error', {
             env: 'apollo',
             schemaJson: require('../server-graphql/data/schema.json'),
-        }],
+        }],*/
   },
     plugins: [
         'flowtype-errors',

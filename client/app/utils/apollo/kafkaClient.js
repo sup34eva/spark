@@ -1,7 +1,8 @@
 import { ApolloClient, printAST } from 'apollo-client';
-import { socket, runQuery } from './websocket';
+import { socket, runQuery } from '../websocket';
 
 const client = new ApolloClient({
+    reduxRootSelector: state => state.kafka,
     dataIdFromObject: o => o.id,
     networkInterface: {
         subscriptionId: 0,

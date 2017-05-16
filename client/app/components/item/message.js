@@ -4,17 +4,12 @@ import { gql } from 'react-apollo';
 import { toGlobalId } from 'graphql-relay';
 import { connect } from 'react-redux';
 
-import type {
-    // eslint-disable-next-line flowtype-errors/show-errors
-    Message as MessageType,
-} from '../../schema';
-
 import Squircle from '../base/squircle';
 import styles from './message.css';
 
 type Props = {
     user: string,
-    message: MessageType,
+    message: Object,
 };
 
 const Message = (props: Props) => {

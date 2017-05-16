@@ -10,12 +10,13 @@ import styles from './app.css';
 
 type Props = {
     token: ?string,
+    idToken: ?string,
     channel: ?string,
 };
 
 const App = (props: Props) => (
     <div className={styles.app}>
-        {props.token ? [
+        {(props.idToken && props.token) ? [
             <ChannelList key="list" />,
             props.channel && <Chat key="chat" token={props.token} channel={props.channel} />,
         ] : (
@@ -27,6 +28,7 @@ const App = (props: Props) => (
 export default connect(
     ({ auth, chat }) => ({
         token: auth.token,
+        idToken: auth.idToken,
         channel: chat.channel,
     }),
 )(App);
