@@ -47,6 +47,7 @@ type Message implements Node {
   # The ID of an object
   id: ID!
   uuid: String
+  kind: MessageKind
   content: String
   author: User
   time: Float
@@ -68,6 +69,11 @@ type MessageEdge {
 
   # A cursor for use in pagination
   cursor: String!
+}
+
+enum MessageKind {
+  TEXT
+  FILE
 }
 
 input MessagesSubscribeInput {
@@ -103,7 +109,8 @@ type PageInfo {
 
 input PostMessageInput {
   channel: String!
-  message: String!
+  kind: MessageKind!
+  content: String!
   clientMutationId: String
 }
 

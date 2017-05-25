@@ -5,12 +5,26 @@ import update from 'immutability-helper';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import CircularProgress from 'material-ui/CircularProgress';
 
+import { storage } from '../../utils/firebase';
+import nextPushId from '../../utils/firebase/nextPushId';
+import sendMessageMutation from '../../utils/apollo/sendMessage';
 import Message, { fragment as messageFragment } from '../item/message';
 import InfiniteList from '../base/infiniteList';
 
 import styles from './messages.css';
 
+type MessagePayload = {
+    kind: 'TEXT' | 'FILE',
+    content: string,
+};
+
 class MessageList extends React.Component {
+    constructor(props, ctx) {
+        super(props, ctx);
+        // $FlowIssue
+        this.onDrop = this.onDrop.bind(this);
+    }
+
     componentDidMount() {
         this.unsubscribe = this.props.subscribeToMore();
     }
@@ -19,16 +33,67 @@ class MessageList extends React.Component {
         this.unsubscribe();
     }
 
+    async onDrop(evt) {
+        evt.preventDefault();
+        const { items, files } = evt.dataTransfer;
+        const blobs = Array.from(items || files).map(entry => {
+            if (entry.kind === 'file') {
+                return entry.getAsFile();
+            }
+
+            return entry;
+        });
+
+        const entries = await Promise.all(
+            blobs.map(async blob => {
+                const id = nextPushId(new Date().getTime());
+                const ref = storage.ref(`${this.props.channel}/${id}`);
+
+                await ref.put(blob);
+                await ref.updateMetadata({
+                    contentType: blob.type,
+                    customMetadata: {
+                        displayName: blob.name,
+                    },
+                });
+
+                this.props.postMessage(this.props.channel, {
+                    kind: 'FILE',
+                    content: id,
+                });
+            }),
+        );
+
+        console.log('onDrop', entries);
+    }
+    onDragOver = evt => {
+        evt.preventDefault();
+    }
+    handleList = (list: HTMLDivElement) => {
+        if (list) {
+            // $FlowIssue
+            list.addEventListener('drop', this.onDrop);
+            // $FlowIssue
+            list.addEventListener('dragover', this.onDragOver);
+        } else {
+            this.list.removeEventListener('drop', this.onDrop);
+            this.list.removeEventListener('dragover', this.onDragOver);
+        }
+        this.list = list;
+    }
+
+    list: HTMLDivElement;
     unsubscribe: () => void;
     props: {
+        channel: string,
         loading: boolean,
         viewer: ?Object,
         fetchMore: () => void,
         subscribeToMore: () => (() => void),
+        postMessage: (string, MessagePayload) => void,
     };
 
     render() {
-        console.log('MessageList', this.props);
         if (this.props.loading || !this.props.viewer) {
             return (
                 <div className={styles.messageList} style={{ height: '100%', justifyContent: 'center' }}>
@@ -44,6 +109,7 @@ class MessageList extends React.Component {
         return (
             <InfiniteList
                 key={viewer.channel.id}
+                containerRef={this.handleList}
                 className={styles.messageList}
                 canLoadMore={viewer.channel.messages.pageInfo.hasPreviousPage}
                 onLoadMore={this.props.fetchMore}>
@@ -172,4 +238,6 @@ const apolloConnector = graphql(gql`
     }),
 });
 
-export default apolloConnector(MessageList);
+const sendMessage = sendMessageMutation(messageFragment);
+
+export default apolloConnector(sendMessage(MessageList));

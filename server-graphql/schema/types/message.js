@@ -2,6 +2,7 @@ const {
     GraphQLFloat,
     GraphQLString,
     GraphQLObjectType,
+    GraphQLEnumType,
 } = require('graphql');
 const {
     globalIdField,
@@ -12,6 +13,14 @@ const { auth } = require('../../utils/firebase');
 const { userType } = require('./user');
 const { nodeInterface } = require('../node');
 
+const kindEnum = exports.messageKind = new GraphQLEnumType({
+    name: 'MessageKind',
+    values: {
+        TEXT: {},
+        FILE: {},
+    },
+});
+
 const nodeType = exports.messageType = new GraphQLObjectType({
     name: 'Message',
     interfaces: [ nodeInterface ],
@@ -19,6 +28,9 @@ const nodeType = exports.messageType = new GraphQLObjectType({
         id: globalIdField('Message'),
         uuid: {
             type: GraphQLString,
+        },
+        kind: {
+            type: kindEnum,
         },
         content: {
             type: GraphQLString,

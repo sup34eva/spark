@@ -1,19 +1,13 @@
 // @flow
 import React from 'react';
-import { gql, graphql } from 'react-apollo';
 import { connect } from 'react-redux';
-import update from 'immutability-helper';
-import {
-    // cursorToOffset,
-    offsetToCursor,
-    toGlobalId,
-} from 'graphql-relay';
 
 import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
 
 import type { Dispatch } from 'redux';
 import type { Action } from '../../store';
+import sendMessageMutation from '../../utils/apollo/sendMessage';
 
 import { fragment as messageFragment } from '../item/message';
 import { setMessage } from '../../actions/chat';
@@ -21,17 +15,23 @@ import { setMessage } from '../../actions/chat';
 import Squircle from '../base/squircle';
 import styles from './message.css';
 
+type MessagePayload = {
+    kind: 'TEXT' | 'FILE',
+    content: string,
+};
+
 type Props = {
+    channel: string,
     message: string,
     setMessage: (any, string) => void,
-    postMessage: () => void,
+    postMessage: (string, MessagePayload) => void,
 };
 
 const PostForm = (props: Props) => {
     const onSubmit = evt => {
         evt.preventDefault();
         if (props.message.trim().length > 0) {
-            props.postMessage();
+            props.postMessage(props.channel, { kind: 'TEXT', content: props.message });
             props.setMessage(null, '');
         }
     };
@@ -56,79 +56,7 @@ const PostForm = (props: Props) => {
     );
 };
 
-const apolloConnector = graphql(gql`
-    mutation PostMessageMutation($input: PostMessageInput!) {
-        postMessage(input: $input) {
-            messageEdge {
-                cursor
-                node {
-                    id
-                    ...MessageFragment
-                }
-            }
-        }
-    }
-
-    ${messageFragment}
-`, {
-    props: ({ ownProps, mutate }) => ({
-        postMessage: () => {
-            const offset = 0;
-            /* if (ownProps.channel.messages.pageInfo.endCursor !== undefined) {
-                offset = cursorToOffset(ownProps.channel.messages.pageInfo.endCursor) + 1;
-            }*/
-
-            return mutate({
-                variables: {
-                    input: {
-                        channel: ownProps.channel,
-                        message: ownProps.message,
-                    },
-                },
-                optimisticResponse: {
-                    __typename: 'RootMutation',
-                    postMessage: {
-                        __typename: 'PostMessagePayload',
-                        messageEdge: {
-                            __typename: 'MessageEdge',
-                            cursor: offsetToCursor(offset),
-                            node: {
-                                __typename: 'Message',
-                                id: toGlobalId(
-                                    'Message',
-                                    `${ownProps.channel}:${offset}`,
-                                ),
-                                content: ownProps.message,
-                                time: Date.now(),
-                                author: {
-                                    __typename: 'User',
-                                    id: toGlobalId('User', 0),
-                                    avatar: 'http://i.imgur.com/pv1tBmT.png',
-                                },
-                            },
-                        },
-                    },
-                },
-                updateQueries: {
-                    MessageList: (prev, { mutationResult }) => {
-                        console.log('updateQueries', prev, mutationResult);
-                        return update(prev, {
-                            viewer: {
-                                channel: {
-                                    messages: {
-                                        edges: {
-                                            $push: [mutationResult.data.postMessage.messageEdge],
-                                        },
-                                    },
-                                },
-                            },
-                        });
-                    },
-                },
-            });
-        },
-    }),
-});
+const apolloConnector = sendMessageMutation(messageFragment);
 
 const reduxConnector = connect(
     ({ chat }) => ({

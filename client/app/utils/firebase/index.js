@@ -1,5 +1,9 @@
 // @flow
-import * as firebase from 'firebase';
+import * as firebase from 'firebase/app';
+import 'firebase/auth';
+import 'firebase/database';
+import 'firebase/storage';
+
 import store from '../../store';
 
 firebase.initializeApp({
@@ -13,7 +17,7 @@ firebase.initializeApp({
 
 export const auth = firebase.auth();
 export const database = firebase.database();
-// export const storage = firebase.storage();
+export const storage = firebase.storage();
 
 auth.onAuthStateChanged(user => {
     store.dispatch({

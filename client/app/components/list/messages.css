@@ -7,7 +7,7 @@
     overflow-x: hidden;
     overflow-y: auto;
 
-    span {
+    & > span {
         display: flex;
         flex-direction: column;
     }

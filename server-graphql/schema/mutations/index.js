@@ -18,7 +18,7 @@ const {
 const { database, auth } = require('../../utils/firebase');
 
 const { channelType, channelEdge } = require('../types/channel');
-const { messageEdge } = require('../types/message');
+const { messageEdge, messageKind } = require('../types/message');
 const viewerType = require('../types/viewer');
 
 module.exports = new GraphQLObjectType({
@@ -61,7 +61,10 @@ module.exports = new GraphQLObjectType({
                 channel: {
                     type: new GraphQLNonNull(GraphQLString),
                 },
-                message: {
+                kind: {
+                    type: new GraphQLNonNull(messageKind),
+                },
+                content: {
                     type: new GraphQLNonNull(GraphQLString),
                 },
             },
@@ -73,11 +76,12 @@ module.exports = new GraphQLObjectType({
                     type: channelType,
                 },
             },
-            async mutateAndGetPayload({ channel, message }, { token }) {
+            async mutateAndGetPayload({ channel, kind, content }, { token }) {
                 const { sub } = await auth.verifyIdToken(token);
+
                 const key = uuid.v1();
                 const value = {
-                    content: message,
+                    kind, content,
                     author: sub,
                     time: Date.now(),
                 };
@@ -88,8 +92,10 @@ module.exports = new GraphQLObjectType({
                     value: JSON.stringify(value),
                 });
 
-                const user = await auth.getUser(sub);
-                database.ref('/channels/' + channel + '/subtext').set(`${user.displayName}: ${message}`);
+                if(kind === 'text') {
+                    const user = await auth.getUser(sub);
+                    database.ref('/channels/' + channel + '/subtext').set(`${user.displayName}: ${content}`);
+                }
 
                 return {
                     channel,

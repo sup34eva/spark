@@ -8,6 +8,7 @@ export type Props = {
     canLoadMore: bool,
     onLoadMore: () => void,
     children?: Element<any>,
+    containerRef: ?(HTMLDivElement) => void,
 };
 
 export default class InfiniteList extends Component<void, Props, void> {
@@ -33,6 +34,13 @@ export default class InfiniteList extends Component<void, Props, void> {
         this.node.scrollTop = this.node.scrollHeight - scroll;
     }
 
+    handleRef = (node: HTMLDivElement) => {
+        this.node = node;
+        if (this.props.containerRef) {
+            this.props.containerRef(node);
+        }
+    }
+
     node: HTMLDivElement;
     scrollBottom: number;
     props: Props;
@@ -41,11 +49,12 @@ export default class InfiniteList extends Component<void, Props, void> {
         const {
             canLoadMore,
             onLoadMore,
+            containerRef, // eslint-disable-line no-unused-vars
             ...other
         } = this.props;
 
         return (
-            <div {...other} ref={node => { this.node = node; }}>
+            <div {...other} ref={this.handleRef}>
                 {canLoadMore && (
                     <VisibilitySensor partialVisibility scrollCheck delayedCall
                         containment={this.node}

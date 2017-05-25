@@ -1,18 +1,15 @@
 import { ApolloClient, printAST } from 'apollo-client';
-import { socket, runQuery } from './websocket';
+import { socket, runQuery } from '../websocket';
 
 export default new ApolloClient({
     dataIdFromObject: o => o.id,
     networkInterface: {
         subscriptionId: 0,
 
-        query: request => {
-            console.log(request);
-            return runQuery({
-                ...request,
-                query: printAST(request.query),
-            });
-        },
+        query: request => runQuery({
+            ...request,
+            query: printAST(request.query),
+        }),
 
         subscribe(request, handler) {
             const id = this.subscriptionId++;

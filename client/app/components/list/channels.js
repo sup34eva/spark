@@ -34,6 +34,7 @@ const SelectableList = makeSelectable(List);
 type Props = {
     channels: ?Array<{
         name: string,
+        subtext: ?string,
         users: ?{
             [key: string]: string,
         },
