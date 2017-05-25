@@ -1,12 +1,12 @@
 // @flow
 import React from 'react';
-import { gql, graphql } from 'react-apollo';
 
 import Paper from 'material-ui/Paper';
 import Subheader from 'material-ui/Subheader';
 import { List, makeSelectable } from 'material-ui/List';
 import IconButton from 'material-ui/IconButton';
 import ContentAdd from 'material-ui/svg-icons/content/add';
+import CircularProgress from 'material-ui/CircularProgress';
 
 import {
     connect,
@@ -22,50 +22,51 @@ import type {
 
 import ChannelItem from '../item/channel';
 import CreateChannelDialog from '../dialog/createChannel';
-import withApollo from '../../utils/apollo/enhancer';
+import connectFirebase from '../../utils/firebase/enhancer';
 
 import {
     selectChannel,
-    setChannelModal,
+    openModal,
 } from '../../actions/chat';
 
 const SelectableList = makeSelectable(List);
 
 type Props = {
-    data: {
-        loading: boolean,
-        allChannels: ?Array<Object>,
-    },
-
+    channels: ?Array<{
+        name: string,
+        users: ?{
+            [key: string]: string,
+        },
+    }>,
     channel: ?string,
     selectChannel: (any, string) => void,
     openModal: () => void,
 };
 
-const ChannelList = ({ data: { loading, allChannels }, ...props }: Props) => (
-    !loading && allChannels && (
-        <Paper style={{
-            position: 'relative',
-            width: 256,
+const ChannelList = ({ channels, channel, ...props }: Props) => (
+    <Paper style={{
+        position: 'relative',
+        width: 256,
+    }}>
+        <SelectableList value={channel} onChange={props.selectChannel}>
+            <Subheader>Channels</Subheader>
+            {channels ? channels.map(node => (
+                <ChannelItem key={node.name} value={node.name} channel={node} />
+            )) : (
+                <CircularProgress />
+            )}
+        </SelectableList>
+
+        <IconButton onTouchTap={props.openModal} style={{
+            position: 'absolute',
+            bottom: 8,
+            right: 8,
         }}>
-            <SelectableList value={props.channel} onChange={props.selectChannel}>
-                <Subheader>Channels</Subheader>
-                {allChannels.map(node => (
-                    <ChannelItem key={node.id} value={node.name} channel={node} />
-                ))}
-            </SelectableList>
+            <ContentAdd />
+        </IconButton>
 
-            <IconButton onTouchTap={props.openModal} style={{
-                position: 'absolute',
-                bottom: 8,
-                right: 8,
-            }}>
-                <ContentAdd />
-            </IconButton>
-
-            <CreateChannelDialog />
-        </Paper>
-    )
+        <CreateChannelDialog />
+    </Paper>
 );
 
 const reduxConnector = connect(
@@ -77,21 +78,17 @@ const reduxConnector = connect(
             dispatch(selectChannel(name));
         },
         openModal() {
-            dispatch(setChannelModal(''));
+            dispatch(openModal());
         },
     }),
 );
 
-const apolloConnector = withApollo('apollo', graphql(gql`
-    query ChannelList {
-        allChannels(first: 10) {
-            id
-            name
-            ...ChannelFragment
-        }
-    }
+const fbConnector = connectFirebase(
+    () => '/channels',
+    value => ({
+        // $FlowIssue
+        channels: value ? Object.entries(value).map(([name, val]) => ({ name, ...val })) : null,
+    }),
+);
 
-    ${ChannelItem.fragment}
-`));
-
-export default apolloConnector(reduxConnector(ChannelList));
+export default fbConnector(reduxConnector(ChannelList));

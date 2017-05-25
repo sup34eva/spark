@@ -22,8 +22,9 @@ module.exports = {
 
         'flowtype-errors/show-errors': 'error',
 
-        'react/jsx-first-prop-new-line': ['off'],
-        'react/jsx-closing-bracket-location': ['off'],
+        'react/jsx-first-prop-new-line': 'off',
+        'react/jsx-closing-bracket-location': 'off',
+        'react/no-unused-prop-types': 'warn',
         'react/jsx-indent': ['error', 4],
         'react/jsx-indent-props': ['error', 4],
         'react/jsx-filename-extension': ['error', {
@@ -35,10 +36,10 @@ module.exports = {
         'promise/catch-or-return': 2,
         'promise/no-native': 0,
 
-        /*'graphql/template-strings': ['error', {
+        'graphql/template-strings': ['error', {
             env: 'apollo',
             schemaJson: require('../server-graphql/data/schema.json'),
-        }],*/
+        }],
   },
     plugins: [
         'flowtype-errors',

@@ -15,7 +15,7 @@ const {
     listChannels,
     sendMessage,
 } = require('../../utils/kafka');
-const { getUserByToken } = require('../../utils/auth');
+const { database, auth } = require('../../utils/firebase');
 
 const { channelType, channelEdge } = require('../types/channel');
 const { messageEdge } = require('../types/message');
@@ -40,15 +40,16 @@ module.exports = new GraphQLObjectType({
                 },
             },
             async mutateAndGetPayload({ name }, { token }) {
+                const { sub } = await auth.verifyIdToken(token);
+                const channel = database.ref('/channels/' + name + '/users').push().set(sub);
+
                 await createChannel(name);
 
-                const channels = listChannels();
                 return {
                     viewer: {
                         id: token,
                     },
                     channelEdge: {
-                        cursor: cursorForObjectInConnection(channels, name),
                         node: name,
                     },
                 };
@@ -73,11 +74,11 @@ module.exports = new GraphQLObjectType({
                 },
             },
             async mutateAndGetPayload({ channel, message }, { token }) {
-                const user = await getUserByToken(token);
+                const { sub } = await auth.verifyIdToken(token);
                 const key = uuid.v1();
                 const value = {
                     content: message,
-                    author: user.user_id,
+                    author: sub,
                     time: Date.now(),
                 };
 
@@ -86,6 +87,9 @@ module.exports = new GraphQLObjectType({
                     topic: channel,
                     value: JSON.stringify(value),
                 });
+
+                const user = await auth.getUser(sub);
+                database.ref('/channels/' + channel + '/subtext').set(`${user.displayName}: ${message}`);
 
                 return {
                     channel,

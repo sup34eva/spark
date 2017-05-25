@@ -4,16 +4,18 @@ import {
 } from 'immutable';
 
 export const ChatState = Record({
-    channelModal: null,
-
+    showModal: false,
     channel: null,
     message: '',
 });
 
 export default (state: ChatState = new ChatState(), action: any) => {
     switch (action.type) {
-        case 'SET_CHANNEL_MODAL':
-            return state.set('channelModal', action.payload);
+        case 'OPEN_MODAL':
+            return state.set('showModal', true);
+
+        case 'CLOSE_MODAL':
+            return state.set('showModal', false);
 
         case 'SELECT_CHANNEL':
             return state.set('channel', action.payload);

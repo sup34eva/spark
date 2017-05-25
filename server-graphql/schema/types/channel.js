@@ -43,7 +43,10 @@ const nodeType = exports.channelType = new GraphQLObjectType({
             type: messageConnection,
             args: connectionArgs,
             async resolve(name, args) {
+                console.log('log_1', name, args);
+
                 const length = await getCurrentOffset(name);
+                console.log('log_2', length);
                 if (length === 0) {
                     return connectionFromArray([], args);
                 }
@@ -62,10 +65,10 @@ const nodeType = exports.channelType = new GraphQLObjectType({
                     to = Math.min(from + first, lastOffset);
                 }
 
-                console.log(name, args, length, from, to);
+                console.log('log_3', name, args, length, from, to);
 
                 const list = await listMessages(name, from, to);
-                console.log(list);
+                console.log('log_4', list);
 
                 return connectionFromArraySlice(list, args, {
                     sliceStart: from - 1,

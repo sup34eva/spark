@@ -3,10 +3,10 @@ import React from 'react';
 import { gql, graphql } from 'react-apollo';
 import update from 'immutability-helper';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import CircularProgress from 'material-ui/CircularProgress';
 
 import Message, { fragment as messageFragment } from '../item/message';
 import InfiniteList from '../base/infiniteList';
-import withApollo from '../../utils/apollo/enhancer';
 
 import styles from './messages.css';
 
@@ -30,7 +30,11 @@ class MessageList extends React.Component {
     render() {
         console.log('MessageList', this.props);
         if (this.props.loading || !this.props.viewer) {
-            return null;
+            return (
+                <div className={styles.messageList} style={{ height: '100%', justifyContent: 'center' }}>
+                    <CircularProgress style={{ alignSelf: 'center' }} />
+                </div>
+            );
         }
 
         const viewer = (this.props.viewer: Object);
@@ -75,7 +79,7 @@ class MessageList extends React.Component {
     }
 }
 
-const apolloConnector = withApollo('kafka', graphql(gql`
+const apolloConnector = graphql(gql`
     query MessageList($name: String!, $count: Int!) {
         viewer {
             channel(name: $name) {
@@ -166,6 +170,6 @@ const apolloConnector = withApollo('kafka', graphql(gql`
             },
         }),
     }),
-}));
+});
 
 export default apolloConnector(MessageList);

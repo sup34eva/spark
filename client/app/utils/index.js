@@ -69,7 +69,7 @@ export function wrapMessage(cb: MessageHandler) {
 }
 
 type SignalCallback<T> = (err: ?any, result: T) => void;
-type SignalHandler<T> = (handler: SignalCallback<T>) => void;
+type SignalHandler<T> = (handler: SignalCallback<T>) => any;
 export function wrapSignal<T>(cb: SignalHandler<T>): Promise<T> {
     return new Promise((resolve, reject) => {
         cb((err: ?any, result: T) => {

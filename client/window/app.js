@@ -15,7 +15,6 @@ import Divider from 'material-ui/Divider';
 import styles from './app.css';
 
 type Props = {
-    // eslint-disable-next-line react/no-unused-prop-types
     webView: any,
 };
 
@@ -73,6 +72,7 @@ const MenuBar = (props: Props) => (
                 webContents.reloadIgnoringCache();
             }} />
             <MenuItem primaryText="Toggle Developer Tools" onTouchTap={() => {
+                console.log(props);
                 props.webView.toggleDevTools();
             }} />
             <Divider />

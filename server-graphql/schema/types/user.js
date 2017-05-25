@@ -15,15 +15,12 @@ const nodeType = exports.userType = new GraphQLObjectType({
     fields: {
         id: globalIdField(
             'User',
-            ({ user_id }) => user_id
+            ({ uid }) => uid
         ),
-        username: {
+        displayName: {
             type: GraphQLString,
         },
-        email: {
-            type: GraphQLString,
-        },
-        picture: {
+        photoURL: {
             type: GraphQLString,
         },
     },

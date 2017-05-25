@@ -9,6 +9,10 @@ const producer = new Producer(client, {
 });
 const offset = new Offset(client);
 
+const timeout = time => new Promise((resolve, reject) => {
+    setTimeout(() => reject('timeout'), time);
+});
+
 exports.sendMessage = ({ key, topic, value }) =>
     new Promise((resolve, reject) => {
         const msg = new KeyedMessage(key, value);
@@ -18,22 +22,30 @@ exports.sendMessage = ({ key, topic, value }) =>
             if (err) {
                 reject(err);
             } else {
-                console.log(data, msg);
+                console.log('sendMessage', data, msg);
                 resolve(data[topic][0]);
             }
         });
     });
 
-const getCurrentOffset = topic =>
-    new Promise((resolve, reject) => {
-        offset.fetchLatestOffsets([ topic ], (err, data) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(data[topic][0]);
-            }
-        });
-    });
+const getCurrentOffset = async topic => {
+    try {
+        return await Promise.race([
+            new Promise((resolve, reject) => {
+                    offset.fetchLatestOffsets([ topic ], (err, data) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(data[topic][0]);
+                        }
+                    });
+            }),
+            timeout(1000),
+        ]);
+    } catch (err) {
+        return 0;
+    }
+};
 
 exports.getCurrentOffset = getCurrentOffset;
 
@@ -77,7 +89,7 @@ exports.createChannel = name =>
         });
     });
 
-exports.listMessages = (topic, from, to) =>
+exports.listMessages = (topic, from, to) => Promise.race([
     new Promise((resolve, reject) => {
         const consumer = new Consumer(
             new Client(),
@@ -112,4 +124,6 @@ exports.listMessages = (topic, from, to) =>
 
         consumer.on('error', onError);
         consumer.on('offsetOutOfRange', onError);
-    });
+    }),
+    timeout(1000),
+]);

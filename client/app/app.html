@@ -6,17 +6,6 @@
     </head>
     <body>
         <main></main>
-
-        <script>
-            window.nodeRequire = require;
-            delete window.require;
-        </script>
-        <script src="utils/crypto/libsignal-protocol.js"></script>
-        <script>
-            window.require = window.nodeRequire;
-            delete window.nodeRequire;
-        </script>
-
         <script src="dist/common.js"></script>
         <script src="dist/app.js"></script>
     </body>

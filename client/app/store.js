@@ -7,17 +7,9 @@ import {
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 import createLogger from 'redux-logger';
-import localForage from 'localforage';
-import {
-    autoRehydrate,
-    createTransform,
-    persistStore,
-} from 'redux-persist';
 
 import { thunk } from './utils';
-import { AuthState } from './reducers/auth';
-import mainClient from './utils/apollo/mainClient';
-import kafkaClient from './utils/apollo/kafkaClient';
+import client from './utils/apollo';
 
 import * as actionCreators from './actions/stream';
 import rootReducer from './reducers';
@@ -46,26 +38,12 @@ const store = createStore(
     composeEnhancers(
         // $FlowIssue
         applyMiddleware(
-            mainClient.middleware(),
-            kafkaClient.middleware(),
+            client.middleware(),
             thunk,
             logger,
         ),
-        autoRehydrate(),
     ),
 );
-
-const transform = createTransform(
-    state => state.toJS(),
-    state => new AuthState(state),
-    { whitelist: ['auth'] },
-);
-
-persistStore(store, {
-    whitelist: ['auth'],
-    storage: localForage,
-    transforms: [transform],
-});
 
 if (module.hot) {
     // eslint-disable-next-line flowtype-errors/show-errors

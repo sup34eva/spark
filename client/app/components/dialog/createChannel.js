@@ -1,119 +1,102 @@
 // @flow
-import React from 'react';
+import React, { Component } from 'react';
 import { gql, graphql } from 'react-apollo';
-import { toGlobalId } from 'graphql-relay';
+import { connect } from 'react-redux';
 
 import TextField from 'material-ui/TextField';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 
-import {
-    connect,
-} from 'react-redux';
-
 import type {
     Dispatch,
 } from 'redux';
-
-import ChannelItem from '../item/channel';
 
 import type {
     Action,
 } from '../../store';
 
 import {
-    setChannelModal,
+    closeModal,
 } from '../../actions/chat';
 
-import withApollo from '../../utils/apollo/enhancer';
-
 type Props = {
-    modalText: ?string,
-    createChannel: () => void,
+    showModal: boolean,
     closeModal: () => void,
-    setModalText: (any, string) => void,
+    createChannel: (string) => void,
 };
 
-const ChannelModal = (props: Props) => (
-    <Dialog
-        open={props.modalText !== null} onRequestClose={props.closeModal}
-        title="Create a channel"
-        actions={[
-            <FlatButton
-                label="Cancel" primary
-                onTouchTap={props.closeModal} />,
-            <FlatButton
-                label="Create" primary
-                onTouchTap={() => {
-                    props.closeModal();
-                    props.createChannel();
-                }} />,
-        ]}>
-        <TextField
-            hintText="Channel name" fullWidth
-            value={props.modalText} onChange={props.setModalText} />
-    </Dialog>
-);
-
-const apolloConnector = withApollo('apollo', graphql(gql`
-    mutation createChannel($input: CreateChannelInput!) {
-        createChannel(input: $input) {
-            channelEdge {
-                node {
-                    ...ChannelFragment
-                }
-            }
-            viewer {
-                id
-            }
-        }
+class ChannelModal extends Component {
+    constructor(props: Props) {
+        super(props);
+        this.state = {
+            name: '',
+        };
     }
 
-    ${ChannelItem.fragment}
-`, {
-    props: ({ ownProps, mutate }) => ({
-        createChannel: () => mutate({
-            variables: {
-                input: {
-                    name: ownProps.modalText,
-                },
-            },
-            optimisticResponse: {
-                __typename: 'RootMutation',
-                createChannel: {
-                    __typename: 'CreateChannelMutation',
-                    channelEdge: {
-                        __typename: 'ChannelEdge',
-                        node: {
-                            __typename: 'Channel',
-                            id: toGlobalId('Channel', ownProps.modalText),
-                            name: ownProps.modalText,
-                            users: { edges: [] },
-                            messages: { edges: [] },
-                        },
-                    },
-                    viewer: {
-                        __typename: 'Viewer',
-                        id: ownProps.viewer.id,
-                    },
-                },
-            },
-        }),
-    }),
-}));
+    state: {
+        name: string,
+    };
+    props: Props;
+
+    handleChange = (event: Object) => {
+        this.setState({
+            name: event.target.value,
+        });
+    }
+
+    render() {
+        return (
+            <Dialog
+                open={this.props.showModal} onRequestClose={this.props.closeModal}
+                title="Create a channel"
+                actions={[
+                    <FlatButton
+                        label="Cancel" primary
+                        onTouchTap={this.props.closeModal} />,
+                    <FlatButton
+                        label="Create" primary
+                        onTouchTap={() => {
+                            this.props.createChannel(this.state.name);
+                            this.props.closeModal();
+                        }} />,
+                ]}>
+                <TextField
+                    hintText="Channel name" fullWidth
+                    value={this.state.name} onChange={this.handleChange} />
+            </Dialog>
+        );
+    }
+}
 
 const reduxConnector = connect(
     ({ chat }) => ({
-        modalText: chat.channelModal,
+        showModal: chat.showModal,
     }),
     (dispatch: Dispatch<Action>) => ({
         closeModal() {
-            dispatch(setChannelModal(null));
-        },
-        setModalText(evt, newValue) {
-            dispatch(setChannelModal(newValue));
+            dispatch(closeModal());
         },
     }),
 );
 
-export default reduxConnector(apolloConnector(ChannelModal));
+const apolloConnector = graphql(gql`
+    mutation CreateChannelMutation($input: CreateChannelInput!) {
+        createChannel(input: $input) {
+            channelEdge {
+                node {
+                    id
+                }
+            }
+        }
+    }
+`, {
+    props: ({ mutate }) => ({
+        createChannel: name => mutate({
+            variables: {
+                input: { name },
+            },
+        }),
+    }),
+});
+
+export default apolloConnector(reduxConnector(ChannelModal));

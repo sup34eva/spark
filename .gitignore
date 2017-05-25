@@ -3,3 +3,4 @@ npm-debug.log
 cert.pem
 key.pem
 *.env
+server-graphql/utils/serviceAccountKey.json

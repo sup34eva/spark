@@ -3,10 +3,15 @@ import type {
     Action,
 } from '../store';
 
-export function setChannelModal(text: ?string): Action {
+export function openModal(): Action {
     return {
-        type: 'SET_CHANNEL_MODAL',
-        payload: text,
+        type: 'OPEN_MODAL',
+    };
+}
+
+export function closeModal(): Action {
+    return {
+        type: 'CLOSE_MODAL',
     };
 }
 

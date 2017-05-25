@@ -1,50 +1,29 @@
 // @flow
 import React from 'react';
-import { gql, graphql } from 'react-apollo';
-
 import Paper from 'material-ui/Paper';
-import Avatar from 'material-ui/Avatar';
-import Chip from 'material-ui/Chip';
-import withApollo from '../../utils/apollo/enhancer';
+
+import UserChip from '../item/member';
+import connectFirebase from '../../utils/firebase/enhancer';
 
 import styles from './members.css';
 
 type Props = {
-    data: {
-        loading: boolean,
-        Channel: ?Object,
-    },
+    users: ?Array<string>,
 };
 
-const MemberList = ({ data: { loading, Channel } }: Props) => !loading && Channel && (
+const MemberList = ({ users }: Props) => (
     <Paper className={styles.wrapper} rounded={false}>
-        {Channel.users.map(node => (
-            <Chip key={node.id} className={styles.chip} style={{
-                margin: null,
-            }}>
-                <Avatar src={node.picture} />
-                {node.displayName}
-            </Chip>
+        {users && users.map(user => (
+            <UserChip key={user} user={user} />
         ))}
     </Paper>
 );
 
-const apolloConnector = withApollo('apollo', graphql(gql`
-    query ChannelMembers($name: String!) {
-        Channel(name: $name) {
-            users(first: 10) {
-                id
-                displayName
-                picture
-            }
-        }
-    }
-`, {
-    options: ({ channel }) => ({
-        variables: {
-            name: channel,
-        },
+const fbConnector = connectFirebase(
+    props => `/channels/${props.channel}`,
+    value => ({
+        users: value ? Object.values(value.users) : [],
     }),
-}));
+);
 
-export default apolloConnector(MemberList);
+export default fbConnector(MemberList);

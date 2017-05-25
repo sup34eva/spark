@@ -1,39 +1,33 @@
 // @flow
 import React from 'react';
-import { gql } from 'react-apollo';
 
 import { ListItem } from 'material-ui/List';
 import Mosaic from '../base/avatars';
 
 type Props = {
-    channel: Object,
+    channel: {
+        name: string,
+        subtext: ?string,
+        users: ?{
+            [key: string]: string,
+        },
+    },
+
     onTouchTap?: () => void,
     style?: Object,
 };
 
-const Channel = ({ channel, style, onTouchTap }: Props) => (
+const Channel = ({ channel: { name, subtext, users }, style, onTouchTap }: Props) => (
     <ListItem
         style={style}
         onTouchTap={onTouchTap}
         leftAvatar={
-            <Mosaic images={channel.users.map(user => user.picture)} />
+            // $FlowIssue
+            <Mosaic images={users ? Object.values(users).map(user => user) : []} />
         }
-        primaryText={channel.name}
-        secondaryText={
-            [].map(
-                ({ node: { content, author } }) => `${author.username}: ${content}`
-            ).join('')
-        } />
+        primaryText={name}
+        secondaryText={subtext} />
 );
-
-Channel.fragment = gql`
-    fragment ChannelFragment on Channel {
-        name
-        users(first: 4) {
-            picture
-        }
-    }
-`;
 
 Channel.muiName = 'ListItem';
 Channel.defaultProps = {

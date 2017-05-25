@@ -2,33 +2,31 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import LockDialog from './dialog/lock';
+import AuthForm from './dialog/auth';
 import ChannelList from './list/channels';
 import Chat from './chat';
 
 import styles from './app.css';
 
 type Props = {
-    token: ?string,
-    idToken: ?string,
+    user: ?Object,
     channel: ?string,
 };
 
 const App = (props: Props) => (
     <div className={styles.app}>
-        {(props.idToken && props.token) ? [
+        {props.user ? [
             <ChannelList key="list" />,
-            props.channel && <Chat key="chat" token={props.token} channel={props.channel} />,
+            props.channel && <Chat key="chat" channel={props.channel} />,
         ] : (
-            <LockDialog />
+            <AuthForm />
         )}
     </div>
 );
 
 export default connect(
     ({ auth, chat }) => ({
-        token: auth.token,
-        idToken: auth.idToken,
+        user: auth.user,
         channel: chat.channel,
     }),
 )(App);

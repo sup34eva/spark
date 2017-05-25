@@ -8,7 +8,7 @@ const {
     connectionDefinitions,
 } = require('graphql-relay');
 
-const { getUserById } = require('../../utils/auth');
+const { auth } = require('../../utils/firebase');
 const { userType } = require('./user');
 const { nodeInterface } = require('../node');
 
@@ -25,7 +25,7 @@ const nodeType = exports.messageType = new GraphQLObjectType({
         },
         author: {
             type: userType,
-            resolve: ({ author }) => getUserById(author),
+            resolve: ({ author }) => auth.getUser(author),
         },
         time: {
             type: GraphQLFloat,

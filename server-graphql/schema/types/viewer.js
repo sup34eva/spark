@@ -9,7 +9,7 @@ const {
     connectionFromPromisedArray,
 } = require('graphql-relay');
 
-const { getUserByToken } = require('../../utils/auth');
+const { auth } = require('../../utils/firebase');
 const { listChannels } = require('../../utils/kafka');
 const { channelType, channelConnection } = require('./channel');
 const { userType } = require('./user');
@@ -39,10 +39,15 @@ module.exports = new GraphQLObjectType({
             resolve: (_, { name }) => name,
         },
 
-        me: {
-            description: 'Get the profile for the current user',
+        user: {
+            description: `Obtiens le profil d'un utilisateur via son id`,
             type: userType,
-            resolve: (_, args, { token }) => getUserByToken(token),
-        },
+            args: {
+                id: {
+                    type: new GraphQLNonNull(GraphQLString),
+                },
+            },
+            resolve: (_, { id }) => auth.getUser(id),
+        }
     },
 });

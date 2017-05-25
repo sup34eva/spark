@@ -1,0 +1,13 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+}
+
+.btnGroup {
+    margin: 8px auto;
+}
+
+.btnGroup:first-child {
+    margin-right: 8px;
+}
