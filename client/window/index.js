@@ -8,12 +8,13 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import 'normalize.css';
 
 import App from './app';
+import theme from '../palette';
 
 injectTapEventPlugin();
 
 const renderRoot = AppComponent => (
     <AppContainer>
-        <MuiThemeProvider>
+        <MuiThemeProvider muiTheme={theme}>
             <AppComponent />
         </MuiThemeProvider>
     </AppContainer>
@@ -24,7 +25,7 @@ const main = document.querySelector('main');
 ReactDOM.render(renderRoot(App), main);
 
 if (module.hot) {
-    // eslint-disable-next-line flowtype-errors/show-errors
+    // $FlowIssue
     module.hot.accept('./app', () => {
         // eslint-disable-next-line global-require
         const NextApp = require('./app').default;

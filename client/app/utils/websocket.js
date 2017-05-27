@@ -83,7 +83,7 @@ export async function joinRoom(name: string): Promise<Array<Remote>> {
     console.log('joinRoom', name);
 
     socket.on('offer', wrapMessage((id: string, offer: Offer) =>
-        // eslint-disable-next-line flowtype-errors/show-errors
+        // $FlowIssue
         store.dispatch(acceptOffer(new Remote(socket, id), offer))
     ));
 

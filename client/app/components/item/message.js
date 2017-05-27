@@ -8,6 +8,7 @@ import { shell } from 'electron';
 import FlatButton from 'material-ui/FlatButton';
 import IconAttachment from 'material-ui/svg-icons/file/attachment';
 
+import md from '../../utils/markdown';
 import { storage } from '../../utils/firebase';
 import Squircle from '../base/squircle';
 import styles from './message.css';
@@ -17,6 +18,8 @@ type Props = {
     user: {
         uid: string,
     },
+
+    /* eslint-disable react/no-unused-prop-types */
     message: {
         kind?: 'TEXT' | 'FILE',
         content: string,
@@ -26,9 +29,10 @@ type Props = {
             photoURL: ?string,
         },
     },
+    /* eslint-enable react/no-unused-prop-types */
 };
 
-class Content extends Component {
+class File extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -48,14 +52,11 @@ class Content extends Component {
 
     // $FlowIssue
     async componentDidMount() {
-        if (this.props.kind === 'FILE') {
-            const ref = storage.ref(`${this.props.channel}/${this.props.content}`);
-            const content = await ref.getDownloadURL();
-            const metadata = await ref.getMetadata();
-            // eslint-disable-next-line react/no-did-mount-set-state
-            this.setState({ content, metadata });
-            console.log(metadata);
-        }
+        const ref = storage.ref(`${this.props.channel}/${this.props.content}`);
+        const content = await ref.getDownloadURL();
+        const metadata = await ref.getMetadata();
+        // eslint-disable-next-line react/no-did-mount-set-state
+        this.setState({ content, metadata });
     }
 
     handleClick = evt => {
@@ -65,27 +66,22 @@ class Content extends Component {
 
     props: {
         isMine: boolean,
-        kind?: 'TEXT' | 'FILE',
         content: string,
-        channel: string,
+        channel: string, // eslint-disable-line react/no-unused-prop-types
     };
 
     render() {
-        if (this.props.kind === 'FILE') {
-            const color = this.props.isMine ? '#fff' : '#191a1b';
-            return (
-                <FlatButton
-                    icon={<IconAttachment color={color} />}
-                    label={
-                        this.state.metadata ? this.state.metadata.customMetadata.displayName : ''
-                    }
-                    labelStyle={{ color }}
-                    disabled={this.state.content === null}
-                    onTouchTap={this.handleClick} />
-            );
-        }
-
-        return <span>{this.props.content}</span>;
+        const color = this.props.isMine ? '#fff' : '#191a1b';
+        return (
+            <FlatButton
+                icon={<IconAttachment color={color} />}
+                label={
+                    this.state.metadata ? this.state.metadata.customMetadata.displayName : ''
+                }
+                labelStyle={{ color }}
+                disabled={this.state.content === null}
+                onTouchTap={this.handleClick} />
+        );
     }
 }
 
@@ -102,11 +98,15 @@ const Message = (props: Props) => {
                 </Squircle>
             )}
             <div className={`${styles.bubble} ${isMine ? styles.outgoing : styles.incoming}`}>
-                <p className={styles.content}>
-                    <Content
-                        kind={kind} content={content}
-                        channel={props.channel} isMine={isMine} />
-                </p>
+                <div className={styles.content}>
+                    {kind === 'FILE' ? (
+                        <File
+                            kind={kind} content={content}
+                            channel={props.channel} isMine={isMine} />
+                    ) : (
+                        md.render(content)
+                    )}
+                </div>
                 <p className={styles.time}>{timeString}</p>
             </div>
         </div>

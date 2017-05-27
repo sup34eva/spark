@@ -34,16 +34,20 @@ function cssConfig(isModule) {
 }
 
 module.exports = {
-    devtool: 'source-map',
+    devtool: 'inline-source-map',
 
     entry: {
         window: [
+            'react-hot-loader/patch',
+            'webpack-dev-server/client?http://localhost:8080',
+            'webpack/hot/only-dev-server',
             'babel-polyfill',
             './window/index.js',
         ],
         app: [
             'react-hot-loader/patch',
-            'webpack-hot-middleware/client',
+            'webpack-dev-server/client?http://localhost:8080',
+            'webpack/hot/only-dev-server',
             'babel-polyfill',
             './app/index.js',
         ],
@@ -95,26 +99,22 @@ module.exports = {
 
     devServer: {
         hot: true,
-        // inline: true,
         host: 'spark.leops.me',
         publicPath: '/dist/',
         contentBase: [
             path.join(__dirname, 'window'),
             path.join(__dirname, 'app'),
         ],
-        https: {
-            key: fs.readFileSync(path.join(__dirname, '..', 'key.pem')),
-            cert: fs.readFileSync(path.join(__dirname, '..', 'cert.pem')),
-        },
         overlay: {
             warnings: false,
             errors: true,
         },
     },
 
-    externals: {
-        'libsignal-protocol': 'libsignal',
-    },
+    externals: ['ws'],
+    /*module: {
+        noParse: 'ws',
+    },*/
 
     output: {
         path: path.join(__dirname, 'dist'),

@@ -9,7 +9,7 @@ import auth from './auth';
 import client from '../utils/apollo';
 
 import type {
-    // eslint-disable-next-line flowtype-errors/show-errors
+    // $FlowIssue
     StreamState,
 } from './stream';
 import type {

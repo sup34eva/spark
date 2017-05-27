@@ -64,7 +64,7 @@ app.on('ready', installExtensions(() => {
             }]).popup(mainWindow);
         });
 
-        mainWindow.loadURL('https://spark.leops.me:8080/window.html');
+        mainWindow.loadURL('http://localhost:8080/window.html');
     } else {
         mainWindow.loadURL(path.resolve(__dirname, 'window.html'));
     }

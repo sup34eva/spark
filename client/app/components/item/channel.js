@@ -5,6 +5,7 @@ import { ListItem } from 'material-ui/List';
 import Mosaic from '../base/avatars';
 
 type Props = {
+    /* eslint-disable react/no-unused-prop-types */
     channel: {
         name: string,
         subtext: ?string,
@@ -12,6 +13,7 @@ type Props = {
             [key: string]: string,
         },
     },
+    /* eslint-enable react/no-unused-prop-types */
 
     onTouchTap?: () => void,
     style?: Object,

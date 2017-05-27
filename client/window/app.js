@@ -121,7 +121,7 @@ const MenuBar = (props: Props) => (
                 shell.openExternal('http://electron.atom.io');
             }} />
             <MenuItem primaryText="Documentation" onTouchTap={() => {
-                // eslint-disable-next-line flowtype-errors/show-errors
+                // $FlowIssue
                 shell.openExternal(`https://github.com/electron/electron/tree/v${process.versions.electron}/docs#readme`);
             }} />
             <MenuItem primaryText="Community Discussions" onTouchTap={() => {
@@ -165,7 +165,7 @@ export default class App extends React.Component {
             wrapped: null,
         }, {
             get({ wrapped }, name) {
-                // eslint-disable-next-line flowtype-errors/show-errors
+                // $FlowIssue
                 const field = wrapped[name];
 
                 if (typeof field === 'function') {

@@ -46,7 +46,7 @@ const store = createStore(
 );
 
 if (module.hot) {
-    // eslint-disable-next-line flowtype-errors/show-errors
+    // $FlowIssue
     module.hot.accept('./reducers', () =>
         store.replaceReducer(require('./reducers')) // eslint-disable-line global-require
     );

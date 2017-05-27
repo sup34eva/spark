@@ -69,4 +69,4 @@ const reduxConnector = connect(
     }),
 );
 
-export default reduxConnector(apolloConnector(PostForm));
+export default apolloConnector(reduxConnector(PostForm));

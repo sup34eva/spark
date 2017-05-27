@@ -6,7 +6,7 @@
   "scripts": {
     "postinstall": "flow-typed install",
     "start": "concurrently --kill-others -p \"[{name}]\" -n \"SERVER,CLIENT\" -c \"bgRed.bold,bgGreen.bold\" \"npm run server\" \"npm run client\"",
-    "client": "electron --ignore-certificate-errors --allow-insecure-localhost --unsafely-treat-insecure-origin-as-secure=\"chrome-extension://\" ./window/main",
+    "client": "electron ./window/main",
     "server": "webpack-dev-server"
   },
   "bin": {
@@ -49,6 +49,7 @@
     "react-visibility-sensor": "^3.6.2",
     "rebound": "0.0.13",
     "redux": "^3.6.0",
+    "remarkable": "^1.7.1",
     "socket.io": "^1.7.2",
     "socket.io-client": "^1.7.2"
   },

@@ -24,7 +24,6 @@ module.exports = {
 
         'react/jsx-first-prop-new-line': 'off',
         'react/jsx-closing-bracket-location': 'off',
-        'react/no-unused-prop-types': 'warn',
         'react/jsx-indent': ['error', 4],
         'react/jsx-indent-props': ['error', 4],
         'react/jsx-filename-extension': ['error', {
