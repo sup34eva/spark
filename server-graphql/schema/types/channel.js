@@ -1,6 +1,7 @@
 const {
     GraphQLString,
     GraphQLObjectType,
+    GraphQLEnumType,
 } = require('graphql');
 const {
     globalIdField,
@@ -20,6 +21,15 @@ const { userConnection } = require('./user');
 const { messageConnection } = require('./message');
 const { nodeInterface } = require('../node');
 
+const kindEnum = exports.channelKind = new GraphQLEnumType({
+    name: 'ChannelType',
+    values: {
+        CHANNEL: {},
+        GROUP: {},
+        CONVERSATION: {},
+    },
+});
+
 const cache = {};
 const nodeType = exports.channelType = new GraphQLObjectType({
     name: 'Channel',
@@ -32,6 +42,9 @@ const nodeType = exports.channelType = new GraphQLObjectType({
         name: {
             type: GraphQLString,
             resolve: name => name,
+        },
+        type: {
+            type: kindEnum,
         },
         users: {
             type: userConnection,

@@ -1,10 +1,10 @@
 const {
-    Client, Producer, Consumer,
+    Client, HighLevelProducer, Consumer,
     Offset, KeyedMessage
 } = require('kafka-node');
 
-const client = new Client();
-const producer = new Producer(client, {
+const client = new Client(process.env.KAFKA_URI);
+const producer = new HighLevelProducer(client, {
     partitionerType: 3,
 });
 const offset = new Offset(client);
@@ -15,14 +15,13 @@ const timeout = time => new Promise((resolve, reject) => {
 
 exports.sendMessage = ({ key, topic, value }) =>
     new Promise((resolve, reject) => {
-        const msg = new KeyedMessage(key, value);
         producer.send([
-            { topic, messages: [ msg ] },
+            { topic, key, messages: value },
         ], (err, data) => {
             if (err) {
                 reject(err);
             } else {
-                console.log('sendMessage', data, msg);
+                console.log('sendMessage', key);
                 resolve(data[topic][0]);
             }
         });
@@ -40,7 +39,7 @@ const getCurrentOffset = async topic => {
                         }
                     });
             }),
-            timeout(1000),
+            timeout(5000),
         ]);
     } catch (err) {
         return 0;
@@ -125,5 +124,5 @@ exports.listMessages = (topic, from, to) => Promise.race([
         consumer.on('error', onError);
         consumer.on('offsetOutOfRange', onError);
     }),
-    timeout(1000),
+    timeout(5000),
 ]);

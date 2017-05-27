@@ -11,7 +11,9 @@ const websocket = require('./utils/websocket');
 
 const app = express();
 
-app.use(graphiql);
+if(process.env.NODE_ENV === 'development') {
+    app.use(graphiql);
+}
 
 const server = spdy.createServer({
     key: fs.readFileSync('../key.pem'),

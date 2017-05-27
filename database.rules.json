@@ -1,0 +1,21 @@
+{
+  "rules": {
+    ".read": "auth != null",
+    ".write": "false",
+    "channels": {
+      "$channel": {
+        ".read": "data.child('users').hasChild(auth.uid)",
+        "type": {
+          ".validate": "data.isString() && data.val().matches(/^(CHANNEL|GROUP|CONVERSATION)$/)"
+        }
+      }
+    },
+    "users": {
+      "$user": {
+        "displayName": {
+          ".write": "$user == auth.uid"
+        }
+      }
+    }
+  }
+}

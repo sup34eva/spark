@@ -8,19 +8,11 @@ type Channel implements Node {
   # The ID of an object
   id: ID!
   name: String
+  type: ChannelType
   users(after: String, first: Int, before: String, last: Int): UserConnection
 
   # Cette connection est toujours vide, utiliser la subscription messagesSubscribe pour obtenir son contenu
   messages(after: String, first: Int, before: String, last: Int): MessageConnection
-}
-
-# A connection to a list of items.
-type ChannelConnection {
-  # Information to aid in pagination.
-  pageInfo: PageInfo!
-
-  # A list of edges.
-  edges: [ChannelEdge]
 }
 
 # An edge in a connection.
@@ -32,8 +24,15 @@ type ChannelEdge {
   cursor: String!
 }
 
+enum ChannelType {
+  CHANNEL
+  GROUP
+  CONVERSATION
+}
+
 input CreateChannelInput {
   name: String!
+  type: ChannelType!
   clientMutationId: String
 }
 
@@ -168,12 +167,6 @@ type Viewer {
   # The ID of an object
   id: ID!
 
-  # Liste des channels disponible
-  channels(after: String, first: Int, before: String, last: Int): ChannelConnection
-
   # Obtiens une référence a un channel spécifique via son nom
   channel(name: String!): Channel
-
-  # Obtiens le profil d'un utilisateur via son id
-  user(id: String!): User
 }

@@ -2,7 +2,7 @@
 import React from 'react';
 import Paper from 'material-ui/Paper';
 
-import UserChip from '../item/member';
+import UserChip from '../item/user';
 import connectFirebase from '../../utils/firebase/enhancer';
 
 import styles from './members.css';
@@ -22,7 +22,7 @@ const MemberList = ({ users }: Props) => (
 const fbConnector = connectFirebase(
     props => `/channels/${props.channel}`,
     value => ({
-        users: value ? Object.values(value.users) : [],
+        users: value ? Object.keys(value.users) : [],
     }),
 );
 

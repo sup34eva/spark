@@ -86,10 +86,6 @@ export function sendOffer(): Action {
                     .map(async remote => {
                         const connection = createConnection(remote, stream);
 
-                        connection.onaddstream = event => {
-                            dispatch(remoteStream(remote.id, event.stream));
-                        };
-
                         dispatch(remoteConnection(remote.id, connection));
 
                         const reply = await remote.sendOffer(

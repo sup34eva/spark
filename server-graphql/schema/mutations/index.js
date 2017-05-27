@@ -17,7 +17,7 @@ const {
 } = require('../../utils/kafka');
 const { database, auth } = require('../../utils/firebase');
 
-const { channelType, channelEdge } = require('../types/channel');
+const { channelKind, channelType, channelEdge } = require('../types/channel');
 const { messageEdge, messageKind } = require('../types/message');
 const viewerType = require('../types/viewer');
 
@@ -30,6 +30,9 @@ module.exports = new GraphQLObjectType({
                 name: {
                     type: new GraphQLNonNull(GraphQLString),
                 },
+                type: {
+                    type: new GraphQLNonNull(channelKind),
+                },
             },
             outputFields: {
                 channelEdge: {
@@ -39,11 +42,17 @@ module.exports = new GraphQLObjectType({
                     type: viewerType,
                 },
             },
-            async mutateAndGetPayload({ name }, { token }) {
+            async mutateAndGetPayload({ name, type }, { token }) {
                 const { sub } = await auth.verifyIdToken(token);
-                const channel = database.ref('/channels/' + name + '/users').push().set(sub);
 
                 await createChannel(name);
+
+                database.ref('/channels/' + name).set({
+                    type,
+                    users: {
+                        [sub]: true,
+                    },
+                });
 
                 return {
                     viewer: {
