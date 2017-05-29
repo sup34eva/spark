@@ -112,9 +112,6 @@ module.exports = {
     },
 
     externals: ['ws'],
-    /*module: {
-        noParse: 'ws',
-    },*/
 
     output: {
         path: path.join(__dirname, 'dist'),

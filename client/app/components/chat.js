@@ -1,22 +1,50 @@
 // @flow
 import React from 'react';
+import Relay, { Route } from 'react-relay';
+import { connect } from 'react-redux';
 
-import MemberList from './list/members';
-import MessageList from './list/messages';
-import MessageForm from './input/message';
+import Video from './video';
+import Text from './text';
 
-import styles from './app.css';
+import environment from '../utils/relay';
+
+class ChannelQuery extends Route {
+    static routeName = 'ChannelQuery';
+    static paramDefinitions = {
+        channel: { required: true },
+    };
+    static queries = {
+        viewer: (component, variables) => Relay.QL`
+            query {
+                viewer {
+                    ${component.getFragment('viewer', variables)}
+                }
+            }
+        `,
+    };
+}
 
 type Props = {
     channel: string,
+    joined: boolean,
 };
 
-const Chat = ({ channel }: Props) => (
-    <div className={styles.chat}>
-        <MemberList channel={channel} />
-        <MessageList channel={channel} />
-        <MessageForm channel={channel} />
-    </div>
+const Chat = ({ channel, joined }: Props) => (
+    joined ? (
+        <Video />
+    ) : (
+        <Relay.Renderer
+            Container={Text}
+            queryConfig={new ChannelQuery({ channel })}
+            environment={environment} />
+    )
 );
 
-export default Chat;
+const reduxConnector = connect(
+    ({ chat, stream }) => ({
+        channel: chat.channel,
+        joined: stream.joined,
+    }),
+);
+
+export default reduxConnector(Chat);

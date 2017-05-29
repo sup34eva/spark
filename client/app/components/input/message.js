@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+import Relay from 'react-relay';
 import { connect } from 'react-redux';
 
 import Paper from 'material-ui/Paper';
@@ -7,31 +8,33 @@ import TextField from 'material-ui/TextField';
 
 import type { Dispatch } from 'redux';
 import type { Action } from '../../store';
-import sendMessageMutation from '../../utils/apollo/sendMessage';
 
-import { fragment as messageFragment } from '../item/message';
+import environment from '../../utils/relay';
 import { setMessage } from '../../actions/chat';
+import PostMessageMutation from '../../mutations/postMessage';
 
 import Squircle from '../base/squircle';
 import styles from './message.css';
 
-type MessagePayload = {
-    kind: 'TEXT' | 'FILE',
-    content: string,
-};
-
 type Props = {
-    channel: string,
+    uid: string,
     message: string,
+    viewer: Object,
     setMessage: (any, string) => void,
-    postMessage: (string, MessagePayload) => void,
 };
 
 const PostForm = (props: Props) => {
     const onSubmit = evt => {
         evt.preventDefault();
         if (props.message.trim().length > 0) {
-            props.postMessage(props.channel, { kind: 'TEXT', content: props.message });
+            environment.commitUpdate(
+                new PostMessageMutation({
+                    kind: 'TEXT',
+                    content: props.message,
+                    user: props.uid,
+                    channel: props.viewer.channel,
+                }),
+            );
             props.setMessage(null, '');
         }
     };
@@ -56,10 +59,9 @@ const PostForm = (props: Props) => {
     );
 };
 
-const apolloConnector = sendMessageMutation(messageFragment);
-
 const reduxConnector = connect(
-    ({ chat }) => ({
+    ({ auth, chat }) => ({
+        uid: auth.user.uid,
         message: chat.message,
     }),
     (dispatch: Dispatch<Action>) => ({
@@ -69,4 +71,17 @@ const reduxConnector = connect(
     }),
 );
 
-export default apolloConnector(reduxConnector(PostForm));
+export default Relay.createContainer(reduxConnector(PostForm), {
+    initialVariables: {
+        channel: null,
+    },
+    fragments: {
+        viewer: () => Relay.QL`
+            fragment on Viewer {
+                channel(name: $channel) {
+                    ${PostMessageMutation.getFragment('channel')}
+                }
+            }
+        `,
+    },
+});

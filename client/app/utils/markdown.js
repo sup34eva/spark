@@ -56,14 +56,22 @@ function render(head, tail) {
     return [result, tail.length];
 }
 
+function flatten(list) {
+    if (list.length === 1) {
+        return list[0];
+    }
+
+    return list.map((elem, key) => React.cloneElement(elem, { key }));
+}
+
 md.renderer = {
     ...md.renderer,
     renderInline(tokens) {
-        return render(null, tokens)[0];
+        return flatten(render(null, tokens)[0]);
     },
 
     render(tokens) {
-        return render(null, tokens)[0];
+        return flatten(render(null, tokens)[0]);
     },
 };
 

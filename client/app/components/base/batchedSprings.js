@@ -1,5 +1,5 @@
 // @flow
-import React from 'react';
+import React, { Element } from 'react';
 import rebound from 'rebound';
 
 import batch from '../../utils/batch';
@@ -7,7 +7,7 @@ import batch from '../../utils/batch';
 const system = new rebound.SpringSystem();
 
 type Props = {
-    children: ({ [key: string]: number }) => React.Element<*>;
+    children: ({ [key: string]: number }) => Element<*>;
     springs: {
         [key: string]: {
             tension: number,

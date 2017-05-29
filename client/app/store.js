@@ -9,7 +9,6 @@ import {
 import createLogger from 'redux-logger';
 
 import { thunk } from './utils';
-import client from './utils/apollo';
 
 import * as actionCreators from './actions/stream';
 import rootReducer from './reducers';
@@ -38,7 +37,6 @@ const store = createStore(
     composeEnhancers(
         // $FlowIssue
         applyMiddleware(
-            client.middleware(),
             thunk,
             logger,
         ),

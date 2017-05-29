@@ -17,7 +17,7 @@ const App = (props: Props) => (
     <div className={styles.app}>
         {props.user ? [
             <ChannelList key="list" />,
-            props.channel && <Chat key="chat" channel={props.channel} />,
+            props.channel && <Chat key={`chat:${props.channel}`} />,
         ] : (
             <AuthForm />
         )}

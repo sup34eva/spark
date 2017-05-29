@@ -8,7 +8,6 @@ export type Props = {
     canLoadMore: bool,
     onLoadMore: () => void,
     children?: Element<any>,
-    containerRef: ?(HTMLDivElement) => void,
 };
 
 export default class InfiniteList extends Component<void, Props, void> {
@@ -36,9 +35,6 @@ export default class InfiniteList extends Component<void, Props, void> {
 
     handleRef = (node: HTMLDivElement) => {
         this.node = node;
-        if (this.props.containerRef) {
-            this.props.containerRef(node);
-        }
     }
 
     node: HTMLDivElement;
@@ -49,7 +45,6 @@ export default class InfiniteList extends Component<void, Props, void> {
         const {
             canLoadMore,
             onLoadMore,
-            containerRef, // eslint-disable-line no-unused-vars
             ...other
         } = this.props;
 

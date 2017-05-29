@@ -36,7 +36,7 @@ module.exports = {
         'promise/no-native': 0,
 
         'graphql/template-strings': ['error', {
-            env: 'apollo',
+            env: 'relay',
             schemaJson: require('../server-graphql/data/schema.json'),
         }],
   },

@@ -51,7 +51,7 @@ exports.getCurrentOffset = getCurrentOffset;
 exports.createConsumer = async topic => {
     const offset = await getCurrentOffset(topic);
     return new Consumer(
-        new Client(),
+        new Client(process.env.KAFKA_URI),
         [{ topic, offset }],
         {
             autoCommit: false,
@@ -91,7 +91,7 @@ exports.createChannel = name =>
 exports.listMessages = (topic, from, to) => Promise.race([
     new Promise((resolve, reject) => {
         const consumer = new Consumer(
-            new Client(),
+            new Client(process.env.KAFKA_URI),
             [{ topic, offset: from }],
             {
                 autoCommit: false,

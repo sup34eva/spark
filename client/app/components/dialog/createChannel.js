@@ -1,6 +1,5 @@
 // @flow
 import React, { Component } from 'react';
-import { gql, graphql } from 'react-apollo';
 import { connect } from 'react-redux';
 
 import TextField from 'material-ui/TextField';
@@ -10,19 +9,15 @@ import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 import AutoComplete from 'material-ui/AutoComplete';
 
-import type {
-    Dispatch,
-} from 'redux';
+import type { Dispatch } from 'redux';
 
 import UserChip from '../item/user';
 
-import type {
-    Action,
-} from '../../store';
+import environment from '../../utils/relay';
+import CreateChannelMutation from '../../mutations/createChannel';
+import { closeModal } from '../../actions/chat';
 
-import {
-    closeModal,
-} from '../../actions/chat';
+import type { Action } from '../../store';
 
 type Props = {
     showModal: boolean,
@@ -31,7 +26,6 @@ type Props = {
         name: string,
     }>,
     closeModal: () => void,
-    createChannel: (string) => void,
 };
 
 class ChannelModal extends Component {
@@ -145,7 +139,9 @@ class ChannelModal extends Component {
                             const { type, name } = this.state;
                             try {
                                 this.setState({ pending: true });
-                                await this.props.createChannel(type, name);
+                                environment.commitUpdate(
+                                    new CreateChannelMutation({ type, name })
+                                );
                                 this.props.closeModal();
                             } catch (err) {
                                 console.error(err);
@@ -179,24 +175,4 @@ const reduxConnector = connect(
     }),
 );
 
-const apolloConnector = graphql(gql`
-    mutation CreateChannelMutation($input: CreateChannelInput!) {
-        createChannel(input: $input) {
-            channelEdge {
-                node {
-                    id
-                }
-            }
-        }
-    }
-`, {
-    props: ({ mutate }) => ({
-        createChannel: (type, name) => mutate({
-            variables: {
-                input: { type, name },
-            },
-        }),
-    }),
-});
-
-export default apolloConnector(reduxConnector(ChannelModal));
+export default reduxConnector(ChannelModal);

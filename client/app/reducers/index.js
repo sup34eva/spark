@@ -6,7 +6,6 @@ import {
 import stream from './stream';
 import chat from './chat';
 import auth from './auth';
-import client from '../utils/apollo';
 
 import type {
     // $FlowIssue
@@ -29,5 +28,4 @@ export default combineReducers({
     chat,
     auth,
     stream,
-    apollo: client.reducer(),
 });

@@ -1,7 +1,8 @@
 {
     "plugins": [
         "react-hot-loader/babel",
-        "flow-react-proptypes"
+        "flow-react-proptypes",
+        "./plugins/babelRelayPlugin"
     ],
     "presets": [
         ["env", {

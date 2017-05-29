@@ -52,6 +52,7 @@ const ChannelList = ({ channels, channel, ...props }: Props) => (
         <SelectableList value={channel} onChange={props.selectChannel}>
             <Subheader>Channels</Subheader>
             {channels ? channels.map(node => (
+                // $FlowIssue
                 <ChannelItem key={node.name} value={node.name} channel={node} />
             )) : (
                 <CircularProgress />

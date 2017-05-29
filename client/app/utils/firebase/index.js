@@ -6,6 +6,7 @@ import 'firebase/storage';
 
 import store from '../../store';
 
+// $FlowIssue
 firebase.initializeApp({
     apiKey: 'AIzaSyDruhWVdCcU8QSA24C7yNDVEai1thLSEkA',
     authDomain: 'spark-c3d4b.firebaseapp.com',
@@ -15,8 +16,11 @@ firebase.initializeApp({
     messagingSenderId: '359874121967',
 });
 
+// $FlowIssue
 export const auth = firebase.auth();
+// $FlowIssue
 export const database = firebase.database();
+// $FlowIssue
 export const storage = firebase.storage();
 
 auth.onAuthStateChanged(user => {
