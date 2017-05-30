@@ -1,5 +1,5 @@
 // @flow
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { Map } from 'immutable';
 
 import { ListItem } from 'material-ui/List';
@@ -22,7 +22,7 @@ type Props = {
     style?: Object,
 };
 
-export default class Channel extends Component {
+export default class Channel extends PureComponent {
     static muiName = 'ListItem';
     static defaultProps = {
         nestedItems: [],

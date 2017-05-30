@@ -7,7 +7,7 @@ module.exports = {
         node: true,
     },
     rules: {
-        'linebreak-style': ['error', 'windows'],
+        'linebreak-style': ['off', 'windows'],
         'indent': ['error', 4, {
             SwitchCase: 1,
         }],

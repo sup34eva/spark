@@ -55,8 +55,17 @@ export function runQuery(data: any): Promise<any> {
     });
 }
 
-export function subscribe(request: any) {
-    const id = request.getClientSubscriptionId();
+type Subscription = {
+    subscription: string,
+    variables: Object,
+
+    onNext: (Object) => void,
+    onError: (Error) => void,
+};
+
+let clientSubscriptionId = 0;
+export function subscribe(request: Subscription) {
+    const id = clientSubscriptionId++;
     socket.on(id, result => {
         if (result.errors) {
             result.errors
@@ -68,8 +77,11 @@ export function subscribe(request: any) {
 
     return {
         request: runQuery({
-            query: request.getQueryString(),
-            variables: request.getVariables(),
+            query: request.subscription,
+            variables: {
+                ...request.variables,
+                clientSubscriptionId: id,
+            },
         }),
         connection: {
             dispose() {

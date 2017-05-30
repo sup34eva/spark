@@ -9,15 +9,15 @@ import Chat from './chat';
 import styles from './app.css';
 
 type Props = {
-    user: ?Object,
-    channel: ?string,
+    user: boolean,
+    channel: boolean,
 };
 
 const App = (props: Props) => (
     <div className={styles.app}>
         {props.user ? [
             <ChannelList key="list" />,
-            props.channel && <Chat key={`chat:${props.channel}`} />,
+            props.channel && <Chat key="chat" />,
         ] : (
             <AuthForm />
         )}
@@ -26,7 +26,7 @@ const App = (props: Props) => (
 
 export default connect(
     ({ auth, chat }) => ({
-        user: auth.user,
-        channel: chat.channel,
+        user: !!auth.user,
+        channel: !!chat.channel,
     }),
 )(App);

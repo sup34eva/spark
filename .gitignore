@@ -4,3 +4,4 @@ cert.pem
 key.pem
 *.env
 server-graphql/utils/serviceAccountKey.json
+__generated__

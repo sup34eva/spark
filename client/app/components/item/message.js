@@ -1,12 +1,15 @@
 // @flow
 import React, { Component } from 'react';
-import Relay from 'react-relay';
+import { graphql, createFragmentContainer } from 'react-relay';
 import { toGlobalId } from 'graphql-relay';
 import { connect } from 'react-redux';
 import { shell } from 'electron';
 
 import FlatButton from 'material-ui/FlatButton';
 import IconAttachment from 'material-ui/svg-icons/file/attachment';
+
+// eslint-disable-next-line camelcase
+import type { message_message } from './__generated__/message_message.graphql';
 
 import md from '../../utils/markdown';
 import { storage } from '../../utils/firebase';
@@ -20,17 +23,8 @@ type Props = {
         uid: string,
     },
 
-    /* eslint-disable react/no-unused-prop-types */
-    message: {
-        kind?: 'TEXT' | 'FILE',
-        content: string,
-        time: number,
-        author: {
-            id: string,
-            photoURL: ?string,
-        },
-    },
-    /* eslint-enable react/no-unused-prop-types */
+    // eslint-disable-next-line camelcase, react/no-unused-prop-types
+    message: message_message,
 };
 
 class File extends Component {
@@ -138,18 +132,17 @@ const reduxConnector = connect(
     }),
 );
 
-export default Relay.createContainer(reduxConnector(Message), {
-    fragments: {
-        message: () => Relay.QL`
-            fragment on Message {
-                kind
-                content
-                time
-                author {
-                    id
-                    photoURL
-                }
+export default createFragmentContainer(
+    reduxConnector(Message),
+    graphql`
+        fragment message_message on Message {
+            kind
+            content
+            time
+            author {
+                id
+                photoURL
             }
-        `,
-    },
-});
+        }
+    `,
+);

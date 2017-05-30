@@ -21,7 +21,7 @@ function installExtensions(then) {
             default: installer,
             REACT_DEVELOPER_TOOLS,
             REDUX_DEVTOOLS,
-            // REACT_PERF,
+            REACT_PERF,
         } = require('electron-devtools-installer');
 
         return () => {
@@ -29,7 +29,7 @@ function installExtensions(then) {
                 [
                     REACT_DEVELOPER_TOOLS,
                     REDUX_DEVTOOLS,
-                    // REACT_PERF,
+                    REACT_PERF,
                     'jdkknkkbebbapilgoeccciglkfbmbnfm',
                 ]
                     .map(installer)

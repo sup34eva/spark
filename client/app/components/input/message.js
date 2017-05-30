@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
-import Relay from 'react-relay';
 import { connect } from 'react-redux';
+import { toGlobalId } from 'graphql-relay';
 
 import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
@@ -9,17 +9,17 @@ import TextField from 'material-ui/TextField';
 import type { Dispatch } from 'redux';
 import type { Action } from '../../store';
 
-import environment from '../../utils/relay';
+import { store } from '../../utils/relay';
+import postMessage from '../../utils/relay/postMessage';
 import { setMessage } from '../../actions/chat';
-import PostMessageMutation from '../../mutations/postMessage';
 
 import Squircle from '../base/squircle';
 import styles from './message.css';
 
 type Props = {
     uid: string,
+    channel: string,
     message: string,
-    viewer: Object,
     setMessage: (any, string) => void,
 };
 
@@ -27,14 +27,38 @@ const PostForm = (props: Props) => {
     const onSubmit = evt => {
         evt.preventDefault();
         if (props.message.trim().length > 0) {
-            environment.commitUpdate(
-                new PostMessageMutation({
-                    kind: 'TEXT',
-                    content: props.message,
-                    user: props.uid,
-                    channel: props.viewer.channel,
-                }),
-            );
+            const id = toGlobalId('Channel', props.channel);
+            const { data } = store.lookup({
+                dataID: id,
+                node: {
+                    selections: [{
+                        kind: 'LinkedField',
+                        name: '__MessageList_messages_connection',
+                        alias: 'messages',
+                        selections: [{
+                            kind: 'LinkedField',
+                            name: 'pageInfo',
+                            selections: [{
+                                kind: 'ScalarField',
+                                name: 'endCursor',
+                            }],
+                        }],
+                    }],
+                },
+            });
+
+            // $FlowIssue
+            postMessage({
+                kind: 'TEXT',
+                content: props.message,
+                user: props.uid,
+                channel: {
+                    id,
+                    name: props.channel,
+                    ...data,
+                },
+            });
+
             props.setMessage(null, '');
         }
     };
@@ -62,6 +86,7 @@ const PostForm = (props: Props) => {
 const reduxConnector = connect(
     ({ auth, chat }) => ({
         uid: auth.user.uid,
+        channel: chat.channel,
         message: chat.message,
     }),
     (dispatch: Dispatch<Action>) => ({
@@ -71,17 +96,4 @@ const reduxConnector = connect(
     }),
 );
 
-export default Relay.createContainer(reduxConnector(PostForm), {
-    initialVariables: {
-        channel: null,
-    },
-    fragments: {
-        viewer: () => Relay.QL`
-            fragment on Viewer {
-                channel(name: $channel) {
-                    ${PostMessageMutation.getFragment('channel')}
-                }
-            }
-        `,
-    },
-});
+export default reduxConnector(PostForm);

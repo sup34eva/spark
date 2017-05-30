@@ -14,6 +14,15 @@ import theme from '../palette';
 
 import './app.global.css';
 
+/* eslint-disable */
+if (process.env.NODE_ENV !== 'production') {
+    const { whyDidYouUpdate } = require('why-did-you-update');
+    whyDidYouUpdate(React, {
+        exclude: /^(EnhancedButton|TouchRipple|List|Paper|IconButton|_class|Connect)/,
+    });
+}
+/* eslint-enable */
+
 injectTapEventPlugin();
 
 const renderRoot = AppComponent => (

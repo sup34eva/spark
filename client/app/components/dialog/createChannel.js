@@ -1,5 +1,6 @@
 // @flow
 import React, { Component } from 'react';
+import { graphql, commitMutation } from 'react-relay';
 import { connect } from 'react-redux';
 
 import TextField from 'material-ui/TextField';
@@ -14,7 +15,6 @@ import type { Dispatch } from 'redux';
 import UserChip from '../item/user';
 
 import environment from '../../utils/relay';
-import CreateChannelMutation from '../../mutations/createChannel';
 import { closeModal } from '../../actions/chat';
 
 import type { Action } from '../../store';
@@ -136,18 +136,26 @@ class ChannelModal extends Component {
                         label="Create" primary
                         disabled={this.state.pending}
                         onTouchTap={async () => {
+                            this.setState({ pending: true });
+
                             const { type, name } = this.state;
-                            try {
-                                this.setState({ pending: true });
-                                environment.commitUpdate(
-                                    new CreateChannelMutation({ type, name })
-                                );
-                                this.props.closeModal();
-                            } catch (err) {
-                                console.error(err);
-                            } finally {
-                                this.setState({ pending: false });
-                            }
+                            commitMutation(environment, {
+                                mutation: graphql`
+                                    mutation createChannel_CreateChannelMutation($input: CreateChannelInput!) {
+                                        createChannel(input: $input) {
+                                            clientMutationId
+                                        }
+                                    }
+                                `,
+                                variables: {
+                                    input: { type, name },
+                                },
+
+                                onCompleted: () => {
+                                    this.props.closeModal();
+                                    this.setState({ pending: false });
+                                },
+                            });
                         }} />,
                 ]}>
                 <SelectField
