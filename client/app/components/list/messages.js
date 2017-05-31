@@ -1,27 +1,33 @@
 // @flow
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { graphql, requestSubscription, createPaginationContainer } from 'react-relay';
 import { connect } from 'react-redux';
+import { compose } from 'redux';
+import CircularProgress from 'material-ui/CircularProgress';
 
-import environment from '../../utils/relay';
-import { storage } from '../../utils/firebase';
-import nextPushId from '../../utils/firebase/nextPushId';
-import connectRelay from '../../utils/relay/renderer';
-import postMessage from '../../utils/relay/postMessage';
-
-import DropZone from '../base/dropZone';
-import BatchedSprings, { PRESET_ZOOM } from '../base/batchedSprings';
-import Message from '../item/message';
-import InfiniteList from '../base/infiniteList';
+import environment from 'utils/relay';
+import { storage } from 'utils/firebase';
+import nextPushId from 'utils/firebase/nextPushId';
+import postMessage from 'utils/relay/postMessage';
+import createRenderer from 'utils/relay/enhancers';
+import DropZone from 'components/base/dropZone';
+import BatchedSprings, { PRESET_ZOOM } from 'components/base/batchedSprings';
+import Message from 'components/item/message';
+import InfiniteList from 'components/base/infiniteList';
 
 /* eslint-disable camelcase */
 import type { messages_channel } from './__generated__/messages_channel.graphql';
 import type { messages_MessageListQuery } from './__generated__/messages_MessageListQuery.graphql';
 /* eslint-enable camelcase */
-
 import styles from './messages.css';
 
-class MessageList extends Component {
+const LoadingList = () => (
+    <div className={styles.loadingList}>
+        <CircularProgress />
+    </div>
+);
+
+class MessageList extends PureComponent {
     componentDidMount() {
         requestSubscription(environment, {
             subscription: graphql`
@@ -74,7 +80,8 @@ class MessageList extends Component {
         });
     }
 
-    getMessages(edges: Array<Object>) {
+    // eslint-disable-next-line no-undef
+    getMessages(edges: $ReadOnlyArray<Object>) {
         const messages = [...edges];
         messages.sort((a, b) => a.node.time - b.node.time);
 
@@ -128,9 +135,11 @@ class MessageList extends Component {
     };
 
     render() {
-        console.log('MessageList', this.props);
-
         const { messages } = this.props.channel;
+        if (!messages || !messages.edges) {
+            return <LoadingList />;
+        }
+
         const { list } = this.getMessages(messages.edges);
 
         return (
@@ -144,12 +153,6 @@ class MessageList extends Component {
     }
 }
 
-const reduxConnector = connect(
-    ({ auth }) => ({
-        uid: auth.user.uid,
-    }),
-);
-
 const query = graphql`
     query messages_MessageListQuery($channel: String!, $count: Int!, $cursor: String) {
         viewer {
@@ -162,19 +165,27 @@ const query = graphql`
     }
 `;
 
-const relayConnector = connectRelay(
-    query,
-    {
-        count: 20,
-    },
-    ({ viewer }) => ({
-        viewer,
-        channel: viewer.channel,
+const enhancer = compose(
+    createRenderer({
+        query,
+        LoadingComponent: LoadingList,
+        variables: {
+            count: 20,
+        },
+        mapResultToProps: ({ viewer }) => ({
+            viewer,
+            channel: viewer.channel,
+        }),
     }),
+    connect(
+        ({ auth }) => ({
+            uid: auth.user.uid,
+        }),
+    ),
 );
 
-export default relayConnector(createPaginationContainer(
-    reduxConnector(MessageList),
+export default enhancer(createPaginationContainer(
+    MessageList,
     {
         channel: graphql`
             fragment messages_channel on Channel {
@@ -210,5 +221,5 @@ export default relayConnector(createPaginationContainer(
             count,
             cursor,
         }),
-    },
+    }
 ));

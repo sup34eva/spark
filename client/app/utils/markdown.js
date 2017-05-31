@@ -61,6 +61,7 @@ function flatten(list) {
         return list[0];
     }
 
+    // eslint-disable-next-line react/no-array-index-key
     return list.map((elem, key) => React.cloneElement(elem, { key }));
 }
 

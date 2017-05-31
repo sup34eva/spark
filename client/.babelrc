@@ -4,6 +4,15 @@
         "flow-react-proptypes",
         ["relay", {
             "schema": "../server-graphql/data/schema.graphql"
+        }],
+        ["module-resolver", {
+            "root": ["./window", "./app"],
+            "alias": {
+                "actions": "./actions",
+                "components": "./components",
+                "utils": "./utils",
+                "store": "./store"
+            }
         }]
     ],
     "presets": [

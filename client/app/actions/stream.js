@@ -4,13 +4,17 @@ import type {
     Store as ReduxStore,
 } from 'redux';
 
-import * as RTC from '../utils/rtc';
-import * as WS from '../utils/websocket';
-
+import * as RTC from 'utils/rtc';
+import * as WS from 'utils/websocket';
 import {
     initCamera,
     createConnection,
-} from '../utils';
+} from 'utils';
+import type {
+    Connection,
+    Offer,
+    Candidate,
+} from 'utils/rtc';
 
 import type {
     State,
@@ -18,12 +22,6 @@ import type {
 import type {
     Action,
 } from '../store';
-
-import type {
-    Connection,
-    Offer,
-    Candidate,
-} from '../utils/rtc';
 
 type GetState = () => State;
 type Store = ReduxStore<State, Action>;
@@ -80,7 +78,7 @@ export function sendOffer(): Action {
                 WS.joinRoom('default'),
             ]);
 
-            return await Promise.all(
+            return Promise.all(
                 remotes
                     .filter(remote => !streamState.remotes.has(remote.id))
                     .map(async remote => {
@@ -114,7 +112,7 @@ export function acceptOffer(remote: WS.Remote, offer: Offer): Action {
             const connection = createConnection(remote, stream);
             dispatch(remoteConnection(remote.id, connection));
 
-            return await RTC.acceptOffer(connection, offer);
+            return RTC.acceptOffer(connection, offer);
         },
     };
 }
@@ -142,7 +140,7 @@ export function handleCandidate(store: Store, remote: string, candidate: Candida
                 handler();
             });
 
-            return await RTC.handleCandidate(
+            return RTC.handleCandidate(
                 connection,
                 candidate,
             );

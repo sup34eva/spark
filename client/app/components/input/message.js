@@ -2,18 +2,16 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { toGlobalId } from 'graphql-relay';
-
 import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
-
 import type { Dispatch } from 'redux';
-import type { Action } from '../../store';
 
-import { store } from '../../utils/relay';
-import postMessage from '../../utils/relay/postMessage';
-import { setMessage } from '../../actions/chat';
+import { store } from 'utils/relay';
+import postMessage from 'utils/relay/postMessage';
+import { setMessage } from 'actions/chat';
+import type { Action } from 'store';
+import Squircle from 'components/base/squircle';
 
-import Squircle from '../base/squircle';
 import styles from './message.css';
 
 type Props = {
@@ -83,7 +81,7 @@ const PostForm = (props: Props) => {
     );
 };
 
-const reduxConnector = connect(
+const enhance = connect(
     ({ auth, chat }) => ({
         uid: auth.user.uid,
         channel: chat.channel,
@@ -96,4 +94,4 @@ const reduxConnector = connect(
     }),
 );
 
-export default reduxConnector(PostForm);
+export default enhance(PostForm);

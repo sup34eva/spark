@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+
 import Squircle from './squircle';
 
 type Props = {

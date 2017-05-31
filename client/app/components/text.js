@@ -1,14 +1,14 @@
 // @flow
 import React from 'react';
 import { connect } from 'react-redux';
-
 import IconButton from 'material-ui/IconButton';
 import VideoCall from 'material-ui/svg-icons/av/video-call';
+
+import { sendOffer } from 'actions/stream';
+
 import MemberList from './list/members';
 import MessageList from './list/messages';
 import MessageForm from './input/message';
-
-import { sendOffer } from '../actions/stream';
 import styles from './app.css';
 
 type Props = {
@@ -27,7 +27,7 @@ const Text = (props: Props) => (
     </div>
 );
 
-const reduxConnector = connect(
+const enhance = connect(
     ({ chat }) => ({
         channel: chat.channel,
     }),
@@ -38,4 +38,4 @@ const reduxConnector = connect(
     }),
 );
 
-export default reduxConnector(Text);
+export default enhance(Text);

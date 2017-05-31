@@ -1,20 +1,19 @@
 // @flow
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { graphql, createFragmentContainer } from 'react-relay';
 import { toGlobalId } from 'graphql-relay';
 import { connect } from 'react-redux';
 import { shell } from 'electron';
-
 import FlatButton from 'material-ui/FlatButton';
 import IconAttachment from 'material-ui/svg-icons/file/attachment';
 
+import BatchedSprings, { PRESET_ZOOM } from 'components/base/batchedSprings';
+import Squircle from 'components/base/squircle';
+import md from 'utils/markdown';
+import { storage } from 'utils/firebase';
+
 // eslint-disable-next-line camelcase
 import type { message_message } from './__generated__/message_message.graphql';
-
-import md from '../../utils/markdown';
-import { storage } from '../../utils/firebase';
-import BatchedSprings, { PRESET_ZOOM } from '../base/batchedSprings';
-import Squircle from '../base/squircle';
 import styles from './message.css';
 
 type Props = {
@@ -27,7 +26,7 @@ type Props = {
     message: message_message,
 };
 
-class File extends Component {
+class File extends PureComponent {
     constructor(props) {
         super(props);
         this.state = {
@@ -88,6 +87,10 @@ const TRANSLATE = {
 
 const Message = (props: Props) => {
     const { kind, content, time, author } = props.message;
+    if (!time || !author || !content) {
+        return null;
+    }
+
     const timeString = new Date(time).toLocaleTimeString();
     const isMine = author.id === toGlobalId('User', props.user.uid);
     const start = isMine ? -100 : 100;
@@ -111,8 +114,9 @@ const Message = (props: Props) => {
                         <div className={styles.content}>
                             {kind === 'FILE' ? (
                                 <File
-                                    kind={kind} content={content}
-                                    channel={props.channel} isMine={isMine} />
+                                    channel={props.channel}
+                                    isMine={isMine}
+                                    content={content} />
                             ) : (
                                 md.render(content)
                             )}
@@ -125,7 +129,7 @@ const Message = (props: Props) => {
     );
 };
 
-const reduxConnector = connect(
+const enhance = connect(
     ({ auth, chat }) => ({
         user: auth.user,
         channel: chat.channel,
@@ -133,7 +137,7 @@ const reduxConnector = connect(
 );
 
 export default createFragmentContainer(
-    reduxConnector(Message),
+    enhance(Message),
     graphql`
         fragment message_message on Message {
             kind

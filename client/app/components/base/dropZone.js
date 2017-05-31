@@ -1,5 +1,5 @@
 // @flow
-import React, { Element, Component } from 'react';
+import React, { Element, PureComponent } from 'react';
 
 export type Props = {
     className: ?string,
@@ -7,7 +7,11 @@ export type Props = {
     onDrop: (Array<File>) => void,
 };
 
-export default class DropZone extends Component<void, Props, void> {
+const onDragOver = (evt: DragEvent) => {
+    evt.preventDefault();
+};
+
+export default class DropZone extends PureComponent<void, Props, void> {
     onDrop = (evt: DragEvent) => {
         evt.preventDefault();
         if (evt.dataTransfer) {
@@ -26,32 +30,11 @@ export default class DropZone extends Component<void, Props, void> {
         }
     }
 
-    onDragOver = (evt: DragEvent) => {
-        evt.preventDefault();
-    }
-
-    container: HTMLDivElement;
     props: Props;
-
-    handleContainer = (container: HTMLDivElement) => {
-        if (container) {
-            // $FlowIssue
-            container.addEventListener('drop', this.onDrop);
-            // $FlowIssue
-            container.addEventListener('dragover', this.onDragOver);
-        } else {
-            // $FlowIssue
-            this.container.removeEventListener('drop', this.onDrop);
-            // $FlowIssue
-            this.container.removeEventListener('dragover', this.onDragOver);
-        }
-
-        this.container = container;
-    }
 
     render() {
         return (
-            <div ref={this.handleContainer} className={this.props.className}>
+            <div className={this.props.className} onDrop={this.onDrop} onDragOver={onDragOver}>
                 {this.props.children}
             </div>
         );

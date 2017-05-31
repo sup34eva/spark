@@ -1,7 +1,6 @@
 // @flow
 import { graphql, commitMutation } from 'react-relay';
 import { ConnectionHandler } from 'relay-runtime';
-
 import {
     cursorToOffset,
     offsetToCursor,
@@ -34,6 +33,11 @@ const updater = store => {
 
     const messages = ConnectionHandler.getConnection(channel, 'MessageList_messages');
 
+    const pageInfo = messages.getLinkedRecord('pageInfo');
+    const currentCursor = pageInfo.getValue('endCursor');
+    const newCursor = messageEdge.getValue('cursor');
+    pageInfo.setValue(newCursor, 'endCursor');
+
     const edge = ConnectionHandler.createEdge(
         store,
         messages,
@@ -41,7 +45,7 @@ const updater = store => {
         'MessageEdge',
     );
 
-    ConnectionHandler.insertEdgeAfter(messages, edge);
+    ConnectionHandler.insertEdgeAfter(messages, edge, currentCursor);
 };
 
 export default ({ channel, user, kind, content }: Props) => commitMutation(environment, {
@@ -52,9 +56,9 @@ export default ({ channel, user, kind, content }: Props) => commitMutation(envir
                     cursor
                     node {
                         id
+                        time
                         kind
                         content
-                        time
                         author {
                             id
                         }
@@ -62,12 +66,6 @@ export default ({ channel, user, kind, content }: Props) => commitMutation(envir
                 }
                 channel {
                     id
-                    name
-                    messages {
-                        pageInfo {
-                            endCursor
-                        }
-                    }
                 }
             }
         }
@@ -81,28 +79,22 @@ export default ({ channel, user, kind, content }: Props) => commitMutation(envir
     },
 
     optimisticResponse: () => {
-        let offset = 0;
+        let index = 0;
         if (channel.messages.pageInfo.endCursor) {
-            offset = cursorToOffset(channel.messages.pageInfo.endCursor) + 2;
+            index = cursorToOffset(channel.messages.pageInfo.endCursor) + 1;
         }
 
         return {
             postMessage: {
                 channel: {
                     id: channel.id,
-                    name: channel.name,
-                    messages: {
-                        pageInfo: {
-                            endCursor: offsetToCursor(offset),
-                        },
-                    },
                 },
                 messageEdge: {
-                    cursor: offsetToCursor(offset),
+                    cursor: offsetToCursor(index),
                     node: {
                         id: toGlobalId(
                             'Message',
-                            `${channel.name}:${offset}`,
+                            `${channel.name}:${index + 1}`,
                         ),
                         kind,
                         content,

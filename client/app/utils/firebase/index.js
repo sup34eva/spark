@@ -4,7 +4,7 @@ import 'firebase/auth';
 import 'firebase/database';
 import 'firebase/storage';
 
-import store from '../../store';
+import store from 'store';
 
 // $FlowIssue
 firebase.initializeApp({

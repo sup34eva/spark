@@ -21,17 +21,19 @@ const Chat = ({ localStream, remotes }: Props) => (
         {
             remotes
                 .filter(remote => !!remote.stream)
-                .map((remote, key) => (
+                .map((remote, key) => console.log(remote) || (
+                    /* eslint-disable react/no-array-index-key */
                     // $FlowIssue
                     <video key={key} src={URL.createObjectURL(remote.stream)} autoPlay />
+                    /* eslint-enable react/no-array-index-key */
                 ))
                 .toArray()
         }
     </div>
 );
 
-const reduxConnector = connect(
+const enhance = connect(
     ({ stream }) => stream.toObject(),
 );
 
-export default reduxConnector(Chat);
+export default enhance(Chat);

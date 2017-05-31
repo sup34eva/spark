@@ -1,16 +1,11 @@
 // @flow
-import {
-    compose,
-    createStore,
-    applyMiddleware,
-} from 'redux';
-
+import { compose, createStore, applyMiddleware } from 'redux';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import createLogger from 'redux-logger';
+import { createLogger } from 'redux-logger';
 
-import { thunk } from './utils';
+import * as actionCreators from 'actions/stream';
+import thunk from 'utils/thunk';
 
-import * as actionCreators from './actions/stream';
 import rootReducer from './reducers';
 
 /* eslint-disable no-underscore-dangle */

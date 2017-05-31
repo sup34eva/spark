@@ -1,7 +1,6 @@
 // @flow
 import React from 'react';
 import { remote, shell } from 'electron';
-
 import AppBar from 'material-ui/AppBar';
 import IconButton from 'material-ui/IconButton';
 import NavigationMinimize from 'material-ui/svg-icons/navigation/expand-more';
@@ -134,7 +133,7 @@ const MenuBar = (props: Props) => (
     </div>
 );
 
-const ButtonBar = ({ iconStyle }: { iconStyle?: any }) => (
+const ButtonBar = ({ iconStyle }: { iconStyle?: Object }) => (
     <span>
         {[
             [NavigationMinimize, 'minimize'],

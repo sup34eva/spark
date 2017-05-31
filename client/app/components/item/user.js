@@ -1,10 +1,10 @@
 // @flow
 import React from 'react';
-
 import Avatar from 'material-ui/Avatar';
 import Chip from 'material-ui/Chip';
 
-import connectFirebase from '../../utils/firebase/enhancer';
+import connectFirebase from 'utils/firebase/enhancer';
+
 import styles from './user.css';
 
 type Props = {
@@ -24,9 +24,9 @@ const UserChip = ({ profile, onRequestDelete }: Props) => (
     ) : null
 );
 
-const fbConnector = connectFirebase(
+const enhance = connectFirebase(
     ({ user }) => `/users/${user}`,
     profile => ({ profile }),
 );
 
-export default fbConnector(UserChip);
+export default enhance(UserChip);

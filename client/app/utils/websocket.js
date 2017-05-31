@@ -2,14 +2,10 @@
 import io from 'socket.io-client';
 
 import {
-    wrapMessage,
-    wrapSignal,
-} from './index';
-
-import {
     acceptOffer,
     handleCandidate,
-} from '../actions/stream';
+} from 'actions/stream';
+
 import store from '../store';
 
 import type {
@@ -17,15 +13,12 @@ import type {
     Offer,
     Answer,
 } from './rtc';
+import {
+    wrapMessage,
+    wrapSignal,
+} from './index';
 
 export const socket = io('wss://api.spark.leops.me:8443');
-
-/* ['connect_error', 'connect_timeout', 'error', 'reconnect_error', 'reconnect_failed']
-    .forEach(evt => {
-        socket.on(evt, (...args) => {
-            console.error(evt, ...args);
-        });
-    });*/
 
 export class Remote {
     id: string;
@@ -96,7 +89,7 @@ export async function joinRoom(name: string): Promise<Array<Remote>> {
 
     socket.on('offer', wrapMessage((id: string, offer: Offer) =>
         // $FlowIssue
-        store.dispatch(acceptOffer(new Remote(socket, id), offer))
+        store.dispatch(acceptOffer(new Remote(id), offer))
     ));
 
     socket.on('candidate', wrapMessage((remote: string, candidate: Candidate) =>
@@ -107,5 +100,5 @@ export async function joinRoom(name: string): Promise<Array<Remote>> {
         socket.emit('start-call', cb);
     });
 
-    return remotes.map(id => new Remote(socket, id));
+    return remotes.map(id => new Remote(id));
 }

@@ -109,7 +109,7 @@ module.exports = new GraphQLObjectType({
                 return {
                     channel,
                     messageEdge: {
-                        cursor: offsetToCursor(offset),
+                        cursor: offsetToCursor(offset - 1),
                         node: Object.assign({}, value, {
                             id: `${channel}:${offset}`,
                             uuid: key,

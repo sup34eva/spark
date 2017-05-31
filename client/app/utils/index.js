@@ -1,31 +1,11 @@
 // @flow
-import type {
-    Dispatch,
-    MiddlewareAPI,
-} from 'redux';
-import type {
-    Remote,
-} from './websocket';
-
-import * as RTC from './rtc';
-import type {
-    Connection,
-} from './rtc';
-
-import {
-    localStream,
-    remoteStream,
-} from '../actions/stream';
+import { localStream, remoteStream } from 'actions/stream';
 
 import store from '../store';
-import type {
-    State,
-} from '../reducers';
-import type {
-    Action,
-} from '../store';
 
-type Middleware = MiddlewareAPI<State, Action>;
+import * as RTC from './rtc';
+import type { Connection } from './rtc';
+import type { Remote } from './websocket';
 
 export function createConnection(remote: Remote, stream: MediaStream): Connection {
     const connection = RTC.createConnection();
@@ -81,37 +61,3 @@ export function wrapSignal<T>(cb: SignalHandler<T>): Promise<T> {
         });
     });
 }
-
-export const thunk = ({ dispatch, getState }: Middleware) =>
-    (next: Dispatch<Action>) =>
-        async (action: Action) => {
-            if (typeof action.payload === 'function') {
-                // eslint-disable-next-line no-param-reassign
-                action.payload = action.payload(dispatch, getState);
-            }
-
-            if (action.payload instanceof Promise) {
-                try {
-                    const result = await action.payload;
-
-                    dispatch({
-                        ...action,
-                        payload: result,
-                    });
-
-                    return result;
-                } catch (error) {
-                    console.error(error);
-
-                    dispatch({
-                        ...action,
-                        payload: error,
-                        error: true,
-                    });
-
-                    throw error;
-                }
-            }
-
-            return next(action);
-        };

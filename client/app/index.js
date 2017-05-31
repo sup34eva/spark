@@ -2,26 +2,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import injectTapEventPlugin from 'react-tap-event-plugin';
-
 import { AppContainer } from 'react-hot-loader';
 import { Provider } from 'react-redux';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import 'normalize.css';
 
-import store from './store';
-import App from './components/app';
 import theme from '../palette';
 
+import store from './store';
+import App from './components/app';
 import './app.global.css';
-
-/* eslint-disable */
-if (process.env.NODE_ENV !== 'production') {
-    const { whyDidYouUpdate } = require('why-did-you-update');
-    whyDidYouUpdate(React, {
-        exclude: /^(EnhancedButton|TouchRipple|List|Paper|IconButton|_class|Connect)/,
-    });
-}
-/* eslint-enable */
 
 injectTapEventPlugin();
 

@@ -22,6 +22,9 @@ module.exports = {
 
         'flowtype-errors/show-errors': 'error',
 
+        'jsx-a11y/media-has-caption': 'off',
+        'react/jsx-max-props-per-line': 'off',
+        'react/require-default-props': 'off',
         'react/jsx-first-prop-new-line': 'off',
         'react/jsx-closing-bracket-location': 'off',
         'react/jsx-indent': ['error', 4],
@@ -30,25 +33,34 @@ module.exports = {
             extensions: ['.js', '.jsx'],
         }],
 
-        'promise/param-names': 2,
-        'promise/always-return': 2,
-        'promise/catch-or-return': 2,
-        'promise/no-native': 0,
-
-        'graphql/template-strings': ['error', {
-            env: 'relay',
-            schemaJson: require('../server-graphql/data/schema.json'),
+        'import/first': ['error', {
+            'absolute-first': false,
         }],
+        'import/order': ['error', {
+            'newlines-between': 'always',
+            'groups': [
+                'builtin',
+                'external',
+                'internal',
+                'parent',
+                ['sibling', 'index'],
+            ],
+        }],
+
+        'promise/prefer-await-to-then': 'error',
+        'promise/param-names': 'error',
+        'promise/always-return': 'error',
+        'promise/catch-or-return': 'error',
   },
     plugins: [
         'flowtype-errors',
+        'react',
         'import',
         'promise',
-        'react',
-        'graphql',
     ],
     settings: {
         'import/resolver': {
+            'babel-module': {},
             webpack: {
                 config: 'webpack.config.js',
             },

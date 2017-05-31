@@ -1,11 +1,10 @@
 // @flow
 import React, { PureComponent } from 'react';
 import { Map } from 'immutable';
-
 import { ListItem } from 'material-ui/List';
-import Mosaic from '../base/avatars';
 
-import { database } from '../../utils/firebase';
+import { database } from 'utils/firebase';
+import Mosaic from 'components/base/avatars';
 
 type Props = {
     /* eslint-disable react/no-unused-prop-types */

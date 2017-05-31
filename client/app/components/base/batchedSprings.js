@@ -2,7 +2,7 @@
 import React, { Element } from 'react';
 import rebound from 'rebound';
 
-import batch from '../../utils/batch';
+import batch from 'utils/batch';
 
 const system = new rebound.SpringSystem();
 

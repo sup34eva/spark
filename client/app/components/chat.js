@@ -13,10 +13,10 @@ const Chat = ({ joined }: Props) => (
     joined ? <Video /> : <Text />
 );
 
-const reduxConnector = connect(
+const enhance = connect(
     ({ stream }) => ({
         joined: stream.joined,
     }),
 );
 
-export default reduxConnector(Chat);
+export default enhance(Chat);

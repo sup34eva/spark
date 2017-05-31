@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 import AuthForm from './dialog/auth';
 import ChannelList from './list/channels';
 import Chat from './chat';
-
 import styles from './app.css';
 
 type Props = {
@@ -24,9 +23,11 @@ const App = (props: Props) => (
     </div>
 );
 
-export default connect(
+const enhance = connect(
     ({ auth, chat }) => ({
         user: !!auth.user,
         channel: !!chat.channel,
     }),
-)(App);
+);
+
+export default enhance(App);

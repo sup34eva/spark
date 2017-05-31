@@ -1,23 +1,19 @@
 // @flow
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { graphql, commitMutation } from 'react-relay';
 import { connect } from 'react-redux';
-
 import TextField from 'material-ui/TextField';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 import AutoComplete from 'material-ui/AutoComplete';
-
 import type { Dispatch } from 'redux';
 
-import UserChip from '../item/user';
-
-import environment from '../../utils/relay';
-import { closeModal } from '../../actions/chat';
-
-import type { Action } from '../../store';
+import environment from 'utils/relay';
+import { closeModal } from 'actions/chat';
+import UserChip from 'components/item/user';
+import type { Action } from 'store';
 
 type Props = {
     showModal: boolean,
@@ -28,7 +24,7 @@ type Props = {
     closeModal: () => void,
 };
 
-class ChannelModal extends Component {
+class ChannelModal extends PureComponent {
     static defaultProps = {
         friends: [],
     };
@@ -172,7 +168,7 @@ class ChannelModal extends Component {
     }
 }
 
-const reduxConnector = connect(
+const enhance = connect(
     ({ chat }) => ({
         showModal: chat.showModal,
     }),
@@ -183,4 +179,4 @@ const reduxConnector = connect(
     }),
 );
 
-export default reduxConnector(ChannelModal);
+export default enhance(ChannelModal);

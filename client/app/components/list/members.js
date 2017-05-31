@@ -2,8 +2,8 @@
 import React from 'react';
 import Paper from 'material-ui/Paper';
 
-import UserChip from '../item/user';
-import connectFirebase from '../../utils/firebase/enhancer';
+import connectFirebase from 'utils/firebase/enhancer';
+import UserChip from 'components/item/user';
 
 import styles from './members.css';
 
@@ -19,11 +19,11 @@ const MemberList = ({ users }: Props) => (
     </Paper>
 );
 
-const fbConnector = connectFirebase(
+const enhance = connectFirebase(
     props => `/channels/${props.channel}`,
     value => ({
         users: value ? Object.keys(value.users) : [],
     }),
 );
 
-export default fbConnector(MemberList);
+export default enhance(MemberList);

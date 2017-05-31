@@ -1,12 +1,9 @@
 // @flow
-import {
-    combineReducers,
-} from 'redux';
+import { combineReducers } from 'redux';
 
 import stream from './stream';
 import chat from './chat';
 import auth from './auth';
-
 import type {
     // $FlowIssue
     StreamState,

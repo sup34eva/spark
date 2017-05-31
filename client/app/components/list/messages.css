@@ -1,3 +1,10 @@
+.loadingList {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .messageList {
     flex: 1;
     display: flex;

@@ -1,18 +1,17 @@
 // @flow
 import React, { PureComponent } from 'react';
-import hoistNonReactStatics from 'hoist-non-react-statics';
+
+import { hoistStatics } from '../enhancers';
+
 import { database } from './index';
 
 type PropsToPath = (props: Object) => string;
 type ValueToProps = (value: ?Object) => Object;
 
-function getDisplayName(WrappedComponent) {
-    return WrappedComponent.displayName || WrappedComponent.name || 'Component';
-}
-
 export default (propsToPath: PropsToPath, valueToProps: ValueToProps) => (
     // eslint-disable-next-line no-undef
-    (WrappedComponent: ReactClass<*>) => {
+    (WrappedComponent: ReactClass<*>) => hoistStatics(
+        'Firebase',
         class FirebaseConnector extends PureComponent {
             constructor(props: Object) {
                 super(props);
@@ -45,9 +44,7 @@ export default (propsToPath: PropsToPath, valueToProps: ValueToProps) => (
                 const valueProps = valueToProps(this.state.value);
                 return <WrappedComponent {...valueProps} {...this.props} />;
             }
-        }
-
-        FirebaseConnector.displayName = `Firebase(${getDisplayName(WrappedComponent)})`;
-        return hoistNonReactStatics(FirebaseConnector, WrappedComponent);
-    }
+        },
+        WrappedComponent,
+    )
 );

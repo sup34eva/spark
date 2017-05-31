@@ -1,12 +1,13 @@
 // @flow
 import { RecordSource, Store, Network, Environment } from 'relay-runtime';
+
 import { runQuery, subscribe } from '../websocket';
 
 const source = new RecordSource();
 export const store = new Store(source);
 
 const network = Network.create(
-    async (operation, variables) => await runQuery({
+    (operation, variables) => runQuery({
         query: operation.text,
         variables,
     }),

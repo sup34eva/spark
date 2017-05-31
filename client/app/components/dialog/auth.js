@@ -1,12 +1,13 @@
 // @flow
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 
-import { auth } from '../../utils/firebase';
+import { auth } from 'utils/firebase';
+
 import styles from './auth.css';
 
-export default class AuthForm extends Component {
+export default class AuthForm extends PureComponent {
     constructor() {
         super();
 

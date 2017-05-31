@@ -1,21 +1,24 @@
 // @flow
 import React from 'react';
 import { QueryRenderer } from 'react-relay';
-import hoistNonReactStatics from 'hoist-non-react-statics';
 
-import CircularProgress from 'material-ui/CircularProgress';
+import { hoistStatics } from '../enhancers';
+
 import environment from './index';
 
-function getDisplayName(WrappedComponent) {
-    return WrappedComponent.displayName || WrappedComponent.name || 'Component';
-}
-
-type MapFunc = (Object) => Object;
-
-export default (query: Object, variables: Object, mapResultToProps: MapFunc) => (
+type Config = {
+    query: Object,
+    variables: Object,
+    mapResultToProps: (Object) => Object,
     // eslint-disable-next-line no-undef
-    (WrappedComponent: ReactClass<*>) => {
-        const wrapper = (ownProps: Object) => (
+    LoadingComponent: ReactClass<*>,
+};
+
+export default ({ query, variables, mapResultToProps, LoadingComponent }: Config) => (
+    // eslint-disable-next-line no-undef
+    (WrappedComponent: ReactClass<*>) => hoistStatics(
+        'Renderer',
+        (ownProps: Object) => (
             <QueryRenderer
                 environment={environment}
                 query={query}
@@ -33,11 +36,9 @@ export default (query: Object, variables: Object, mapResultToProps: MapFunc) => 
                         return <WrappedComponent {...mapProps} />;
                     }
 
-                    return <CircularProgress />;
+                    return <LoadingComponent />;
                 }} />
-        );
-
-        wrapper.displayName = `Renderer(${getDisplayName(WrappedComponent)})`;
-        return hoistNonReactStatics(wrapper, WrappedComponent);
-    }
+        ),
+        WrappedComponent,
+    )
 );
