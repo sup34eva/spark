@@ -66,7 +66,7 @@ app.on('ready', installExtensions(() => {
 
         mainWindow.loadURL('http://localhost:8080/window.html');
     } else {
-        mainWindow.loadURL(path.resolve(__dirname, 'window.html'));
+        mainWindow.loadURL(path.resolve(__dirname, '..', 'dist', 'window.html'));
     }
 
     mainWindow.webContents.on('did-finish-load', () => {

@@ -25,7 +25,8 @@ const renderRoot = AppComponent => (
     </AppContainer>
 );
 
-const main = document.querySelector('main');
+const main = document.createElement('main');
+document.body.appendChild(main);
 
 ReactDOM.render(renderRoot(App), main);
 

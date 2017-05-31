@@ -1,8 +1,8 @@
 // @flow
 import React from 'react';
-import { QueryRenderer } from 'react-relay';
+import { createFragmentContainer, createPaginationContainer, QueryRenderer } from 'react-relay';
 
-import { hoistStatics } from '../enhancers';
+import hoistStatics from '../enhancers';
 
 import environment from './index';
 
@@ -14,7 +14,23 @@ type Config = {
     LoadingComponent: ReactClass<*>,
 };
 
-export default ({ query, variables, mapResultToProps, LoadingComponent }: Config) => (
+// eslint-disable-next-line no-undef
+export const withFragment = (fragmentOptions: FragmentOptions) => (
+    // eslint-disable-next-line no-undef
+    (Component: ReactClass<*>) => (
+        createFragmentContainer(Component, fragmentOptions)
+    )
+);
+
+// eslint-disable-next-line no-undef
+export const withPagination = (fragments: FragmentMap, config: ConnectionConfig) => (
+    // eslint-disable-next-line no-undef
+    (Component: ReactClass<*>) => (
+        createPaginationContainer(Component, fragments, config)
+    )
+);
+
+export const withRenderer = ({ query, variables, mapResultToProps, LoadingComponent }: Config) => (
     // eslint-disable-next-line no-undef
     (WrappedComponent: ReactClass<*>) => hoistStatics(
         'Renderer',

@@ -11,7 +11,7 @@ const websocket = require('./utils/websocket');
 
 const app = express();
 
-if(process.env.NODE_ENV === 'development') {
+if(process.env.NODE_ENV !== 'production') {
     app.use(graphiql);
 }
 

@@ -1,19 +1,19 @@
 // @flow
 import React, { PureComponent } from 'react';
-import { graphql, requestSubscription, createPaginationContainer } from 'react-relay';
+import { graphql } from 'react-relay';
 import { connect } from 'react-redux';
-import { compose } from 'redux';
+import compose from 'recompose/compose';
 import CircularProgress from 'material-ui/CircularProgress';
 
-import environment from 'utils/relay';
-import { storage } from 'utils/firebase';
-import nextPushId from 'utils/firebase/nextPushId';
-import postMessage from 'utils/relay/postMessage';
-import createRenderer from 'utils/relay/enhancers';
 import DropZone from 'components/base/dropZone';
 import BatchedSprings, { PRESET_ZOOM } from 'components/base/batchedSprings';
 import Message from 'components/item/message';
 import InfiniteList from 'components/base/infiniteList';
+import { storage } from 'utils/firebase';
+import nextPushId from 'utils/firebase/nextPushId';
+import postMessage from 'utils/relay/postMessage';
+import subscribeMessages from 'utils/relay/subscribeMessages';
+import { withRenderer, withPagination } from 'utils/relay/enhancers';
 
 /* eslint-disable camelcase */
 import type { messages_channel } from './__generated__/messages_channel.graphql';
@@ -28,30 +28,17 @@ const LoadingList = () => (
 );
 
 class MessageList extends PureComponent {
-    componentDidMount() {
-        requestSubscription(environment, {
-            subscription: graphql`
-                subscription messages_NewMessageSubscription($input: MessagesSubscribeInput!) {
-                    messagesSubscribe(input: $input) {
-                        messageEdge {
-                            node {
-                                id
-                                time
-                                ...message_message
-                            }
-                        }
-                        channel {
-                            id
-                        }
-                    }
-                }
-            `,
-            variables: {
-                input: {
-                    channel: this.props.viewer.channel.name,
-                },
-            },
+    async componentDidMount() {
+        this.subscription = await subscribeMessages({
+            channel: this.props.viewer.channel.name,
         });
+    }
+
+    componentWillUnmount() {
+        if (this.subscription) {
+            this.subscription.dispose();
+            this.subscription = null;
+        }
     }
 
     onFileDrop = files => {
@@ -120,6 +107,8 @@ class MessageList extends PureComponent {
         this.props.relay.loadMore(20);
     }
 
+    // eslint-disable-next-line no-undef
+    subscription: Disposable;
     props: {
         /* eslint-disable camelcase, react/no-unused-prop-types */
         channel: messages_channel,
@@ -166,7 +155,7 @@ const query = graphql`
 `;
 
 const enhancer = compose(
-    createRenderer({
+    withRenderer({
         query,
         LoadingComponent: LoadingList,
         variables: {
@@ -177,16 +166,7 @@ const enhancer = compose(
             channel: viewer.channel,
         }),
     }),
-    connect(
-        ({ auth }) => ({
-            uid: auth.user.uid,
-        }),
-    ),
-);
-
-export default enhancer(createPaginationContainer(
-    MessageList,
-    {
+    withPagination({
         channel: graphql`
             fragment messages_channel on Channel {
                 messages(last: $count, before: $cursor) @connection(key: "MessageList_messages") {
@@ -205,8 +185,7 @@ export default enhancer(createPaginationContainer(
                 }
             }
         `,
-    },
-    {
+    }, {
         query,
         direction: 'backward',
         getConnectionFromProps: props => (
@@ -221,5 +200,12 @@ export default enhancer(createPaginationContainer(
             count,
             cursor,
         }),
-    }
-));
+    }),
+    connect(
+        ({ auth }) => ({
+            uid: auth.user.uid,
+        }),
+    ),
+);
+
+export default enhancer(MessageList);

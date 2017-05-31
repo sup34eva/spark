@@ -12,7 +12,7 @@ const network = Network.create(
         variables,
     }),
     async (operation, variables, ignored, { onError, onNext }) => {
-        const { connection, request } = subscribe({
+        const { connection, request } = await subscribe({
             subscription: operation.text,
             variables,
             onNext,

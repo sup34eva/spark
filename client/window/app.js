@@ -71,8 +71,7 @@ const MenuBar = (props: Props) => (
                 webContents.reloadIgnoringCache();
             }} />
             <MenuItem primaryText="Toggle Developer Tools" onTouchTap={() => {
-                console.log(props);
-                props.webView.toggleDevTools();
+                props.webView.openDevTools();
             }} />
             <Divider />
             <MenuItem primaryText="Reset Zoom" onTouchTap={() => {

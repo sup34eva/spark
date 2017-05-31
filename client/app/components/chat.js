@@ -9,9 +9,15 @@ type Props = {
     joined: boolean,
 };
 
-const Chat = ({ joined }: Props) => (
-    joined ? <Video /> : <Text />
-);
+const Chat = ({ joined }: Props) => do {
+    /* eslint-disable no-unused-expressions, semi */
+    if (joined) {
+        <Video />
+    } else {
+        <Text />
+    }
+    /* eslint-enable no-unused-expressions, semi */
+};
 
 const enhance = connect(
     ({ stream }) => ({

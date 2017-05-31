@@ -1,5 +1,8 @@
 {
     "plugins": [
+        "transform-object-rest-spread",
+        "transform-class-properties",
+        "transform-do-expressions",
         "react-hot-loader/babel",
         "flow-react-proptypes",
         ["relay", {
@@ -17,9 +20,11 @@
     ],
     "presets": [
         ["env", {
-            "modules": false
+            "modules": false,
+            "targets": {
+                "chrome": 56
+            }
         }],
-        "react",
-        "stage-0"
+        "react"
     ]
 }

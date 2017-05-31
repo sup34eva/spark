@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import { compose } from 'redux';
+import compose from 'recompose/compose';
 import type { Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import Paper from 'material-ui/Paper';
@@ -39,12 +39,18 @@ const ChannelList = ({ channels, channel, ...props }: Props) => (
     }}>
         <SelectableList value={channel} onChange={props.selectChannel}>
             <Subheader>Channels</Subheader>
-            {channels ? channels.map(node => (
-                // $FlowIssue
-                <ChannelItem key={node.name} value={node.name} channel={node} />
-            )) : (
-                <CircularProgress />
-            )}
+            {do {
+                /* eslint-disable no-unused-expressions, semi */
+                if (channels) {
+                    channels.map(node => (
+                        // $FlowIssue
+                        <ChannelItem key={node.name} value={node.name} channel={node} />
+                    ))
+                } else {
+                    <CircularProgress />
+                }
+                /* eslint-enable no-unused-expressions, semi */
+            }}
         </SelectableList>
 
         <IconButton onTouchTap={props.openModal} style={{

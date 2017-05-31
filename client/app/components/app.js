@@ -14,12 +14,18 @@ type Props = {
 
 const App = (props: Props) => (
     <div className={styles.app}>
-        {props.user ? [
-            <ChannelList key="list" />,
-            props.channel && <Chat key="chat" />,
-        ] : (
-            <AuthForm />
-        )}
+        {do {
+            /* eslint-disable no-unused-expressions, semi */
+            if (props.user) {
+                [
+                    <ChannelList key="list" />,
+                    props.channel && <Chat key="chat" />,
+                ]
+            } else {
+                <AuthForm />
+            }
+            /* eslint-enable no-unused-expressions, semi */
+        }}
     </div>
 );
 

@@ -1,24 +1,38 @@
 // @flow
-import { compose, createStore, applyMiddleware } from 'redux';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { createLogger } from 'redux-logger';
+import { createStore, applyMiddleware } from 'redux';
+import compose from 'recompose/compose';
 
 import * as actionCreators from 'actions/stream';
 import thunk from 'utils/thunk';
 
 import rootReducer from './reducers';
 
-/* eslint-disable no-underscore-dangle */
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
-    window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
-        actionCreators,
-    }) : compose;
-/* eslint-enable no-underscore-dangle */
+const middlewares = [
+    thunk,
+];
 
-const logger = createLogger({
-    level: 'info',
-    collapsed: true,
-});
+if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line global-require, import/no-extraneous-dependencies
+    const { createLogger } = require('redux-logger');
+    middlewares.push(
+        createLogger({
+            level: 'info',
+            collapsed: true,
+        }),
+    );
+}
+
+/* eslint-disable no-underscore-dangle, no-unused-expressions, semi */
+const composeEnhancers = do {
+    if (window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
+        window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
+            actionCreators,
+        })
+    } else {
+        compose
+    }
+};
+/* eslint-enable no-underscore-dangle, no-unused-expressions, semi */
 
 export type Action = {
     type: string,
@@ -31,10 +45,7 @@ const store = createStore(
     rootReducer,
     composeEnhancers(
         // $FlowIssue
-        applyMiddleware(
-            thunk,
-            logger,
-        ),
+        applyMiddleware(...middlewares),
     ),
 );
 

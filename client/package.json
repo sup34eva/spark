@@ -7,6 +7,7 @@
     "install": "flow-typed install",
     "start": "concurrently --kill-others -p \"[{name}]\" -n \"SERVER,CLIENT,RELAY\" -c \"bgRed.bold,bgBlue.bold,bgGreen.bold\" \"npm run server\" \"npm run client\" \"npm run relay -- --watch\"",
     "relay": "relay-compiler --src ./app --schema ../server-graphql/data/schema.graphql",
+    "build": "webpack --env=prod --progress --profile --colors",
     "client": "electron ./window/main",
     "server": "webpack-dev-server",
     "update": "ncu -u"
@@ -14,8 +15,8 @@
   "bin": {
     "electron": "./node_modules/.bin/electron"
   },
-  "browsers": [
-    "Chrome > 50"
+  "browserslist": [
+    "Chrome 56"
   ],
   "repository": {
     "type": "git",
@@ -48,6 +49,7 @@
     "react-tap-event-plugin": "2.0.1",
     "react-visibility-sensor": "3.9.0",
     "rebound": "0.0.15",
+    "recompose": "0.23.4",
     "redux": "3.6.0",
     "relay-runtime": "1.0.0",
     "remarkable": "1.7.1",
@@ -60,11 +62,13 @@
     "babel-eslint": "7.2.3",
     "babel-loader": "7.0.0",
     "babel-plugin-flow-react-proptypes": "3.1.2",
-    "babel-plugin-module-resolver": "^2.7.1",
+    "babel-plugin-module-resolver": "2.7.1",
     "babel-plugin-relay": "1.0.1",
+    "babel-plugin-transform-class-properties": "6.24.1",
+    "babel-plugin-transform-do-expressions": "6.22.0",
+    "babel-plugin-transform-object-rest-spread": "6.23.0",
     "babel-preset-env": "1.5.1",
     "babel-preset-react": "6.24.1",
-    "babel-preset-stage-0": "6.24.1",
     "babel-relay-plugin": "0.11.0",
     "concurrently": "3.4.0",
     "css-loader": "0.28.4",
@@ -73,7 +77,7 @@
     "eslint": "3.19.0",
     "eslint-config-airbnb": "15.0.1",
     "eslint-formatter-pretty": "1.1.0",
-    "eslint-import-resolver-babel-module": "^3.0.0",
+    "eslint-import-resolver-babel-module": "3.0.0",
     "eslint-import-resolver-webpack": "0.8.1",
     "eslint-loader": "1.7.1",
     "eslint-plugin-flowtype-errors": "3.3.0",
@@ -82,8 +86,10 @@
     "eslint-plugin-promise": "3.5.0",
     "eslint-plugin-react": "7.0.1",
     "express": "4.15.3",
+    "extract-text-webpack-plugin": "2.1.0",
     "flow-bin": "0.47.0",
     "flow-typed": "2.1.2",
+    "html-webpack-plugin": "2.28.0",
     "json-loader": "0.5.4",
     "npm-check-updates": "2.11.2",
     "postcss-functions": "2.1.1",

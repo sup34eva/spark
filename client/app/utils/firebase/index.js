@@ -16,11 +16,8 @@ firebase.initializeApp({
     messagingSenderId: '359874121967',
 });
 
-// $FlowIssue
 export const auth = firebase.auth();
-// $FlowIssue
 export const database = firebase.database();
-// $FlowIssue
 export const storage = firebase.storage();
 
 auth.onAuthStateChanged(user => {

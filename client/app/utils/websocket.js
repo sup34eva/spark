@@ -18,7 +18,11 @@ import {
     wrapSignal,
 } from './index';
 
-export const socket = io('wss://api.spark.leops.me:8443');
+export const thenSocket = new Promise(resolve => {
+    requestIdleCallback(() => {
+        resolve(io('wss://api.spark.leops.me:8443'));
+    });
+});
 
 export class Remote {
     id: string;
@@ -28,13 +32,15 @@ export class Remote {
     }
 
     sendOffer(offer: Offer): Promise<Answer> {
-        return wrapSignal(cb => {
+        return wrapSignal(async cb => {
+            const socket = await thenSocket;
             socket.emit('send-offer', this.id, offer, cb);
         });
     }
 
     sendCandidate(candidate: Candidate): Promise<any> {
-        return wrapSignal(cb => {
+        return wrapSignal(async cb => {
+            const socket = await thenSocket;
             socket.emit('send-candidate', this.id, candidate, cb);
         });
     }
@@ -43,6 +49,7 @@ export class Remote {
 export function runQuery(data: any): Promise<any> {
     const { auth } = store.getState();
     return wrapSignal(async cb => {
+        const socket = await thenSocket;
         const token = auth.user ? await auth.user.getIdToken() : null;
         socket.emit('graphql', { data, token }, cb);
     });
@@ -57,7 +64,9 @@ type Subscription = {
 };
 
 let clientSubscriptionId = 0;
-export function subscribe(request: Subscription) {
+export async function subscribe(request: Subscription) {
+    const socket = await thenSocket;
+
     const id = clientSubscriptionId++;
     socket.on(id, result => {
         if (result.errors) {
@@ -85,6 +94,7 @@ export function subscribe(request: Subscription) {
 }
 
 export async function joinRoom(name: string): Promise<Array<Remote>> {
+    const socket = await thenSocket;
     console.log('joinRoom', name);
 
     socket.on('offer', wrapMessage((id: string, offer: Offer) =>

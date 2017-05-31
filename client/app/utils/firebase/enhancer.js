@@ -1,7 +1,7 @@
 // @flow
 import React, { PureComponent } from 'react';
 
-import { hoistStatics } from '../enhancers';
+import hoistStatics from '../enhancers';
 
 import { database } from './index';
 

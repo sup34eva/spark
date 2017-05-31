@@ -1,8 +1,9 @@
 // @flow
 import React, { PureComponent } from 'react';
-import { graphql, createFragmentContainer } from 'react-relay';
+import { graphql } from 'react-relay';
 import { toGlobalId } from 'graphql-relay';
 import { connect } from 'react-redux';
+import compose from 'recompose/compose';
 import { shell } from 'electron';
 import FlatButton from 'material-ui/FlatButton';
 import IconAttachment from 'material-ui/svg-icons/file/attachment';
@@ -11,6 +12,7 @@ import BatchedSprings, { PRESET_ZOOM } from 'components/base/batchedSprings';
 import Squircle from 'components/base/squircle';
 import md from 'utils/markdown';
 import { storage } from 'utils/firebase';
+import { withFragment } from 'utils/relay/enhancers';
 
 // eslint-disable-next-line camelcase
 import type { message_message } from './__generated__/message_message.graphql';
@@ -112,14 +114,18 @@ const Message = (props: Props) => {
                         className={`${styles.bubble} ${isMine ? styles.outgoing : styles.incoming}`}
                         style={{ transform: `translateX(${translate}%)` }}>
                         <div className={styles.content}>
-                            {kind === 'FILE' ? (
-                                <File
-                                    channel={props.channel}
-                                    isMine={isMine}
-                                    content={content} />
-                            ) : (
-                                md.render(content)
-                            )}
+                            {do {
+                                /* eslint-disable no-unused-expressions, semi */
+                                if (kind === 'FILE') {
+                                    <File
+                                        channel={props.channel}
+                                        isMine={isMine}
+                                        content={content} />
+                                } else {
+                                    md.render(content)
+                                }
+                                /* eslint-enable no-unused-expressions, semi */
+                            }}
                         </div>
                         <p className={styles.time}>{timeString}</p>
                     </div>
@@ -129,24 +135,26 @@ const Message = (props: Props) => {
     );
 };
 
-const enhance = connect(
-    ({ auth, chat }) => ({
-        user: auth.user,
-        channel: chat.channel,
-    }),
+const enhance = compose(
+    withFragment(
+        graphql`
+            fragment message_message on Message {
+                kind
+                content
+                time
+                author {
+                    id
+                    photoURL
+                }
+            }
+        `,
+    ),
+    connect(
+        ({ auth, chat }) => ({
+            user: auth.user,
+            channel: chat.channel,
+        }),
+    ),
 );
 
-export default createFragmentContainer(
-    enhance(Message),
-    graphql`
-        fragment message_message on Message {
-            kind
-            content
-            time
-            author {
-                id
-                photoURL
-            }
-        }
-    `,
-);
+export default enhance(Message);

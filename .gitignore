@@ -5,3 +5,4 @@ key.pem
 *.env
 server-graphql/utils/serviceAccountKey.json
 __generated__
+client/dist/
