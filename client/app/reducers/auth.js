@@ -2,7 +2,7 @@
 import { Record } from 'immutable';
 
 export const AuthState = Record({
-    user: 'SETTLING',
+    user: null,
 });
 
 export default (state: AuthState = new AuthState(), action: any) => {

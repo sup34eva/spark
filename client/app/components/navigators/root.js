@@ -9,8 +9,6 @@ import styles from '../app.css';
 
 import ConvNavigator from './conversations';
 
-console.log(TabRouter);
-
 export const RootRouter = new TabRouter({
     Profile: {
         screen: Profile,
@@ -21,6 +19,8 @@ export const RootRouter = new TabRouter({
     Groups: {
         screen: ConvNavigator,
     },
+}, {
+    initialRouteName: 'Channels',
 });
 
 export default class RootNavigator extends Component {

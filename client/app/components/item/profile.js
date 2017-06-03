@@ -32,7 +32,13 @@ const ITEM_STYLE = {
     right: 0,
 };
 
-const Profile = (props: Props) => (
+const Profile = (props: Props) => do {
+    const setStatus = async (evt, child) => {
+        const { database } = await import(/* webpackChunkName: "firebase" */ '../../utils/firebase');
+        database.ref(`/users/${props.uid}/status`).set(child.props.value);
+    };
+
+    /* eslint-disable react/jsx-indent, no-unused-expressions, semi */
     <ListItem
         disabled
         style={ITEM_STYLE}
@@ -41,15 +47,16 @@ const Profile = (props: Props) => (
             <Mosaic images={props.user ? [props.user.photoURL] : []} />
         }
         rightIconButton={
-            <IconMenu iconButtonElement={iconButtonElement}>
-                <MenuItem>Online</MenuItem>
-                <MenuItem>Busy</MenuItem>
-                <MenuItem>Away</MenuItem>
+            <IconMenu iconButtonElement={iconButtonElement} onItemTouchTap={setStatus}>
+                <MenuItem value="ONLINE">Online</MenuItem>
+                <MenuItem value="BUSY">Busy</MenuItem>
+                <MenuItem value="AWAY">Away</MenuItem>
             </IconMenu>
         }
         primaryText={props.user ? props.user.displayName : '\u00a0'}
         secondaryText={props.user && props.user.status} />
-);
+    /* eslint-enable react/jsx-indent, no-unused-expressions, semi */
+};
 
 const enhance = compose(
     connect(

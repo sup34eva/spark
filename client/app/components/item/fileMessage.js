@@ -48,17 +48,28 @@ export default class File extends PureComponent {
     };
 
     render() {
+        const { metadata, content } = this.state;
         const color = this.props.isMine ? '#fff' : '#191a1b';
+        const displayName = metadata ? metadata.customMetadata.displayName : '';
+
         return (
             <div className={styles.content}>
-                <FlatButton
-                    icon={<IconAttachment color={color} />}
-                    label={
-                        this.state.metadata ? this.state.metadata.customMetadata.displayName : ''
+                {do {
+                    /* eslint-disable no-unused-expressions, semi */
+                    if (metadata && metadata.contentType.startsWith('image/')) {
+                        <div className={styles.content}>
+                            <img src={content} alt={displayName} />
+                        </div>
+                    } else {
+                        <FlatButton
+                            icon={<IconAttachment color={color} />}
+                            label={displayName}
+                            labelStyle={{ color }}
+                            disabled={content === null}
+                            onTouchTap={this.handleClick} />
                     }
-                    labelStyle={{ color }}
-                    disabled={this.state.content === null}
-                    onTouchTap={this.handleClick} />
+                    /* eslint-enable no-unused-expressions, semi */
+                }}
             </div>
         );
     }

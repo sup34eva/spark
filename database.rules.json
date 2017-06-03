@@ -12,7 +12,10 @@
     },
     "users": {
       "$user": {
-        ".write": "$user == auth.uid"
+        ".write": "$user == auth.uid",
+        "status": {
+          ".validate": "data.isString() && data.val().matches(/^(ONLINE|BUSY|AWAY|OFFLINE)$/)"
+        }
       }
     }
   }

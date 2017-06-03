@@ -55,6 +55,10 @@
             margin: 0;
         }
 
+        img {
+            width: 100%;
+        }
+
         .time {
             margin-right: 8px;
             align-self: flex-end;;

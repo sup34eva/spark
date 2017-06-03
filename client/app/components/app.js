@@ -7,7 +7,6 @@ import IconButton from 'material-ui/IconButton';
 import NavigationMinimize from 'material-ui/svg-icons/navigation/expand-more';
 import NavigationMaximize from 'material-ui/svg-icons/navigation/fullscreen';
 import NavigationClose from 'material-ui/svg-icons/navigation/close';
-import CircularProgress from 'material-ui/CircularProgress';
 
 import AuthForm from 'components/dialog/auth';
 import RootNavigator from 'components/navigators/root';
@@ -21,7 +20,7 @@ const ACTIONS = [
 ];
 
 type Props = {
-    user: boolean,
+    user: null | Object,
     navigation: Object,
     dispatch: (Object) => void,
 };
@@ -44,9 +43,7 @@ const App = (props: Props) => (
         </div>
         {do {
             /* eslint-disable no-unused-expressions, semi, react/jsx-indent */
-            if (props.user === 'SETTLING') {
-                <CircularProgress />
-            } else if (props.user === null) {
+            if (props.user === null) {
                 <AuthForm />
             } else {
                 <RootNavigator navigation={addNavigationHelpers({
@@ -61,7 +58,7 @@ const App = (props: Props) => (
 
 const enhance = connect(
     ({ auth, navigation }) => ({
-        user: !!auth.user,
+        user: auth.user,
         navigation,
     }),
 );
