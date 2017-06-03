@@ -1,7 +1,5 @@
 // @flow
-import {
-    Map, Record,
-} from 'immutable';
+import { Map, Record } from 'immutable';
 
 export const Remote = Record({
     connection: null,

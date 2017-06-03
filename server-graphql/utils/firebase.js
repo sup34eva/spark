@@ -7,4 +7,10 @@ admin.initializeApp({
 });
 
 exports.auth = admin.auth();
-exports.database = admin.database();
+const database = exports.database = admin.database();
+
+exports.exists = path => new Promise((resolve, reject) => {
+    database.ref(path).once('value', snapshot => {
+        resolve(snapshot.val() !== null);
+    }, reject);
+});

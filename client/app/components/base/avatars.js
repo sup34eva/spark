@@ -7,7 +7,7 @@ type Props = {
     images: Array<string>,
 };
 
-export default (props: Props) => {
+const Mosaic = (props: Props) => {
     const {
         images,
         ...other
@@ -83,3 +83,5 @@ export default (props: Props) => {
         </Squircle>
     );
 };
+
+export default Mosaic;

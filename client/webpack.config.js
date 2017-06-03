@@ -2,37 +2,34 @@ const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
 const formatter = require('eslint-formatter-pretty');
+
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 const precss = require('precss');
 const autoprefixer = require('autoprefixer');
-const springCss = require('./plugins/postcssSpringPlugin');
 
-function cssConfig(isModule) {
-    return ExtractTextPlugin.extract({
-        fallback: 'style-loader',
-        use: [{
-            loader: 'css-loader',
-            options: {
-                sourceMap: true,
-                importLoaders: 1,
-                modules: isModule,
-                localIdentName: isModule ? '[name]__[local]___[hash:base64:5]' : undefined,
-            },
-        }, {
-            loader: 'postcss-loader',
-            options: {
-                sourceMap: true,
-                plugins: () => ([
-                    precss,
-                    springCss,
-                    autoprefixer,
-                ]),
-            },
-        }],
-    });
-}
+const cssConfig = isModule => ExtractTextPlugin.extract({
+    fallback: 'style-loader',
+    use: [{
+        loader: 'css-loader',
+        options: {
+            sourceMap: true,
+            importLoaders: 1,
+            modules: isModule,
+            localIdentName: isModule ? '[name]__[local]___[hash:base64:5]' : undefined,
+        },
+    }, {
+        loader: 'postcss-loader',
+        options: {
+            sourceMap: true,
+            plugins: () => ([
+                precss,
+                autoprefixer,
+            ]),
+        },
+    }],
+});
 
 function envMerge(env, base, dev, prod = []) {
     if (env !== 'production') {
@@ -42,21 +39,16 @@ function envMerge(env, base, dev, prod = []) {
     return prod.concat(base);
 }
 
-const entries = (env, path) => envMerge(env, [
-    'babel-polyfill',
-    path,
-], [
-    'react-hot-loader/patch',
-    'webpack/hot/only-dev-server',
-]);
-
 module.exports = env => ({
-    devtool: 'inline-source-map',
+    devtool: env !== 'production' ? 'inline-source-map' : undefined,
 
-    entry: {
-        window: entries(env, './window/index.js'),
-        app: entries(env, './app/index.js'),
-    },
+    entry: envMerge(env, [
+        'babel-polyfill',
+        './app/index.js',
+    ], [
+        'react-hot-loader/patch',
+        'webpack/hot/only-dev-server',
+    ]),
 
     module: {
         rules: [{
@@ -88,20 +80,15 @@ module.exports = env => ({
             'process.env.NODE_ENV': JSON.stringify(env),
         }),
         new webpack.optimize.CommonsChunkPlugin({
-            name: 'common',
-            filename: 'common.js',
-            chunks: ['window', 'app'],
+            name: 'main',
+            children: true,
+            minChunks: 2,
         }),
         new ExtractTextPlugin('[name].css'),
         new HtmlWebpackPlugin({
             title: 'Spark',
-            filename: 'window.html',
-            chunks: ['common', 'window'],
-        }),
-        new HtmlWebpackPlugin({
-            title: 'Spark',
-            filename: 'app.html',
-            chunks: ['common', 'app'],
+            filename: 'index.html',
+            chunks: ['main'],
         }),
     ], [
         new webpack.HotModuleReplacementPlugin(),
@@ -118,10 +105,7 @@ module.exports = env => ({
         hot: true,
         host: 'spark.leops.me',
         publicPath: '/',
-        contentBase: [
-            path.join(__dirname, 'window'),
-            path.join(__dirname, 'app'),
-        ],
+        contentBase: path.join(__dirname, 'app'),
         overlay: {
             warnings: false,
             errors: true,
@@ -133,6 +117,7 @@ module.exports = env => ({
     output: {
         path: path.join(__dirname, 'dist'),
         publicPath: env !== 'production' ? '/' : undefined,
+        chunkFilename: '[name].js',
         filename: '[name].js',
     },
 });

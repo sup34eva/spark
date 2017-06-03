@@ -12,9 +12,7 @@
     },
     "users": {
       "$user": {
-        "displayName": {
-          ".write": "$user == auth.uid"
-        }
+        ".write": "$user == auth.uid"
       }
     }
   }

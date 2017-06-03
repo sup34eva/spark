@@ -3,19 +3,77 @@
     width: 100vw;
 
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
 
-    .chat {
-        flex: 1;
+    position: relative;
+
+    .appBar {
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: 64px;
+        z-index: 100;
+        height: 48px;
+
+        background-color: transparent;
+        -webkit-app-region: drag;
+
         display: flex;
-        flex-direction: column;
-        position: relative;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 12px;
 
-        .joinBtn {
-            position: absolute !important;
-            right: 0;
-            top: 48px;
-            margin: 8px !important;
+        button {
+            -webkit-app-region: no-drag;
         }
     }
+
+    .rootNavigator {
+        flex: 1;
+        display: flex;
+        flex-direction: row;
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 64px;
+
+            .self {
+                margin-top: 24px;
+                margin-bottom: 24px;
+            }
+
+            &::after {
+                content: '';
+                position: absolute;
+                top: 34px;
+                left: 64px;
+                height: 0;
+                width: 0;
+                border-width: 8px;
+                border-style: solid;
+                border-color: transparent;
+            }
+
+            &[data-profile="true"]::after {
+                border-left-color: #0097a7;
+            }
+        }
+
+        .convNavigator {
+            flex: 1;
+            display: flex;
+            flex-direction: row;
+
+            .chat {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                position: relative;
+            }
+        }
+    }
+
 }

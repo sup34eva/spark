@@ -3,7 +3,7 @@ const {
     app, BrowserWindow, Menu,
 } = require('electron');
 
-const __DEV__ = process.env.NODE_ENV !== 'production';
+const __DEV__ = process.env.NODE_ENV !== 'production' && !process.argv.find(v => v === 'prod');
 if (__DEV__) {
     require('electron-debug')();
     const path = require('path');
@@ -52,21 +52,22 @@ app.on('ready', installExtensions(() => {
         frame: false,
     });
 
+    mainWindow.webContents.on('context-menu', (e, props) => {
+        const { x, y } = props;
+
+        Menu.buildFromTemplate([{
+            label: 'Inspect element',
+            click() {
+                mainWindow.inspectElement(x, y);
+            },
+        }]).popup(mainWindow);
+    });
+
     if (__DEV__) {
-        mainWindow.webContents.on('context-menu', (e, props) => {
-            const { x, y } = props;
-
-            Menu.buildFromTemplate([{
-                label: 'Inspect element',
-                click() {
-                    mainWindow.inspectElement(x, y);
-                },
-            }]).popup(mainWindow);
-        });
-
-        mainWindow.loadURL('http://localhost:8080/window.html');
+        mainWindow.openDevTools();
+        mainWindow.loadURL('http://localhost:8080/');
     } else {
-        mainWindow.loadURL(path.resolve(__dirname, '..', 'dist', 'window.html'));
+        mainWindow.loadURL(path.resolve(__dirname, '..', 'dist', 'index.html'));
     }
 
     mainWindow.webContents.on('did-finish-load', () => {

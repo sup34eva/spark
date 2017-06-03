@@ -1,96 +1,126 @@
 // @flow
-import React from 'react';
+import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { toGlobalId } from 'graphql-relay';
 import Paper from 'material-ui/Paper';
+import IconButton from 'material-ui/IconButton';
+import VideoCall from 'material-ui/svg-icons/av/video-call';
 import TextField from 'material-ui/TextField';
-import type { Dispatch } from 'redux';
 
-import { store } from 'utils/relay';
+import { sendOffer } from 'actions/chat';
 import postMessage from 'utils/relay/postMessage';
-import { setMessage } from 'actions/chat';
-import type { Action } from 'store';
 import Squircle from 'components/base/squircle';
+import redux from 'store';
 
 import styles from './message.css';
 
 type Props = {
-    uid: string,
+    uid: string, // eslint-disable-line react/no-unused-prop-types
     channel: string,
-    message: string,
-    setMessage: (any, string) => void,
+    navigation: {
+        navigate: (string) => void, // eslint-disable-line react/no-unused-prop-types
+    },
 };
 
-const PostForm = (props: Props) => {
-    const onSubmit = evt => {
-        evt.preventDefault();
-        if (props.message.trim().length > 0) {
-            const id = toGlobalId('Channel', props.channel);
-            const { data } = store.lookup({
-                dataID: id,
-                node: {
-                    selections: [{
-                        kind: 'LinkedField',
-                        name: '__MessageList_messages_connection',
-                        alias: 'messages',
-                        selections: [{
-                            kind: 'LinkedField',
-                            name: 'pageInfo',
-                            selections: [{
-                                kind: 'ScalarField',
-                                name: 'endCursor',
-                            }],
-                        }],
-                    }],
-                },
-            });
-
-            // $FlowIssue
-            postMessage({
-                kind: 'TEXT',
-                content: props.message,
-                user: props.uid,
-                channel: {
-                    id,
-                    name: props.channel,
-                    ...data,
-                },
-            });
-
-            props.setMessage(null, '');
-        }
+class PostForm extends PureComponent {
+    static contextTypes = {
+        muiTheme: PropTypes.object.isRequired,
     };
 
-    const enabled = props.message.length > 0;
+    constructor(props, ctx) {
+        super(props, ctx);
+        this.state = {
+            message: '',
+        };
+    }
 
-    return (
-        <Paper rounded={false}>
-            <form onSubmit={onSubmit} className={styles.form}>
-                <TextField hintText="Message" value={props.message} onChange={props.setMessage} className={styles.content} />
-                <Squircle
-                    height={48} width={48} zDepth={Number(enabled)}
-                    onClick={onSubmit}
-                    className={styles.btn} data-enabled={enabled}>
-                    <rect height="50" width="50" />
-                    <g transform="translate(13, 13)">
-                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-                    </g>
-                </Squircle>
-            </form>
-        </Paper>
-    );
-};
+    componentWillMount() {
+        this.joinCall = () => {
+            this.props.navigation.navigate('Video');
+            redux.dispatch(sendOffer());
+        };
+
+        this.onSubmit = async evt => {
+            evt.preventDefault();
+            if (this.state.message.trim().length > 0) {
+                const id = toGlobalId('Channel', this.props.channel);
+
+                const { store } = await import(/* webpackChunkName: "relay" */ '../../utils/relay');
+                const { data } = store.lookup({
+                    dataID: id,
+                    node: {
+                        selections: [{
+                            kind: 'LinkedField',
+                            name: '__MessageList_messages_connection',
+                            alias: 'messages',
+                            selections: [{
+                                kind: 'LinkedField',
+                                name: 'pageInfo',
+                                selections: [{
+                                    kind: 'ScalarField',
+                                    name: 'endCursor',
+                                }],
+                            }],
+                        }],
+                    },
+                });
+
+                // $FlowIssue
+                postMessage({
+                    kind: 'TEXT',
+                    content: this.state.message,
+                    user: this.props.uid,
+                    channel: {
+                        id,
+                        name: this.props.channel,
+                        ...data,
+                    },
+                });
+
+                this.setMessage(null, '');
+            }
+        };
+
+        this.setMessage = (evt, message) => {
+            this.setState({ message });
+        };
+    }
+
+    props: Props;
+
+    render() {
+        const enabled = this.state.message.trim().length > 0;
+        return (
+            <Paper style={{ backgroundColor: '#fff' }} rounded={false}>
+                <form onSubmit={
+                    this.onSubmit} className={styles.form}>
+                    <IconButton onTouchTap={this.joinCall}>
+                        <VideoCall />
+                    </IconButton>
+                    <TextField
+                        hintText="Message" className={styles.content}
+                        value={this.state.message} onChange={this.setMessage} />
+                    <Squircle
+                        height={48} width={48} zDepth={Number(enabled)}
+                        onClick={this.onSubmit}
+                        className={styles.btn} data-enabled={enabled}>
+                        <rect height="50" width="50" />
+                        <g transform="translate(13, 13)">
+                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                        </g>
+                    </Squircle>
+                </form>
+            </Paper>
+        );
+    }
+
+}
 
 const enhance = connect(
-    ({ auth, chat }) => ({
+    ({ auth, navigation }) => ({
         uid: auth.user.uid,
-        channel: chat.channel,
-        message: chat.message,
-    }),
-    (dispatch: Dispatch<Action>) => ({
-        setMessage: (evt, text) => {
-            dispatch(setMessage(text));
-        },
+        channel: navigation.currentChannel,
     }),
 );
 

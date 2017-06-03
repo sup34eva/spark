@@ -20,7 +20,36 @@ export const auth = firebase.auth();
 export const database = firebase.database();
 export const storage = firebase.storage();
 
-auth.onAuthStateChanged(user => {
+let statusRef;
+let onDisconnect;
+function reset() {
+    if (statusRef) {
+        statusRef.set('OFFLINE');
+        statusRef = null;
+    }
+
+    if (onDisconnect) {
+        onDisconnect.cancel();
+        onDisconnect = null;
+    }
+}
+
+export function signOut() {
+    reset();
+    return auth.signOut();
+}
+
+auth.onAuthStateChanged(async user => {
+    if (user) {
+        statusRef = database.ref(`/users/${user.uid}/status`);
+        statusRef.set('ONLINE');
+
+        onDisconnect = statusRef.onDisconnect();
+        onDisconnect.set('OFFLINE');
+    } else {
+        reset();
+    }
+
     store.dispatch({
         type: 'SET_USER',
         payload: user,

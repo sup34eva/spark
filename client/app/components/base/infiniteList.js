@@ -9,9 +9,27 @@ export type Props = {
     children?: Element<any>,
 };
 
-export default class InfiniteList extends PureComponent<void, Props, void> {
+const INDIC_STYLE = {
+    transform: 'unset',
+    top: 'unset',
+    right: 'unset',
+    position: 'static',
+    margin: '8px auto',
+};
+
+export default class InfiniteList extends PureComponent {
     componentWillMount() {
         this.scrollBottom = 0;
+
+        this.onVisibilityChange = (isVisible: boolean) => {
+            if (isVisible) {
+                this.props.onLoadMore();
+            }
+        };
+
+        this.handleRef = (node: HTMLDivElement) => {
+            this.node = node;
+        };
     }
 
     componentDidMount() {
@@ -32,10 +50,6 @@ export default class InfiniteList extends PureComponent<void, Props, void> {
         this.node.scrollTop = this.node.scrollHeight - scroll;
     }
 
-    handleRef = (node: HTMLDivElement) => {
-        this.node = node;
-    }
-
     node: HTMLDivElement;
     scrollBottom: number;
     props: Props;
@@ -43,27 +57,20 @@ export default class InfiniteList extends PureComponent<void, Props, void> {
     render() {
         const {
             canLoadMore,
-            onLoadMore,
+            onLoadMore, // eslint-disable unused
             ...other
         } = this.props;
 
         return (
             <div {...other} ref={this.handleRef}>
                 {canLoadMore && (
-                    <VisibilitySensor partialVisibility scrollCheck delayedCall
+                    <VisibilitySensor
+                        partialVisibility scrollCheck delayedCall
                         containment={this.node}
-                        onChange={isVisible => {
-                            if (isVisible) {
-                                onLoadMore();
-                            }
-                        }}>
-                        <RefreshIndicator size={50} top={8} left={8} status="loading" style={{
-                            transform: 'unset',
-                            top: 'unset',
-                            right: 'unset',
-                            position: 'static',
-                            margin: '8px auto',
-                        }} />
+                        onChange={this.onVisibilityChange}>
+                        <RefreshIndicator
+                            size={50} top={8} left={8}
+                            status="loading" style={INDIC_STYLE} />
                     </VisibilitySensor>
                 )}
                 {this.props.children}

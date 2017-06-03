@@ -7,7 +7,7 @@ import { Provider } from 'react-redux';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import 'normalize.css';
 
-import theme from '../palette';
+import theme from 'palette';
 
 import store from './store';
 import App from './components/app';

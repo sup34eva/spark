@@ -22,14 +22,13 @@ export default class BatchedSprings extends React.Component {
     constructor(props: Props) {
         super(props);
 
-        this.state = Object.keys(props.springs)
-            .reduce((state, key) => {
-                const { start } = props.springs[key];
-                return {
+        this.state = (
+            Object.entries(props.springs)
+                .reduce((state, [key, { start }]) => ({
                     ...state,
                     [key]: start,
-                };
-            }, {});
+                }), {})
+        );
     }
 
     state: {
@@ -39,10 +38,7 @@ export default class BatchedSprings extends React.Component {
     componentDidMount() {
         this.batch = batch(index => {
             this.timeout = setTimeout(() => {
-                Object.keys(this.props.springs).forEach(key => {
-                    // eslint-disable-next-line react/prop-types
-                    const { tension, friction, end } = this.props.springs[key];
-
+                Object.entries(this.props.springs).forEach(([key, { tension, friction, end }]) => {
                     const spring = system.createSpring(tension, friction);
                     spring.addListener({
                         onSpringUpdate: () => {

@@ -1,38 +1,68 @@
 // @flow
 import React from 'react';
+import { remote } from 'electron';
 import { connect } from 'react-redux';
+import { addNavigationHelpers } from 'react-navigation';
+import IconButton from 'material-ui/IconButton';
+import NavigationMinimize from 'material-ui/svg-icons/navigation/expand-more';
+import NavigationMaximize from 'material-ui/svg-icons/navigation/fullscreen';
+import NavigationClose from 'material-ui/svg-icons/navigation/close';
+import CircularProgress from 'material-ui/CircularProgress';
 
-import AuthForm from './dialog/auth';
-import ChannelList from './list/channels';
-import Chat from './chat';
+import AuthForm from 'components/dialog/auth';
+import RootNavigator from 'components/navigators/root';
+
 import styles from './app.css';
+
+const ACTIONS = [
+    [NavigationMinimize, 'minimize'],
+    [NavigationMaximize, 'maximize'],
+    [NavigationClose, 'close'],
+];
 
 type Props = {
     user: boolean,
-    channel: boolean,
+    navigation: Object,
+    dispatch: (Object) => void,
 };
 
 const App = (props: Props) => (
     <div className={styles.app}>
+        <div className={styles.appBar}>
+            {ACTIONS.map(([Icon, action]) => (
+                <IconButton key={action} onTouchTap={() => {
+                    const win = remote.getCurrentWindow();
+                    if (action === 'maximize' && win.isMaximized()) {
+                        win.unmaximize();
+                    } else {
+                        win[action]();
+                    }
+                }}>
+                    <Icon color="#FFFFFF" />
+                </IconButton>
+            ))}
+        </div>
         {do {
-            /* eslint-disable no-unused-expressions, semi */
-            if (props.user) {
-                [
-                    <ChannelList key="list" />,
-                    props.channel && <Chat key="chat" />,
-                ]
-            } else {
+            /* eslint-disable no-unused-expressions, semi, react/jsx-indent */
+            if (props.user === 'SETTLING') {
+                <CircularProgress />
+            } else if (props.user === null) {
                 <AuthForm />
+            } else {
+                <RootNavigator navigation={addNavigationHelpers({
+                    dispatch: props.dispatch,
+                    state: props.navigation,
+                })} />
             }
-            /* eslint-enable no-unused-expressions, semi */
+            /* eslint-enable no-unused-expressions, semi, react/jsx-indent */
         }}
     </div>
 );
 
 const enhance = connect(
-    ({ auth, chat }) => ({
+    ({ auth, navigation }) => ({
         user: !!auth.user,
-        channel: !!chat.channel,
+        navigation,
     }),
 );
 

@@ -1,12 +1,13 @@
 // @flow
-import { localStream, remoteStream } from 'actions/stream';
+import { localStream, remoteStream } from 'actions/chat';
 
 import store from '../store';
 
 import * as RTC from './rtc';
 import type { Connection } from './rtc';
-import type { Remote } from './websocket';
+// import type { Remote } from './websocket';
 
+// eslint-disable-next-line no-undef
 export function createConnection(remote: Remote, stream: MediaStream): Connection {
     const connection = RTC.createConnection();
     RTC.setNegociator(connection, candidate => {

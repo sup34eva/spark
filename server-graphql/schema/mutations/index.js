@@ -15,7 +15,7 @@ const {
     listChannels,
     sendMessage,
 } = require('../../utils/kafka');
-const { database, auth } = require('../../utils/firebase');
+const { database, auth, exists } = require('../../utils/firebase');
 
 const { channelKind, channelType, channelEdge } = require('../types/channel');
 const { messageEdge, messageKind } = require('../types/message');
@@ -43,6 +43,10 @@ module.exports = new GraphQLObjectType({
                 },
             },
             async mutateAndGetPayload({ name, type }, { token }) {
+                if(await exists('/channels/' + name)) {
+                    throw new Error(`Channel ${name} already exists`);
+                }
+
                 const { sub } = await auth.verifyIdToken(token);
 
                 await createChannel(name);
@@ -50,7 +54,7 @@ module.exports = new GraphQLObjectType({
                 database.ref('/channels/' + name).set({
                     type,
                     users: {
-                        [sub]: true,
+                        [sub]: 'moderator',
                     },
                 });
 
@@ -101,9 +105,11 @@ module.exports = new GraphQLObjectType({
                     value: JSON.stringify(value),
                 });
 
-                if(kind === 'text') {
-                    const user = await auth.getUser(sub);
-                    database.ref('/channels/' + channel + '/subtext').set(`${user.displayName}: ${content}`);
+                if(kind === 'TEXT') {
+                    database.ref('/channels/' + channel + '/subtext').set({
+                        user: sub,
+                        content,
+                    });
                 }
 
                 return {

@@ -3,8 +3,6 @@ import React, { PureComponent } from 'react';
 
 import hoistStatics from '../enhancers';
 
-import { database } from './index';
-
 type PropsToPath = (props: Object) => string;
 type ValueToProps = (value: ?Object) => Object;
 
@@ -25,16 +23,31 @@ export default (propsToPath: PropsToPath, valueToProps: ValueToProps) => (
             };
 
             componentDidMount() {
-                this.ref = database.ref(propsToPath(this.props));
-                this.ref.on('value', snapshot => {
-                    this.setState({
-                        value: snapshot.val(),
+                this.updateRef(propsToPath(this.props));
+            }
+
+            componentWillReceiveProps(nextProps) {
+                this.updateRef(propsToPath(nextProps));
+            }
+
+            async updateRef(nextRef) {
+                if (this.ref) {
+                    this.ref.off();
+                    this.ref = null;
+                }
+                if (nextRef) {
+                    const { database } = await import(/* webpackChunkName: "firebase" */ './index');
+                    this.ref = database.ref(propsToPath(this.props));
+                    this.ref.on('value', snapshot => {
+                        this.setState({
+                            value: snapshot.val(),
+                        });
                     });
-                });
+                }
             }
 
             componentWillUnmount() {
-                this.ref.off();
+                this.updateRef(null);
             }
 
             ref: Object;

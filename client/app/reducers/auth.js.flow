@@ -1,0 +1,8 @@
+// @flow
+declare class User {
+    uid: string,
+}
+
+declare class AuthState {
+    user: 'SETTLING' | null | User,
+}

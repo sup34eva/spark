@@ -1,30 +1,26 @@
 // @flow
 import React, { PureComponent } from 'react';
 import { graphql, commitMutation } from 'react-relay';
-import { connect } from 'react-redux';
 import TextField from 'material-ui/TextField';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 import AutoComplete from 'material-ui/AutoComplete';
-import type { Dispatch } from 'redux';
 
-import environment from 'utils/relay';
-import { closeModal } from 'actions/chat';
 import UserChip from 'components/item/user';
-import type { Action } from 'store';
 
 type Props = {
-    showModal: boolean,
+    open: boolean,
+    onRequestClose: () => void,
+
     friends: Array<{
         uid: string,
         name: string,
     }>,
-    closeModal: () => void,
 };
 
-class ChannelModal extends PureComponent {
+export default class ChannelModal extends PureComponent {
     static defaultProps = {
         friends: [],
     };
@@ -48,29 +44,35 @@ class ChannelModal extends PureComponent {
         invite: Array<string>,
     };
 
-    setPerson = (event, index, value) => {
-        this.setState({
-            invite: [value],
-        });
-    }
-    handleType = (event, index, value) => {
-        this.setState({
-            type: value,
-        });
-    }
-    handleName = (event: Object) => {
-        this.setState({
-            name: event.target.value,
-        });
-    }
-    handleSearch = search => {
-        this.setState({ search });
-    }
-    handleInvite = user => {
-        this.setState(state => ({
-            search: '',
-            invite: state.invite.concat([user]),
-        }));
+    componentWillMount() {
+        this.setPerson = (event, index, value) => {
+            this.setState({
+                invite: [value],
+            });
+        };
+
+        this.handleType = (event, index, value) => {
+            this.setState({
+                type: value,
+            });
+        };
+
+        this.handleName = (event: Object) => {
+            this.setState({
+                name: event.target.value,
+            });
+        };
+
+        this.handleSearch = search => {
+            this.setState({ search });
+        };
+
+        this.handleInvite = user => {
+            this.setState(state => ({
+                search: '',
+                invite: state.invite.concat([user]),
+            }));
+        };
     }
 
     props: Props;
@@ -120,14 +122,14 @@ class ChannelModal extends PureComponent {
 
         return (
             <Dialog
-                open={this.props.showModal}
-                onRequestClose={this.props.closeModal}
+                open={this.props.open}
+                onRequestClose={this.props.onRequestClose}
                 title="Create a channel"
                 actions={[
                     <FlatButton
                         label="Cancel"
                         disabled={this.state.pending}
-                        onTouchTap={this.props.closeModal} />,
+                        onTouchTap={this.props.onRequestClose} />,
                     <FlatButton
                         label="Create" primary
                         disabled={this.state.pending}
@@ -135,6 +137,7 @@ class ChannelModal extends PureComponent {
                             this.setState({ pending: true });
 
                             const { type, name } = this.state;
+                            const { default: environment } = await import(/* webpackChunkName: "relay" */ '../../utils/relay');
                             commitMutation(environment, {
                                 mutation: graphql`
                                     mutation createChannel_CreateChannelMutation($input: CreateChannelInput!) {
@@ -148,7 +151,7 @@ class ChannelModal extends PureComponent {
                                 },
 
                                 onCompleted: () => {
-                                    this.props.closeModal();
+                                    this.props.onRequestClose();
                                     this.setState({ pending: false });
                                 },
                             });
@@ -167,16 +170,3 @@ class ChannelModal extends PureComponent {
         );
     }
 }
-
-const enhance = connect(
-    ({ chat }) => ({
-        showModal: chat.showModal,
-    }),
-    (dispatch: Dispatch<Action>) => ({
-        closeModal() {
-            dispatch(closeModal());
-        },
-    }),
-);
-
-export default enhance(ChannelModal);

@@ -3,7 +3,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import type { List } from 'immutable';
 
-import styles from './app.css';
+import styles from '../app.css';
 
 type Props = {
     localStream: ?MediaStream,

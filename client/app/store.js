@@ -2,7 +2,8 @@
 import { createStore, applyMiddleware } from 'redux';
 import compose from 'recompose/compose';
 
-import * as actionCreators from 'actions/stream';
+import * as chatActions from 'actions/chat';
+import * as navActions from 'actions/navigation';
 import thunk from 'utils/thunk';
 
 import rootReducer from './reducers';
@@ -18,6 +19,7 @@ if (process.env.NODE_ENV !== 'production') {
         createLogger({
             level: 'info',
             collapsed: true,
+            diff: true,
         }),
     );
 }
@@ -26,7 +28,10 @@ if (process.env.NODE_ENV !== 'production') {
 const composeEnhancers = do {
     if (window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
         window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
-            actionCreators,
+            actionCreators: {
+                ...chatActions,
+                ...navActions,
+            },
         })
     } else {
         compose

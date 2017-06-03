@@ -3,7 +3,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import Video from './video';
-import Text from './text';
+import Conversation from './conversation';
 
 type Props = {
     joined: boolean,
@@ -14,7 +14,7 @@ const Chat = ({ joined }: Props) => do {
     if (joined) {
         <Video />
     } else {
-        <Text />
+        <Conversation />
     }
     /* eslint-enable no-unused-expressions, semi */
 };

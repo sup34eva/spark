@@ -9,15 +9,14 @@ import DropZone from 'components/base/dropZone';
 import BatchedSprings, { PRESET_ZOOM } from 'components/base/batchedSprings';
 import Message from 'components/item/message';
 import InfiniteList from 'components/base/infiniteList';
-import { storage } from 'utils/firebase';
 import nextPushId from 'utils/firebase/nextPushId';
 import postMessage from 'utils/relay/postMessage';
 import subscribeMessages from 'utils/relay/subscribeMessages';
 import { withRenderer, withPagination } from 'utils/relay/enhancers';
 
-/* eslint-disable camelcase */
-import type { messages_channel } from './__generated__/messages_channel.graphql';
-import type { messages_MessageListQuery } from './__generated__/messages_MessageListQuery.graphql';
+/* eslint-disable camelcase, import/extensions */
+import type { messages_channel } from './__generated__/messages_channel.graphql.js';
+import type { messages_MessageListQuery } from './__generated__/messages_MessageListQuery.graphql.js';
 /* eslint-enable camelcase */
 import styles from './messages.css';
 
@@ -28,6 +27,44 @@ const LoadingList = () => (
 );
 
 class MessageList extends PureComponent {
+    componentWillMount() {
+        this.onFileDrop = files => {
+            const channel = this.props.viewer.channel.name;
+            files.forEach(async blob => {
+                const id = nextPushId(new Date().getTime());
+
+                const { storage } = await import(/* webpackChunkName: "firebase" */ '../../utils/firebase');
+                const ref = storage.ref(`${channel}/${id}`);
+
+                await ref.put(blob);
+                await ref.updateMetadata({
+                    contentType: blob.type,
+                    customMetadata: {
+                        displayName: blob.name,
+                    },
+                });
+
+                postMessage({
+                    kind: 'FILE',
+                    content: id,
+                    user: this.props.uid,
+                    channel: {
+                        ...this.props.viewer.channel,
+                        ...this.props.channel,
+                    },
+                });
+            });
+        };
+
+        this.fetchMore = () => {
+            if (!this.props.relay.hasMore() || this.props.relay.isLoading()) {
+                return;
+            }
+
+            this.props.relay.loadMore(20);
+        };
+    }
+
     async componentDidMount() {
         this.subscription = await subscribeMessages({
             channel: this.props.viewer.channel.name,
@@ -39,32 +76,6 @@ class MessageList extends PureComponent {
             this.subscription.dispose();
             this.subscription = null;
         }
-    }
-
-    onFileDrop = files => {
-        const channel = this.props.viewer.channel.name;
-        files.forEach(async blob => {
-            const id = nextPushId(new Date().getTime());
-            const ref = storage.ref(`${channel}/${id}`);
-
-            await ref.put(blob);
-            await ref.updateMetadata({
-                contentType: blob.type,
-                customMetadata: {
-                    displayName: blob.name,
-                },
-            });
-
-            postMessage({
-                kind: 'FILE',
-                content: id,
-                user: this.props.uid,
-                channel: {
-                    ...this.props.viewer.channel,
-                    ...this.props.channel,
-                },
-            });
-        });
     }
 
     // eslint-disable-next-line no-undef
@@ -89,7 +100,7 @@ class MessageList extends PureComponent {
             }
 
             list.push(
-                <Message key={node.id} message={node} />,
+                <Message channel={this.props.viewer.channel.name} key={node.id} message={node} />,
             );
 
             return { list, lastTime: thisTime };
@@ -97,14 +108,6 @@ class MessageList extends PureComponent {
             list: [],
             lastTime: new Date(0),
         });
-    }
-
-    fetchMore = () => {
-        if (!this.props.relay.hasMore() || this.props.relay.isLoading()) {
-            return;
-        }
-
-        this.props.relay.loadMore(20);
     }
 
     // eslint-disable-next-line no-undef

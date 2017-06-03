@@ -1,34 +1,38 @@
 // @flow
 import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import { Map } from 'immutable';
 import { ListItem } from 'material-ui/List';
+import { fade } from 'material-ui/utils/colorManipulator';
 
-import { database } from 'utils/firebase';
 import Mosaic from 'components/base/avatars';
+import connectFirebase from 'utils/firebase/enhancer';
 
 type Props = {
+    displayName: ?string,
     /* eslint-disable react/no-unused-prop-types */
     channel: {
         name: string,
-        subtext: ?string,
+        subtext: ?{
+            content: string,
+        },
         users: ?{
-            [key: string]: boolean,
+            [key: string]: 'user' | 'moderator',
         },
     },
     /* eslint-enable react/no-unused-prop-types */
 
+    selected: boolean,
     onTouchTap?: () => void,
-    style?: Object,
 };
 
-export default class Channel extends PureComponent {
-    static muiName = 'ListItem';
-    static defaultProps = {
-        nestedItems: [],
+class Channel extends PureComponent {
+    static contextTypes = {
+        muiTheme: PropTypes.object.isRequired,
     };
 
-    constructor(props: Props) {
-        super(props);
+    constructor(props: Props, ctx) {
+        super(props, ctx);
         this.state = {
             users: new Map(),
         };
@@ -45,11 +49,16 @@ export default class Channel extends PureComponent {
     }
 
     componentWillUnmount() {
-        this.users.forEach(ref => ref.off());
+        this.users.forEach(async ref => (await ref).off());
     }
 
+    context: {
+        muiTheme: Object,
+    };
+
     updateUsers(users: Array<string>) {
-        this.users = users.map(uid => {
+        this.users = users.map(async uid => {
+            const { database } = await import(/* webpackChunkName: "firebase" */ '../../utils/firebase');
             const ref = database.ref(`/users/${uid}`);
             ref.on('value', snapshot => {
                 const { photoURL } = snapshot.val();
@@ -62,20 +71,43 @@ export default class Channel extends PureComponent {
         });
     }
 
-    users: Array<Object>;
+    users: Array<Promise<Object>>;
     props: Props;
 
     render() {
+        const { textColor } = this.context.muiTheme.palette;
+        const color = this.props.selected ? fade(textColor, 0.2) : undefined;
+
+        let subtext;
+        if (this.props.channel.subtext) {
+            subtext = (
+                <p>
+                    <span style={{ color: textColor }}>
+                        {this.props.displayName}
+                    </span>
+                    &nbsp;-&nbsp;
+                    {this.props.channel.subtext.content}
+                </p>
+            );
+        }
+
         return (
             <ListItem
-                style={this.props.style}
+                style={{ backgroundColor: color }}
                 onTouchTap={this.props.onTouchTap}
                 leftAvatar={
                     // $FlowIssue
                     <Mosaic images={this.state.users.toArray()} />
                 }
                 primaryText={this.props.channel.name}
-                secondaryText={this.props.channel.subtext} />
+                secondaryText={subtext} secondaryTextLines={2} />
         );
     }
 }
+
+const enhance = connectFirebase(
+    ({ channel }) => (channel.subtext ? `/users/${channel.subtext.user}/displayName` : null),
+    displayName => ({ displayName })
+);
+
+export default enhance(Channel);

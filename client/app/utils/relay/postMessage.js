@@ -7,8 +7,6 @@ import {
     toGlobalId,
  } from 'graphql-relay';
 
-import environment from './index';
-
 type Props = {
     kind: string,
     content: string,
@@ -48,66 +46,69 @@ const updater = store => {
     ConnectionHandler.insertEdgeAfter(messages, edge, currentCursor);
 };
 
-export default ({ channel, user, kind, content }: Props) => commitMutation(environment, {
-    mutation: graphql`
-        mutation postMessage_PostMessageMutation($input: PostMessageInput!) {
-            postMessage(input: $input) {
-                messageEdge {
-                    cursor
-                    node {
-                        id
-                        time
-                        kind
-                        content
-                        author {
+export default async ({ channel, user, kind, content }: Props) => {
+    const { default: environment } = await import(/* webpackChunkName: "relay" */ './index');
+    return commitMutation(environment, {
+        mutation: graphql`
+            mutation postMessage_PostMessageMutation($input: PostMessageInput!) {
+                postMessage(input: $input) {
+                    messageEdge {
+                        cursor
+                        node {
                             id
+                            time
+                            kind
+                            content
+                            author {
+                                id
+                            }
                         }
                     }
-                }
-                channel {
-                    id
+                    channel {
+                        id
+                    }
                 }
             }
-        }
-    `,
-    variables: {
-        input: {
-            channel: channel.name,
-            kind,
-            content,
+        `,
+        variables: {
+            input: {
+                channel: channel.name,
+                kind,
+                content,
+            },
         },
-    },
 
-    optimisticResponse: () => {
-        let index = 0;
-        if (channel.messages.pageInfo.endCursor) {
-            index = cursorToOffset(channel.messages.pageInfo.endCursor) + 1;
-        }
+        optimisticResponse: () => {
+            let index = 0;
+            if (channel.messages.pageInfo.endCursor) {
+                index = cursorToOffset(channel.messages.pageInfo.endCursor) + 1;
+            }
 
-        return {
-            postMessage: {
-                channel: {
-                    id: channel.id,
-                },
-                messageEdge: {
-                    cursor: offsetToCursor(index),
-                    node: {
-                        id: toGlobalId(
-                            'Message',
-                            `${channel.name}:${index + 1}`,
-                        ),
-                        kind,
-                        content,
-                        time: Date.now(),
-                        author: {
-                            id: toGlobalId('User', user),
+            return {
+                postMessage: {
+                    channel: {
+                        id: channel.id,
+                    },
+                    messageEdge: {
+                        cursor: offsetToCursor(index),
+                        node: {
+                            id: toGlobalId(
+                                'Message',
+                                `${channel.name}:${index + 1}`,
+                            ),
+                            kind,
+                            content,
+                            time: Date.now(),
+                            author: {
+                                id: toGlobalId('User', user),
+                            },
                         },
                     },
                 },
-            },
-        };
-    },
+            };
+        },
 
-    updater,
-    optimisticUpdater: updater,
-});
+        updater,
+        optimisticUpdater: updater,
+    });
+};

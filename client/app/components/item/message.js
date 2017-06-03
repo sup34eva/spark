@@ -1,21 +1,19 @@
 // @flow
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { graphql } from 'react-relay';
 import { toGlobalId } from 'graphql-relay';
 import { connect } from 'react-redux';
 import compose from 'recompose/compose';
-import { shell } from 'electron';
-import FlatButton from 'material-ui/FlatButton';
-import IconAttachment from 'material-ui/svg-icons/file/attachment';
+import marked from 'marked';
 
 import BatchedSprings, { PRESET_ZOOM } from 'components/base/batchedSprings';
 import Squircle from 'components/base/squircle';
-import md from 'utils/markdown';
-import { storage } from 'utils/firebase';
 import { withFragment } from 'utils/relay/enhancers';
 
 // eslint-disable-next-line camelcase
 import type { message_message } from './__generated__/message_message.graphql';
+import File from './fileMessage';
+import Text from './textMessage';
 import styles from './message.css';
 
 type Props = {
@@ -28,58 +26,9 @@ type Props = {
     message: message_message,
 };
 
-class File extends PureComponent {
-    constructor(props) {
-        super(props);
-        this.state = {
-            content: null,
-            metadata: null,
-        };
-    }
-
-    state: {
-        content: ?string,
-        metadata: ?{
-            customMetadata: {
-                displayName: string,
-            },
-        },
-    };
-
-    // $FlowIssue
-    async componentDidMount() {
-        const ref = storage.ref(`${this.props.channel}/${this.props.content}`);
-        const content = await ref.getDownloadURL();
-        const metadata = await ref.getMetadata();
-        // eslint-disable-next-line react/no-did-mount-set-state
-        this.setState({ content, metadata });
-    }
-
-    handleClick = evt => {
-        evt.preventDefault();
-        shell.openExternal(this.state.content);
-    }
-
-    props: {
-        isMine: boolean,
-        content: string,
-        channel: string, // eslint-disable-line react/no-unused-prop-types
-    };
-
-    render() {
-        const color = this.props.isMine ? '#fff' : '#191a1b';
-        return (
-            <FlatButton
-                icon={<IconAttachment color={color} />}
-                label={
-                    this.state.metadata ? this.state.metadata.customMetadata.displayName : ''
-                }
-                labelStyle={{ color }}
-                disabled={this.state.content === null}
-                onTouchTap={this.handleClick} />
-        );
-    }
-}
+marked.setOptions({
+    sanitize: true,
+});
 
 const TRANSLATE = {
     tension: 50,
@@ -113,20 +62,15 @@ const Message = (props: Props) => {
                     <div
                         className={`${styles.bubble} ${isMine ? styles.outgoing : styles.incoming}`}
                         style={{ transform: `translateX(${translate}%)` }}>
-                        <div className={styles.content}>
-                            {do {
-                                /* eslint-disable no-unused-expressions, semi */
-                                if (kind === 'FILE') {
-                                    <File
-                                        channel={props.channel}
-                                        isMine={isMine}
-                                        content={content} />
-                                } else {
-                                    md.render(content)
-                                }
-                                /* eslint-enable no-unused-expressions, semi */
-                            }}
-                        </div>
+                        {do {
+                            /* eslint-disable no-unused-expressions, semi */
+                            if (kind === 'FILE') {
+                                <File channel={props.channel} isMine={isMine} content={content} />
+                            } else {
+                                <Text content={content} />
+                            }
+                            /* eslint-enable no-unused-expressions, semi */
+                        }}
                         <p className={styles.time}>{timeString}</p>
                     </div>
                 </div>
@@ -150,9 +94,8 @@ const enhance = compose(
         `,
     ),
     connect(
-        ({ auth, chat }) => ({
+        ({ auth }) => ({
             user: auth.user,
-            channel: chat.channel,
         }),
     ),
 );

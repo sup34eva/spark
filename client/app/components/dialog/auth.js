@@ -3,19 +3,11 @@ import React, { PureComponent } from 'react';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 
-import { auth } from 'utils/firebase';
-
 import styles from './auth.css';
 
 export default class AuthForm extends PureComponent {
     constructor() {
         super();
-
-        // $FlowIssue
-        this.onRegister = this.onRegister.bind(this);
-        // $FlowIssue
-        this.onLogin = this.onLogin.bind(this);
-
         this.state = {
             username: '',
             password: '',
@@ -27,34 +19,40 @@ export default class AuthForm extends PureComponent {
         password: string,
     };
 
-    async onLogin() {
-        try {
-            const { username, password } = this.state;
-            await auth.signInWithEmailAndPassword(username, password);
-        } catch (err) {
-            const { code, message } = err;
-            console.error(code, message);
-        }
-    }
-    async onRegister() {
-        try {
-            const { username, password } = this.state;
-            await auth.createUserWithEmailAndPassword(username, password);
-        } catch (err) {
-            const { code, message } = err;
-            console.error(code, message);
-        }
-    }
+    componentWillMount() {
+        this.onLogin = async () => {
+            try {
+                const { username, password } = this.state;
+                const { auth } = await import(/* webpackChunkName: "firebase" */ '../../utils/firebase');
+                await auth.signInWithEmailAndPassword(username, password);
+            } catch (err) {
+                const { code, message } = err;
+                console.error(code, message);
+            }
+        };
 
-    handleUsername = (event: Object) => {
-        this.setState({
-            username: event.target.value,
-        });
-    }
-    handlePassword = (event: Object) => {
-        this.setState({
-            password: event.target.value,
-        });
+        this.onRegister = async () => {
+            try {
+                const { username, password } = this.state;
+                const { auth } = await import(/* webpackChunkName: "firebase" */ '../../utils/firebase');
+                await auth.createUserWithEmailAndPassword(username, password);
+            } catch (err) {
+                const { code, message } = err;
+                console.error(code, message);
+            }
+        };
+
+        this.handleUsername = (event: Object) => {
+            this.setState({
+                username: event.target.value,
+            });
+        };
+
+        this.handlePassword = (event: Object) => {
+            this.setState({
+                password: event.target.value,
+            });
+        };
     }
 
     render() {

@@ -12,22 +12,24 @@ const onDragOver = (evt: DragEvent) => {
 };
 
 export default class DropZone extends PureComponent<void, Props, void> {
-    onDrop = (evt: DragEvent) => {
-        evt.preventDefault();
-        if (evt.dataTransfer) {
-            const { items, files } = evt.dataTransfer;
-            const blobs = Array.from(items || files).map(entry => {
-                if (entry.kind === 'file') {
+    componentWillMount() {
+        this.onDrop = (evt: DragEvent) => {
+            evt.preventDefault();
+            if (evt.dataTransfer) {
+                const { items, files } = evt.dataTransfer;
+                const blobs = Array.from(items || files).map(entry => {
+                    if (entry.kind === 'file') {
+                        // $FlowIssue
+                        return entry.getAsFile();
+                    }
+
                     // $FlowIssue
-                    return entry.getAsFile();
-                }
+                    return entry;
+                });
 
-                // $FlowIssue
-                return entry;
-            });
-
-            this.props.onDrop(blobs);
-        }
+                this.props.onDrop(blobs);
+            }
+        };
     }
 
     props: Props;

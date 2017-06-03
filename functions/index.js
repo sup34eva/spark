@@ -8,6 +8,6 @@ exports.createUserProfile = functions.auth.user().onCreate(event => {
     const { uid, email, displayName, photoURL } = event.data;
     admin.database().ref('/users/' + uid).set({
         displayName: displayName || email,
-        photoURL: photoURL || gravatar.url(email, { d: 'retro' }),
+        photoURL: photoURL || ('https:' + gravatar.url(email, { d: 'retro' })),
     });
 });
