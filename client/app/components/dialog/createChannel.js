@@ -1,6 +1,8 @@
 // @flow
 import React, { PureComponent } from 'react';
 import { graphql, commitMutation } from 'react-relay';
+import compose from 'recompose/compose';
+import { connect } from 'react-redux';
 import TextField from 'material-ui/TextField';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
@@ -9,27 +11,24 @@ import MenuItem from 'material-ui/MenuItem';
 import AutoComplete from 'material-ui/AutoComplete';
 
 import UserChip from 'components/item/user';
+import connectFirebase from 'utils/firebase/enhancer';
 
 type Props = {
     open: boolean,
     onRequestClose: () => void,
 
+    type: 'CHANNEL' | 'GROUP' | 'PERSON',
     friends: Array<{
         uid: string,
         name: string,
     }>,
 };
 
-export default class ChannelModal extends PureComponent {
-    static defaultProps = {
-        friends: [],
-    };
-
+class ChannelModal extends PureComponent {
     constructor(props: Props) {
         super(props);
         this.state = {
             pending: false,
-            type: 'CHANNEL',
             name: '',
             search: '',
             invite: [],
@@ -38,7 +37,6 @@ export default class ChannelModal extends PureComponent {
 
     state: {
         pending: boolean,
-        type: 'CHANNEL' | 'GROUP' | 'CONVERSATION',
         name: string,
         search: string,
         invite: Array<string>,
@@ -48,12 +46,6 @@ export default class ChannelModal extends PureComponent {
         this.setPerson = (event, index, value) => {
             this.setState({
                 invite: [value],
-            });
-        };
-
-        this.handleType = (event, index, value) => {
-            this.setState({
-                type: value,
             });
         };
 
@@ -73,6 +65,34 @@ export default class ChannelModal extends PureComponent {
                 invite: state.invite.concat([user]),
             }));
         };
+
+        this.onCreate = async () => {
+            this.setState({ pending: true });
+
+            const { type } = this.props;
+            const { name } = this.state;
+            const { default: environment } = await import(/* webpackChunkName: "relay" */ '../../utils/relay');
+            commitMutation(environment, {
+                mutation: graphql`
+                    mutation createChannel_CreateChannelMutation($input: CreateChannelInput!) {
+                        createChannel(input: $input) {
+                            clientMutationId
+                        }
+                    }
+                `,
+                variables: {
+                    input: {
+                        type,
+                        name: type === 'PERSON' ? '' : name,
+                    },
+                },
+
+                onCompleted: () => {
+                    this.props.onRequestClose();
+                    this.setState({ pending: false });
+                },
+            });
+        };
     }
 
     props: Props;
@@ -87,7 +107,8 @@ export default class ChannelModal extends PureComponent {
 
     render() {
         let content;
-        if (this.state.type === 'CHANNEL' || this.state.type === 'GROUP') {
+        const { type } = this.props;
+        if (type === 'CHANNEL' || type === 'GROUP') {
             content = [
                 <TextField
                     hintText="Name" fullWidth key="name"
@@ -124,7 +145,7 @@ export default class ChannelModal extends PureComponent {
             <Dialog
                 open={this.props.open}
                 onRequestClose={this.props.onRequestClose}
-                title="Create a channel"
+                title={`Create a ${type === 'PERSON' ? 'conversation' : type.toLowerCase()}`}
                 actions={[
                     <FlatButton
                         label="Cancel"
@@ -133,40 +154,26 @@ export default class ChannelModal extends PureComponent {
                     <FlatButton
                         label="Create" primary
                         disabled={this.state.pending}
-                        onTouchTap={async () => {
-                            this.setState({ pending: true });
-
-                            const { type, name } = this.state;
-                            const { default: environment } = await import(/* webpackChunkName: "relay" */ '../../utils/relay');
-                            commitMutation(environment, {
-                                mutation: graphql`
-                                    mutation createChannel_CreateChannelMutation($input: CreateChannelInput!) {
-                                        createChannel(input: $input) {
-                                            clientMutationId
-                                        }
-                                    }
-                                `,
-                                variables: {
-                                    input: { type, name },
-                                },
-
-                                onCompleted: () => {
-                                    this.props.onRequestClose();
-                                    this.setState({ pending: false });
-                                },
-                            });
-                        }} />,
+                        onTouchTap={this.onCreate} />,
                 ]}>
-                <SelectField
-                    floatingLabelText="Type"
-                    value={this.state.type}
-                    onChange={this.handleType}>
-                    <MenuItem value="CHANNEL" primaryText="Channel" />
-                    <MenuItem value="GROUP" primaryText="Group" />
-                    <MenuItem value="CONVERSATION" primaryText="Conversation" />
-                </SelectField>
                 {content}
             </Dialog>
         );
     }
 }
+
+const enhance = compose(
+    connect(
+        ({ auth }) => ({
+            uid: auth.user.uid,
+        }),
+    ),
+    connectFirebase(
+        ({ uid }) => `/users/${uid}/friends`,
+        friends => ({
+            friends: friends || [],
+        }),
+    ),
+);
+
+export default enhance(ChannelModal);

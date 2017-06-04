@@ -55,7 +55,7 @@ const Mosaic = (props: Props) => {
     }
 
     return (
-        <Squircle {...other} width="40" height="40" zDepth={0}>
+        <Squircle width="40" height="40" zDepth={0} {...other}>
             <defs>
                 <clipPath id="left">
                     <rect x="0" y="0" width="25" height="50" />

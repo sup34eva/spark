@@ -19,6 +19,9 @@ export const RootRouter = new TabRouter({
     Groups: {
         screen: ConvNavigator,
     },
+    Friends: {
+        screen: ConvNavigator,
+    },
 }, {
     initialRouteName: 'Channels',
 });

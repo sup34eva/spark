@@ -9,12 +9,12 @@ import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import IconMenu from 'material-ui/IconMenu';
 import MenuItem from 'material-ui/MenuItem';
 
-import Mosaic from 'components/base/avatars';
+import ProfilePic from 'components/base/profilePic';
 import connectFirebase from 'utils/firebase/enhancer';
 
 type Props = {
+    uid: string,
     user: ?{
-        photoURL: string,
         displayName: string,
         status: 'ONLINE' | 'BUSY' | 'AWAY' | 'OFFLINE',
     },
@@ -43,8 +43,7 @@ const Profile = (props: Props) => do {
         disabled
         style={ITEM_STYLE}
         leftAvatar={
-            // $FlowIssue
-            <Mosaic images={props.user ? [props.user.photoURL] : []} />
+            <ProfilePic uid={props.uid} />
         }
         rightIconButton={
             <IconMenu iconButtonElement={iconButtonElement} onItemTouchTap={setStatus}>

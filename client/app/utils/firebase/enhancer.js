@@ -4,7 +4,7 @@ import React, { PureComponent } from 'react';
 import hoistStatics from '../enhancers';
 
 type PropsToPath = (props: Object) => string;
-type ValueToProps = (value: ?Object) => Object;
+type ValueToProps = (value: ?Object, ownProps: Object) => Object;
 
 export default (propsToPath: PropsToPath, valueToProps: ValueToProps) => (
     // eslint-disable-next-line no-undef
@@ -54,7 +54,7 @@ export default (propsToPath: PropsToPath, valueToProps: ValueToProps) => (
             props: any;
 
             render() {
-                const valueProps = valueToProps(this.state.value);
+                const valueProps = valueToProps(this.state.value, this.props);
                 return <WrappedComponent {...valueProps} {...this.props} />;
             }
         },

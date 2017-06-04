@@ -5,7 +5,8 @@ import marked from 'marked';
 import styles from './message.css';
 
 marked.setOptions({
-    gfm: false,
+    gfm: true,
+    breaks: true,
     tables: false,
     smartLists: false,
     sanitize: true,

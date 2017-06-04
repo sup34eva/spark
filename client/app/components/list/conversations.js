@@ -29,7 +29,7 @@ type Props = {
     channels: ?Array<{
         name: string,
         subtext: ?string,
-        type: 'CHANNEL' | 'GROUP',
+        type: 'CHANNEL' | 'GROUP' | 'PERSON',
         users: ?{
             [key: string]: 'user' | 'moderator',
         },
@@ -45,6 +45,7 @@ const BTN_STYLE = {
     position: 'absolute',
     top: 48,
     right: 0,
+    zIndex: 5,
 };
 
 class Conversations extends PureComponent {
@@ -109,12 +110,22 @@ class Conversations extends PureComponent {
     render() {
         let title;
         let category;
-        if (this.props.routeName === 'Channels') {
-            title = 'Channels';
-            category = 'CHANNEL';
-        } else {
-            title = 'Groups';
-            category = 'GROUP';
+        // eslint-disable-next-line default-case
+        switch (this.props.routeName) {
+            case 'Channels':
+                title = 'Channels';
+                category = 'CHANNEL';
+                break;
+
+            case 'Groups':
+                title = 'Groups';
+                category = 'GROUP';
+                break;
+
+            case 'Friends':
+                title = 'Friends';
+                category = 'PERSON';
+                break;
         }
 
         const { primary3Color } = this.context.muiTheme.palette;
@@ -132,6 +143,7 @@ class Conversations extends PureComponent {
                 <Profile />
 
                 <CreateChannelDialog
+                    type={category}
                     open={this.state.showModal}
                     onRequestClose={this.closeModal} />
             </Paper>
@@ -141,10 +153,15 @@ class Conversations extends PureComponent {
 
 const enhance = connectFirebase(
     () => '/channels',
-    value => ({
-        // $FlowIssue
-        channels: value ? Object.entries(value).map(([name, val]) => ({ name, ...val })) : null,
-    }),
+    value => do {
+        /* eslint-disable semi, no-unused-expressions */
+        if (value) {
+            Object.entries(value).map(([name, val]) => ({ name, ...val }))
+        } else {
+            null
+        }
+        /* eslint-enable semi, no-unused-expressions */
+    },
 );
 
 export default enhance(Conversations);

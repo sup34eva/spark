@@ -1,13 +1,13 @@
 // @flow
 import React from 'react';
 import { graphql } from 'react-relay';
-import { toGlobalId } from 'graphql-relay';
+import { fromGlobalId } from 'graphql-relay';
 import { connect } from 'react-redux';
 import compose from 'recompose/compose';
 import marked from 'marked';
 
 import BatchedSprings, { PRESET_ZOOM } from 'components/base/batchedSprings';
-import Squircle from 'components/base/squircle';
+import ProfilePic from 'components/base/profilePic';
 import { withFragment } from 'utils/relay/enhancers';
 
 // eslint-disable-next-line camelcase
@@ -43,7 +43,8 @@ const Message = (props: Props) => {
     }
 
     const timeString = new Date(time).toLocaleTimeString();
-    const isMine = author.id === toGlobalId('User', props.user.uid);
+    const { id: authorId } = fromGlobalId(author.id);
+    const isMine = authorId === props.user.uid;
     const start = isMine ? -100 : 100;
 
     return (
@@ -52,12 +53,9 @@ const Message = (props: Props) => {
             {({ opacity, scale, translate }) => (
                 <div className={styles.message} style={{ opacity }}>
                     {!isMine && (
-                        <Squircle
-                            width="40" height="40"
-                            zDepth={0} className={styles.avatar}
-                            style={{ transform: `scale(${scale})` }}>
-                            <image x="0" y="0" height="50" width="50" xlinkHref={author.photoURL} />
-                        </Squircle>
+                        <ProfilePic
+                            className={styles.avatar} style={{ transform: `scale(${scale})` }}
+                            uid={authorId} />
                     )}
                     <div
                         className={`${styles.bubble} ${isMine ? styles.outgoing : styles.incoming}`}
@@ -88,7 +86,6 @@ const enhance = compose(
                 time
                 author {
                     id
-                    photoURL
                 }
             }
         `,

@@ -19,6 +19,9 @@
     "users": {
       "$user": {
         ".write": "$user == auth.uid",
+        "photoURL": {
+          ".write": "false",
+        },
         "status": {
           ".validate": "data.isString() && data.val().matches(/^(ONLINE|BUSY|AWAY|OFFLINE)$/)"
         }
