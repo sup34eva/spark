@@ -2,6 +2,7 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import TextField from 'material-ui/TextField';
+import DatePicker from 'material-ui/DatePicker';
 import FlatButton from 'material-ui/FlatButton';
 
 import ProfilePic from 'components/base/profilePic';
@@ -29,9 +30,9 @@ const ProfileField = enhanceField(
         }
 
         componentWillMount() {
-            this.onChange = (evt, value) => {
-                this.setState({ value });
-            };
+            this.onChange = (evt, value) => new Promise(resolve => {
+                this.setState({ value }, resolve);
+            });
 
             this.onSave = async () => {
                 const { value } = this.state;
@@ -83,9 +84,13 @@ const Profile = (props: Props) => (
         </ProfileField>
         <ProfileField uid={props.uid} name="birthDate">
             {(value, onChange, onSave) => (
-                <TextField
-                    floatingLabelText="Birthdate" type="date" name="birthDate"
-                    value={value} onChange={onChange} onBlur={onSave} />
+                <DatePicker
+                    floatingLabelText="Birthdate" maxDate={new Date()}
+                    value={value ? new Date(value) : undefined}
+                    onChange={async (evt, date) => {
+                        await onChange(evt, date.toISOString());
+                        onSave();
+                    }} />
             )}
         </ProfileField>
         <ProfileField uid={props.uid} name="biography">
