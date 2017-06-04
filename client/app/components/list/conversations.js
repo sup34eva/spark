@@ -156,7 +156,9 @@ const enhance = connectFirebase(
     value => do {
         /* eslint-disable semi, no-unused-expressions */
         if (value) {
-            Object.entries(value).map(([name, val]) => ({ name, ...val }))
+            ({
+                channels: Object.entries(value).map(([name, val]) => ({ name, ...val })),
+            })
         } else {
             null
         }

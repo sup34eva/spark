@@ -84,7 +84,10 @@ module.exports = env => ({
             children: true,
             minChunks: 2,
         }),
-        new ExtractTextPlugin('[name].css'),
+        new ExtractTextPlugin({
+            filename: '[name].css',
+            disable: env !== 'production',
+        }),
         new HtmlWebpackPlugin({
             title: 'Spark',
             filename: 'index.html',

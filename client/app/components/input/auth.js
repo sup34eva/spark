@@ -29,7 +29,9 @@ export default class AuthForm extends PureComponent {
     };
 
     componentWillMount() {
-        this.onLogin = async () => {
+        this.onLogin = async evt => {
+            evt.preventDefault();
+
             try {
                 const hasUsername = this.ensureUsername();
                 const hasPassword = this.ensurePassword();
@@ -124,10 +126,12 @@ export default class AuthForm extends PureComponent {
                 <TextField
                     hintText="Password" type="password" errorText={this.state.passError}
                     value={this.state.password} onChange={this.handlePassword} />
+
                 <div className={styles.btnGroup}>
-                    <RaisedButton label="Login" primary onTouchTap={this.onLogin} />
+                    <RaisedButton label="Login" primary type="submit" />
                     <RaisedButton label="Register" onTouchTap={this.onRegister} />
                 </div>
+
                 <FlatButton label="Reset password" onTouchTap={this.onReset} />
 
                 <Snackbar

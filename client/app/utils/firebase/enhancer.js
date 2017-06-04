@@ -22,6 +22,17 @@ export default (propsToPath: PropsToPath, valueToProps: ValueToProps) => (
                 value: ?Object,
             };
 
+            componentWillMount() {
+                this.onValue = snapshot => {
+                    this.setState({
+                        value: snapshot.val(),
+                    });
+                };
+                this.onError = err => {
+                    console.error(err);
+                };
+            }
+
             componentDidMount() {
                 this.updateRef(propsToPath(this.props));
             }
@@ -30,19 +41,18 @@ export default (propsToPath: PropsToPath, valueToProps: ValueToProps) => (
                 this.updateRef(propsToPath(nextProps));
             }
 
-            async updateRef(nextRef) {
-                if (this.ref) {
-                    this.ref.off();
-                    this.ref = null;
-                }
-                if (nextRef) {
-                    const { database } = await import(/* webpackChunkName: "firebase" */ './index');
-                    this.ref = database.ref(propsToPath(this.props));
-                    this.ref.on('value', snapshot => {
-                        this.setState({
-                            value: snapshot.val(),
-                        });
-                    });
+            async updateRef(nextPath) {
+                if (this.path !== nextPath) {
+                    if (this.ref) {
+                        this.ref.off('value', this.onValue);
+                        this.ref = null;
+                    }
+                    if (nextPath) {
+                        const { database } = await import(/* webpackChunkName: "firebase" */ './index');
+                        this.path = nextPath;
+                        this.ref = database.ref(nextPath);
+                        this.ref.on('value', this.onValue, this.onError);
+                    }
                 }
             }
 
@@ -50,6 +60,7 @@ export default (propsToPath: PropsToPath, valueToProps: ValueToProps) => (
                 this.updateRef(null);
             }
 
+            path: ?string;
             ref: Object;
             props: any;
 

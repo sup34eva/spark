@@ -61,7 +61,16 @@ const ProfilePic = ({ uid, className, style, status, photoURL, ...props }: Props
 
 const enhance = connectFirebase(
     ({ uid }) => `/users/${uid}`,
-    value => (value ? ({ status: value.status, photoURL: value.photoURL }) : null),
+    (value, ownProps) => do {
+        /* eslint-disable semi, no-unused-expressions */
+        if (value) {
+            console.log(ownProps.className, value.status);
+            ({ status: value.status, photoURL: value.photoURL })
+        } else {
+            null
+        }
+        /* eslint-enable semi, no-unused-expressions */
+    },
 );
 
 export default enhance(ProfilePic);

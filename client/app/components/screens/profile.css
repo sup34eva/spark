@@ -4,6 +4,10 @@
     flex-direction: column;
     align-items: center;
 
+    overflow-x: hidden;
+    overflow-y: auto;
+    min-width: 0;
+
     .avatar {
         margin: 48px;
     }
