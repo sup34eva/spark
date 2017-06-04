@@ -19,7 +19,7 @@ export default class ConvNavigator extends Component {
 
     props: {
         navigation: {
-            dispatch: () => void,
+            dispatch: Function,
             state: {
                 /* eslint-disable react/no-unused-prop-types */
                 index: number,

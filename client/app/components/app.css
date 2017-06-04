@@ -57,7 +57,7 @@
             }
 
             &[data-profile="true"]::after {
-                border-left-color: #0097a7;
+                border-left-color: #474C5B;
             }
         }
 

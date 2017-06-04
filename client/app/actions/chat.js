@@ -10,24 +10,20 @@ import {
     initCamera,
     createConnection,
 } from 'utils';
-import type {
-    Connection,
-    Offer,
-    Candidate,
-} from 'utils/rtc';
 
-import type { State } from '../reducers';
-import type { Action } from '../store';
-
+// eslint-disable-next-line no-undef
 type GetState = () => State;
+// eslint-disable-next-line no-undef
 type Store = ReduxStore<State, Action>;
 
+// eslint-disable-next-line no-undef
 export function joinCall(): Action {
     return {
         type: 'JOIN',
     };
 }
 
+// eslint-disable-next-line no-undef
 export function localStream(stream: MediaStream): Action {
     return {
         type: 'LOCAL_STREAM',
@@ -35,6 +31,7 @@ export function localStream(stream: MediaStream): Action {
     };
 }
 
+// eslint-disable-next-line no-undef
 export function remoteConnection(remote: string, connection: Connection): Action {
     return {
         type: 'REMOTE_CONNECTION',
@@ -44,6 +41,7 @@ export function remoteConnection(remote: string, connection: Connection): Action
     };
 }
 
+// eslint-disable-next-line no-undef
 export function remoteStream(remote: string, stream: MediaStream): Action {
     return {
         type: 'REMOTE_STREAM',
@@ -53,9 +51,11 @@ export function remoteStream(remote: string, stream: MediaStream): Action {
     };
 }
 
+// eslint-disable-next-line no-undef
 export function sendOffer(): Action {
     return {
         type: 'SEND_OFFER',
+        // eslint-disable-next-line no-undef
         payload: async (dispatch: Dispatch<Action>, getState: GetState) => {
             dispatch(joinCall());
 
@@ -99,6 +99,7 @@ export function sendOffer(): Action {
 export function acceptOffer(remote: Remote, offer: Offer): Action {
     return {
         type: 'ACCEPT_OFFER',
+        // eslint-disable-next-line no-undef
         payload: async (dispatch: Dispatch<Action>, getState: GetState) => {
             const {
                 stream: streamState,
@@ -114,9 +115,11 @@ export function acceptOffer(remote: Remote, offer: Offer): Action {
     };
 }
 
+// eslint-disable-next-line no-undef
 export function handleCandidate(store: Store, remote: string, candidate: Candidate): Action {
     return {
         type: 'HANDLE_CANDIDATE',
+        // eslint-disable-next-line no-undef
         payload: async (dispatch: Dispatch<Action>, getState: GetState) => {
             const connection = await new Promise(resolve => {
                 let unsubscribe;

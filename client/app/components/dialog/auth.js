@@ -116,7 +116,7 @@ export default class AuthForm extends PureComponent {
 
     render() {
         return (
-            <div className={styles.form}>
+            <form className={styles.form} onSubmit={this.onLogin}>
                 <h1>Spark</h1>
                 <TextField
                     hintText="Username" errorText={this.state.userError}
@@ -133,7 +133,7 @@ export default class AuthForm extends PureComponent {
                 <Snackbar
                     open={!!this.state.snackbar} message={this.state.snackbar}
                     autoHideDuration={4000} onRequestClose={this.handleRequestClose} />
-            </div>
+            </form>
         );
     }
 }

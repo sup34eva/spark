@@ -1,13 +1,13 @@
 // @flow
 import type { Dispatch, MiddlewareAPI } from 'redux';
 
-import type { State } from '../reducers';
-import type { Action } from '../store';
-
+// eslint-disable-next-line no-undef
 type Middleware = MiddlewareAPI<State, Action>;
 
 export default ({ dispatch, getState }: Middleware) => (
+    // eslint-disable-next-line no-undef
     (next: Dispatch<Action>) => (
+        // eslint-disable-next-line no-undef
         async (action: Action) => {
             if (typeof action.payload === 'function') {
                 // eslint-disable-next-line no-param-reassign

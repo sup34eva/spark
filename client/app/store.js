@@ -57,7 +57,7 @@ const store = createStore(
 if (module.hot) {
     // $FlowIssue
     module.hot.accept('./reducers', () =>
-        store.replaceReducer(require('./reducers')) // eslint-disable-line global-require
+        store.replaceReducer(require('./reducers').default) // eslint-disable-line global-require
     );
 }
 

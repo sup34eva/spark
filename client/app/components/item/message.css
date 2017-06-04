@@ -24,7 +24,7 @@
         justify-content: flex-end;
 
         &.incoming {
-            background: #efefef;
+            background: #D7D8DC;
             margin-right: 40px;
             border-bottom-right-radius: 15px;
 
@@ -38,7 +38,7 @@
         }
 
         &.outgoing {
-            background: #00bcd4;
+            background: #8DCBF4;
             margin-left: 88px;
             border-bottom-left-radius: 15px;
 
@@ -47,7 +47,7 @@
             }
 
             .time {
-                color: rgba(255, 255, 255, .6);
+                color: rgba(255, 255, 255, .84);
             }
         }
 
@@ -57,6 +57,14 @@
 
         img {
             width: 100%;
+        }
+
+        code {
+            padding: .2rem .4rem;
+            font-size: 90%;
+            color: #CA6949;
+            background-color: #F7F9FB;
+            border-radius: .25rem;
         }
 
         .time {

@@ -15,7 +15,7 @@ type Props = {
 const MemberList = ({ users }: Props, ctx) => (
     <Paper
         className={styles.wrapper} rounded={false}
-        style={{ backgroundColor: ctx.muiTheme.palette.accent1Color }}>
+        style={{ backgroundColor: ctx.muiTheme.palette.primary3Color }}>
         {users && users.map(user => (
             <UserChip key={user} user={user} />
         ))}

@@ -41,7 +41,7 @@ const PAPER_STYLE = {
 
 const Sidebar = (props: Props, ctx: Context) => do {
     const { state, navigate } = props.navigation;
-    const { primary2Color, textColor, disabledColor } = ctx.muiTheme.palette;
+    const { primary2Color, primary3Color, disabledColor } = ctx.muiTheme.palette;
 
     /* eslint-disable semi, no-unused-expressions, react/jsx-indent */
     <Paper
@@ -52,13 +52,13 @@ const Sidebar = (props: Props, ctx: Context) => do {
             onTouchTap={() => navigate('Profile')}
             images={props.photoURL ? [props.photoURL] : []} />
         <IconButton onTouchTap={() => navigate('Channels')}>
-            <Channel color={state.key === 'Channels' ? textColor : disabledColor} />
+            <Channel color={state.key === 'Channels' ? primary3Color : disabledColor} />
         </IconButton>
         <IconButton onTouchTap={() => navigate('Groups')}>
-            <Group color={state.key === 'Groups' ? textColor : disabledColor} />
+            <Group color={state.key === 'Groups' ? primary3Color : disabledColor} />
         </IconButton>
         <IconButton onTouchTap={() => navigate('Friends')}>
-            <Friend color={state.key === 'Friends' ? textColor : disabledColor} />
+            <Friend color={state.key === 'Friends' ? primary3Color : disabledColor} />
         </IconButton>
     </Paper>
     /* eslint-enable semi, no-unused-expressions, react/jsx-indent */

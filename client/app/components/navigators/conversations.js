@@ -23,7 +23,7 @@ export default class DetailsNavigator extends Component {
     props: {
         navigation: {
             /* eslint-disable react/no-unused-prop-types */
-            dispatch: () => void,
+            dispatch: Function,
             state: {
                 index: number,
                 routes: Array<Object>,

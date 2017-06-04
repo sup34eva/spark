@@ -117,9 +117,9 @@ class Conversations extends PureComponent {
             category = 'GROUP';
         }
 
-        const { primary1Color } = this.context.muiTheme.palette;
+        const { primary3Color } = this.context.muiTheme.palette;
         return (
-            <Paper style={{ ...PAPER_STYLE, backgroundColor: primary1Color }} rounded={false}>
+            <Paper style={{ ...PAPER_STYLE, backgroundColor: primary3Color }} rounded={false}>
                 <IconButton onTouchTap={this.openModal} style={BTN_STYLE}>
                     <ContentAdd />
                 </IconButton>

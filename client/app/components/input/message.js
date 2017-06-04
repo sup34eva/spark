@@ -82,6 +82,12 @@ class PostForm extends PureComponent {
             }
         };
 
+        this.onKeyPress = evt => {
+            if (evt.which === 13 && !evt.shiftKey) {
+                this.onSubmit(evt);
+            }
+        };
+
         this.setMessage = (evt, message) => {
             this.setState({ message });
         };
@@ -93,13 +99,13 @@ class PostForm extends PureComponent {
         const enabled = this.state.message.trim().length > 0;
         return (
             <Paper style={{ backgroundColor: '#fff' }} rounded={false}>
-                <form onSubmit={
-                    this.onSubmit} className={styles.form}>
+                <form onSubmit={this.onSubmit} className={styles.form}>
                     <IconButton onTouchTap={this.joinCall}>
                         <VideoCall />
                     </IconButton>
                     <TextField
                         hintText="Message" className={styles.content}
+                        multiLine onKeyPress={this.onKeyPress}
                         value={this.state.message} onChange={this.setMessage} />
                     <Squircle
                         height={48} width={48} zDepth={Number(enabled)}
@@ -118,9 +124,8 @@ class PostForm extends PureComponent {
 }
 
 const enhance = connect(
-    ({ auth, navigation }) => ({
+    ({ auth }) => ({
         uid: auth.user.uid,
-        channel: navigation.currentChannel,
     }),
 );
 

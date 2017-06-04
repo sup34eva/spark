@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+import PropTypes from 'prop-types';
 import { remote } from 'electron';
 import { connect } from 'react-redux';
 import { addNavigationHelpers } from 'react-navigation';
@@ -25,7 +26,7 @@ type Props = {
     dispatch: (Object) => void,
 };
 
-const App = (props: Props) => (
+const App = (props: Props, ctx) => (
     <div className={styles.app}>
         <div className={styles.appBar}>
             {ACTIONS.map(([Icon, action]) => (
@@ -37,7 +38,7 @@ const App = (props: Props) => (
                         win[action]();
                     }
                 }}>
-                    <Icon color="#FFFFFF" />
+                    <Icon color={ctx.muiTheme.palette.disabledColor} />
                 </IconButton>
             ))}
         </div>
@@ -55,6 +56,10 @@ const App = (props: Props) => (
         }}
     </div>
 );
+
+App.contextTypes = {
+    muiTheme: PropTypes.object.isRequired,
+};
 
 const enhance = connect(
     ({ auth, navigation }) => ({

@@ -7,6 +7,12 @@
         ".read": "data.child('users').hasChild(auth.uid)",
         "type": {
           ".validate": "data.isString() && data.val().matches(/^(CHANNEL|GROUP|CONVERSATION)$/)"
+        },
+        "users": {
+          "$user": {
+            ".write": "(!data.exists() && data.parent().hasChild(auth.uid)) || (!newData.exists() && auth.uid == $user) || data.parent().child(auth.uid).val() == 'MODERATOR'",
+          	".validate": "data.isString() && data.val().matches(/^(USER|MODERATOR|BAN)$/)"
+          }
         }
       }
     },
