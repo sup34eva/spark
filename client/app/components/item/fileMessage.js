@@ -12,11 +12,13 @@ export default class File extends PureComponent {
         this.state = {
             content: null,
             metadata: null,
+            imageStyle: null,
         };
     }
 
     state: {
         content: ?string,
+        imageStyle: ?Object,
         metadata: ?{
             customMetadata: {
                 displayName: string,
@@ -28,6 +30,15 @@ export default class File extends PureComponent {
         this.handleClick = evt => {
             evt.preventDefault();
             shell.openExternal(this.state.content);
+        };
+        this.handleImage = evt => {
+            const img = evt.target;
+            this.setState({
+                imageStyle: {
+                    maxWidth: img.naturalWidth,
+                    maxHeight: img.naturalHeight,
+                },
+            });
         };
     }
 
@@ -55,20 +66,24 @@ export default class File extends PureComponent {
         return (
             <div className={styles.content}>
                 {do {
-                    /* eslint-disable no-unused-expressions, semi */
+                    /* eslint-disable no-unused-expressions */
                     if (metadata && metadata.contentType.startsWith('image/')) {
-                        <div className={styles.content}>
-                            <img src={content} alt={displayName} />
-                        </div>
+                        (
+                            <img
+                                src={content} alt={displayName}
+                                onLoad={this.handleImage} style={this.state.imageStyle} />
+                        );
                     } else {
-                        <FlatButton
-                            icon={<IconAttachment color={color} />}
-                            label={displayName}
-                            labelStyle={{ color }}
-                            disabled={content === null}
-                            onTouchTap={this.handleClick} />
+                        (
+                            <FlatButton
+                                icon={<IconAttachment color={color} />}
+                                label={displayName}
+                                labelStyle={{ color }}
+                                disabled={content === null}
+                                onTouchTap={this.handleClick} />
+                        );
                     }
-                    /* eslint-enable no-unused-expressions, semi */
+                    /* eslint-enable no-unused-expressions */
                 }}
             </div>
         );

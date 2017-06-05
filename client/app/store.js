@@ -24,7 +24,7 @@ if (process.env.NODE_ENV !== 'production') {
     );
 }
 
-/* eslint-disable no-underscore-dangle, no-unused-expressions, semi */
+/* eslint-disable no-underscore-dangle, no-unused-expressions */
 const composeEnhancers = do {
     if (window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
         window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
@@ -32,12 +32,12 @@ const composeEnhancers = do {
                 ...chatActions,
                 ...navActions,
             },
-        })
+        });
     } else {
-        compose
+        compose;
     }
 };
-/* eslint-enable no-underscore-dangle, no-unused-expressions, semi */
+/* eslint-enable no-underscore-dangle, no-unused-expressions */
 
 export type Action = {
     type: string,

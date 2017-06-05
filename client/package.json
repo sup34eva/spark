@@ -5,7 +5,7 @@
   "main": "main.js",
   "scripts": {
     "install": "flow-typed install",
-    "start": "concurrently --kill-others -p \"[{name}]\" -n \"SERVER,CLIENT,RELAY\" -c \"bgRed.bold,bgBlue.bold,bgGreen.bold\" \"npm run server\" \"npm run client\" \"npm run relay -- --watch\"",
+    "start": "concurrently --kill-others -p \"[{name}]\" -n \"SERVER,CLIENT,RELAY\" -c \"bgRed.bold,bgBlue.bold,bgGreen.bold\" \"npm run server\" \"npm run client -- dev\" \"npm run relay -- --watch\"",
     "relay": "relay-compiler --src ./app --schema ../server-graphql/data/schema.graphql",
     "build": "webpack --env=production --progress --profile --colors",
     "client": "electron ./app/main",

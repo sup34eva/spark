@@ -7,6 +7,7 @@ import compose from 'recompose/compose';
 import marked from 'marked';
 
 import BatchedSprings, { PRESET_ZOOM } from 'components/base/batchedSprings';
+import UserMenu from 'components/base/userMenu';
 import ProfilePic from 'components/base/profilePic';
 import { withFragment } from 'utils/relay/enhancers';
 
@@ -53,21 +54,23 @@ const Message = (props: Props) => {
             {({ opacity, scale, translate }) => (
                 <div className={styles.message} style={{ opacity }}>
                     {!isMine && (
-                        <ProfilePic
-                            className={styles.avatar} style={{ transform: `scale(${scale})` }}
-                            uid={authorId} />
+                        <UserMenu uid={authorId}>
+                            <ProfilePic
+                                className={styles.avatar} style={{ transform: `scale(${scale})` }}
+                                uid={authorId} />
+                        </UserMenu>
                     )}
                     <div
                         className={`${styles.bubble} ${isMine ? styles.outgoing : styles.incoming}`}
                         style={{ transform: `translateX(${translate}%)` }}>
                         {do {
-                            /* eslint-disable no-unused-expressions, semi */
+                            /* eslint-disable no-unused-expressions */
                             if (kind === 'FILE') {
-                                <File channel={props.channel} isMine={isMine} content={content} />
+                                <File channel={props.channel} isMine={isMine} content={content} />;
                             } else {
-                                <Text content={content} />
+                                <Text content={content} />;
                             }
-                            /* eslint-enable no-unused-expressions, semi */
+                            /* eslint-enable no-unused-expressions */
                         }}
                         <p className={styles.time}>{timeString}</p>
                     </div>

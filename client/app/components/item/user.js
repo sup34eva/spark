@@ -15,21 +15,25 @@ type Props = {
     },
 };
 
-const UserChip = ({ profile, onRequestDelete }: Props) => do {
-    /* eslint-disable no-unused-expressions, semi */
+const UserChip = ({ uid, profile, onRequestDelete, style, ...props }: Props) => do {
+    /* eslint-disable no-unused-expressions */
     if (profile) {
-        <Chip className={styles.chip} style={{ margin: null }} onRequestDelete={onRequestDelete}>
-            <Avatar src={profile.photoURL} />
-            {profile.displayName}
-        </Chip>
+        (
+            <Chip
+                className={styles.chip} style={{ ...style, margin: null }}
+                onRequestDelete={onRequestDelete} {...props}>
+                <Avatar src={profile.photoURL} />
+                {profile.displayName}
+            </Chip>
+        );
     } else {
-        null
+        null;
     }
-    /* eslint-enable no-unused-expressions, semi */
+    /* eslint-enable no-unused-expressions */
 };
 
 const enhance = connectFirebase(
-    ({ user }) => `/users/${user}`,
+    ({ uid }) => `/users/${uid}`,
     profile => ({ profile }),
 );
 

@@ -28,7 +28,25 @@ type Props = {
 
 const App = (props: Props, ctx) => (
     <div className={styles.app}>
-        <div className={styles.appBar}>
+        <div className={styles.appBar} style={{
+            left: do {
+                const { routeName, ...route } = props.navigation.routes[props.navigation.index];
+                /* eslint-disable no-unused-expressions, react/jsx-indent */
+                if (props.user === null) {
+                    0;
+                } else if (routeName === 'Profile') {
+                    64;
+                } else {
+                    const { routeName: subRoute } = route.routes[route.index];
+                    if (subRoute === 'ConvOpen') {
+                        'unset';
+                    } else {
+                        320;
+                    }
+                }
+                /* eslint-enable no-unused-expressions, react/jsx-indent */
+            },
+        }}>
             {ACTIONS.map(([Icon, action]) => (
                 <IconButton key={action} onTouchTap={() => {
                     const win = remote.getCurrentWindow();
@@ -43,16 +61,16 @@ const App = (props: Props, ctx) => (
             ))}
         </div>
         {do {
-            /* eslint-disable no-unused-expressions, semi, react/jsx-indent */
+            /* eslint-disable no-unused-expressions, react/jsx-indent */
             if (props.user === null) {
-                <AuthForm />
+                <AuthForm />;
             } else {
                 <RootNavigator navigation={addNavigationHelpers({
                     dispatch: props.dispatch,
                     state: props.navigation,
-                })} />
+                })} />;
             }
-            /* eslint-enable no-unused-expressions, semi, react/jsx-indent */
+            /* eslint-enable no-unused-expressions, react/jsx-indent */
         }}
     </div>
 );

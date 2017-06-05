@@ -13,6 +13,8 @@ import CreateChannelDialog from 'components/dialog/createChannel';
 import ChannelItem from 'components/item/channel';
 import Profile from 'components/item/profile';
 
+import styles from '../app.css';
+
 type Props = {
     routeName: string,
     navigation: {
@@ -43,7 +45,7 @@ const PAPER_STYLE = {
 };
 const BTN_STYLE = {
     position: 'absolute',
-    top: 48,
+    top: 0,
     right: 0,
     zIndex: 5,
 };
@@ -136,7 +138,7 @@ class Conversations extends PureComponent {
                 </IconButton>
 
                 <List>
-                    <Subheader>{title}</Subheader>
+                    <Subheader className={styles.subheader}>{title}</Subheader>
                     {this.category(category)}
                 </List>
 
@@ -154,15 +156,15 @@ class Conversations extends PureComponent {
 const enhance = connectFirebase(
     () => '/channels',
     value => do {
-        /* eslint-disable semi, no-unused-expressions */
+        /* eslint-disable no-unused-expressions */
         if (value) {
             ({
                 channels: Object.entries(value).map(([name, val]) => ({ name, ...val })),
-            })
+            });
         } else {
-            null
+            null;
         }
-        /* eslint-enable semi, no-unused-expressions */
+        /* eslint-enable no-unused-expressions */
     },
 );
 

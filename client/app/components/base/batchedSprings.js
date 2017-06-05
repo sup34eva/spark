@@ -1,6 +1,7 @@
 // @flow
 import React, { Element } from 'react';
 import rebound from 'rebound';
+import VisibilitySensor from 'react-visibility-sensor';
 
 import batch from 'utils/batch';
 
@@ -22,18 +23,30 @@ export default class BatchedSprings extends React.Component {
     constructor(props: Props) {
         super(props);
 
-        this.state = (
-            Object.entries(props.springs)
-                .reduce((state, [key, { start }]) => ({
-                    ...state,
-                    [key]: start,
-                }), {})
-        );
+        this.springs = {};
+        this.state = {
+            isVisible: false,
+            isAtRest: false,
+            springs: Object.entries(props.springs).reduce((state, [key, { start }]) => ({
+                ...state,
+                [key]: start,
+            }), {}),
+        };
     }
 
     state: {
-        [key: string]: number,
+        isVisible: boolean,
+        isAtRest: boolean,
+        springs: {
+            [key: string]: number,
+        },
     };
+
+    componentWillMount() {
+        this.onVisibilityChange = isVisible => {
+            this.setState({ isVisible });
+        };
+    }
 
     componentDidMount() {
         this.batch = batch(index => {
@@ -42,17 +55,30 @@ export default class BatchedSprings extends React.Component {
                     const spring = system.createSpring(tension, friction);
                     spring.addListener({
                         onSpringUpdate: () => {
-                            this.setState({
-                                [key]: spring.getCurrentValue(),
-                            });
+                            if (this.state.isVisible) {
+                                this.setState(state => ({
+                                    springs: {
+                                        ...state.springs,
+                                        [key]: spring.getCurrentValue(),
+                                    },
+                                }));
+                            }
+                        },
+                        onSpringAtRest: () => {
+                            this.setState(state => ({
+                                isAtRest: true,
+                                springs: {
+                                    ...state.springs,
+                                    [key]: spring.getCurrentValue(),
+                                },
+                            }));
                         },
                     });
 
-                    spring.setCurrentValue(this.state[key], true);
+                    spring.setCurrentValue(this.state.springs[key], true);
                     spring.setEndValue(end);
 
-                    // $FlowIssue
-                    this[key] = spring;
+                    this.springs[key] = spring;
                 });
             }, index * 25);
         });
@@ -68,23 +94,29 @@ export default class BatchedSprings extends React.Component {
             this.timeout = null;
         }
 
-        Object.keys(this.props.springs).forEach(key => {
-            // $FlowIssue
-            if (this[key]) {
-                this[key].destroy();
-                // $FlowIssue
-                this[key] = null;
-            }
+        Object.entries(this.springs).forEach(([key, spring]) => {
+            spring.destroy();
+            delete this.springs[key];
         });
     }
 
     batch: any;
     timeout: any;
+    springs: {
+        [key: string]: Object,
+    };
 
     props: Props;
 
     render() {
-        return this.props.children(this.state);
+        return (
+            <VisibilitySensor
+                active={!this.state.isAtRest}
+                partialVisibility resizeCheck scrollCheck
+                onChange={this.onVisibilityChange}>
+                {this.props.children(this.state.springs)}
+            </VisibilitySensor>
+        );
     }
 }
 

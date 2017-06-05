@@ -38,23 +38,25 @@ const Profile = (props: Props) => do {
         database.ref(`/users/${props.uid}/status`).set(child.props.value);
     };
 
-    /* eslint-disable react/jsx-indent, no-unused-expressions, semi */
-    <ListItem
-        disabled
-        style={ITEM_STYLE}
-        leftAvatar={
-            <ProfilePic uid={props.uid} />
-        }
-        rightIconButton={
-            <IconMenu iconButtonElement={iconButtonElement} onItemTouchTap={setStatus}>
-                <MenuItem value="ONLINE">Online</MenuItem>
-                <MenuItem value="BUSY">Busy</MenuItem>
-                <MenuItem value="AWAY">Away</MenuItem>
-            </IconMenu>
-        }
-        primaryText={props.user ? props.user.displayName : '\u00a0'}
-        secondaryText={props.user && props.user.status} />
-    /* eslint-enable react/jsx-indent, no-unused-expressions, semi */
+    /* eslint-disable react/jsx-indent, no-unused-expressions */
+    (
+        <ListItem
+            disabled
+            style={ITEM_STYLE}
+            leftAvatar={
+                <ProfilePic uid={props.uid} />
+            }
+            rightIconButton={
+                <IconMenu iconButtonElement={iconButtonElement} onItemTouchTap={setStatus}>
+                    <MenuItem value="ONLINE">Online</MenuItem>
+                    <MenuItem value="BUSY">Busy</MenuItem>
+                    <MenuItem value="AWAY">Away</MenuItem>
+                </IconMenu>
+            }
+            primaryText={props.user ? props.user.displayName : '\u00a0'}
+            secondaryText={props.user && props.user.status} />
+    );
+    /* eslint-enable react/jsx-indent, no-unused-expressions */
 };
 
 const enhance = compose(

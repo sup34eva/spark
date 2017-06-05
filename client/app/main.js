@@ -3,7 +3,7 @@ const {
     app, BrowserWindow, Menu,
 } = require('electron');
 
-const __DEV__ = process.env.NODE_ENV !== 'production' && !process.argv.find(v => v === 'prod');
+const __DEV__ = process.argv.find(v => v.startsWith('dev')) !== undefined;
 if (__DEV__) {
     require('electron-debug')();
     const path = require('path');

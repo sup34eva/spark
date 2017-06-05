@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import Paper from 'material-ui/Paper';
 
 import connectFirebase from 'utils/firebase/enhancer';
+import UserMenu from 'components/base/userMenu';
 import UserChip from 'components/item/user';
 
 import styles from './members.css';
@@ -16,9 +17,12 @@ const MemberList = ({ users }: Props, ctx) => (
     <Paper
         className={styles.wrapper} rounded={false}
         style={{ backgroundColor: ctx.muiTheme.palette.primary3Color }}>
-        {users && users.map(user => (
-            <UserChip key={user} user={user} />
+        {users && users.map(uid => (
+            <UserMenu key={uid} uid={uid}>
+                <UserChip uid={uid} />
+            </UserMenu>
         ))}
+        <div className={styles.dragBar} />
     </Paper>
 );
 
