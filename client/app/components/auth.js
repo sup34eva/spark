@@ -5,6 +5,7 @@ import RaisedButton from 'material-ui/RaisedButton';
 import FlatButton from 'material-ui/FlatButton';
 import Snackbar from 'material-ui/Snackbar';
 
+import Logo from './root/shared/logo';
 import styles from './auth.css';
 
 export default class AuthForm extends PureComponent {
@@ -119,7 +120,10 @@ export default class AuthForm extends PureComponent {
     render() {
         return (
             <form className={styles.form} onSubmit={this.onLogin}>
-                <h1>Spark</h1>
+                <h1>
+                    <Logo />
+                    Spark
+                </h1>
                 <TextField
                     floatingLabelText="Username" errorText={this.state.userError}
                     value={this.state.username} onChange={this.handleUsername} />

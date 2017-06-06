@@ -8,18 +8,26 @@ import Divider from 'material-ui/Divider';
 
 import connectFirebase from 'utils/firebase/enhancer';
 
-const addFriend = ({ selfId, uid }) => async () => {
+import UserDialog from './userDialog';
+
+const addFriend = ({ selfId, uid, closeMenu }) => async () => {
+    closeMenu();
+
     const { database } = await import(/* webpackChunkName: "firebase" */ '../../../../../../utils/firebase');
     database.ref(`/users/${selfId}/friends/${uid}`).set('FRIEND');
     database.ref(`/users/${uid}/friends/${selfId}`).set('INVITE');
 };
 
-const kickUser = ({ channel, uid }) => async () => {
+const kickUser = ({ channel, uid, closeMenu }) => async () => {
+    closeMenu();
+
     const { database } = await import(/* webpackChunkName: "firebase" */ '../../../../../../utils/firebase');
     database.ref(`/channels/${channel}/users/${uid}/kick`).set(Date.now() + 60000);
 };
 
-const banUser = ({ channel, uid }) => async () => {
+const banUser = ({ channel, uid, closeMenu }) => async () => {
+    closeMenu();
+
     const { database } = await import(/* webpackChunkName: "firebase" */ '../../../../../../utils/firebase');
     database.ref(`/channels/${channel}/users/${uid}/ban`).set(true);
 };
@@ -29,7 +37,7 @@ const UserMenu = (props) => do {
     if (props.access === 'MODERATOR') {
         (
             <Menu>
-                <MenuItem primaryText="See profile" />
+                <MenuItem primaryText="See profile" onTouchTap={props.openProfile} />
                 <MenuItem primaryText="Add a contact" onTouchTap={addFriend(props)} />
                 <Divider />
                 <MenuItem primaryText="Kick" onTouchTap={kickUser(props)} />
@@ -68,6 +76,7 @@ class UserCard extends PureComponent {
         this.state = {
             open: false,
             anchor: null,
+            profile: false,
         };
     }
 
@@ -85,6 +94,16 @@ class UserCard extends PureComponent {
                 anchor: null,
             });
         };
+        this.openProfile = () => {
+            this.setState({
+                open: false,
+                anchor: null,
+                profile: true,
+            });
+        };
+        this.closeProfile = () => {
+            this.setState({ profile: false });
+        };
     }
 
     props: Props;
@@ -95,26 +114,33 @@ class UserCard extends PureComponent {
             selfId,
             channel,
             children,
+            dispatch, // eslint-disable-line no-unused, react/prop-types
             ...props
         } = this.props;
 
-        if (selfId === uid) {
+        /* if (selfId === uid) {
             return this.props.children;
-        }
+        }*/
 
         return (
             <div {...props}>
                 {React.cloneElement(this.props.children, {
                     onTouchTap: this.handleOpen,
                 })}
+
                 <Popover
                     open={this.state.open}
                     anchorEl={this.state.anchor}
-                    anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
+                    anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                     targetOrigin={{ horizontal: 'left', vertical: 'top' }}
                     onRequestClose={this.handleClose}>
-                    <EnhancedMenu selfId={selfId} uid={uid} channel={channel} />
+                    <EnhancedMenu
+                        selfId={selfId} uid={uid} channel={channel}
+                        closeMenu={this.handleClose}
+                        openProfile={this.openProfile} />
                 </Popover>
+
+                <UserDialog uid={uid} open={this.state.profile} onClose={this.closeProfile} />
             </div>
         );
     }
