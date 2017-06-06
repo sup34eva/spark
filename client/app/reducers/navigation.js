@@ -1,5 +1,5 @@
 // @flow
-import { RootRouter } from 'components/navigators/root';
+import { RootRouter } from 'components/root';
 
 const initialState = RootRouter.getStateForAction(
     RootRouter.getActionForPathAndParams('Profile'),

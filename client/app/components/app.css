@@ -63,30 +63,6 @@
                 border-left-width: 8px;
             }
         }
-
-        .convNavigator {
-            flex: 1;
-            display: flex;
-            flex-direction: row;
-
-            overflow: hidden;
-            min-width: 0;
-
-            .subheader {
-                -webkit-app-region: drag;
-                margin-right: 48px;
-                width: calc(100% - 48px) !important;
-            }
-
-            .chat {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                position: relative;
-                overflow: hidden;
-                min-width: 0;
-            }
-        }
     }
 
 }

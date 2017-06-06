@@ -4,26 +4,53 @@
     ".write": "false",
     "channels": {
       "$channel": {
-        ".read": "data.child('users').hasChild(auth.uid)",
+        ".read": "data.child('type').val() == 'CHANNEL' || (data.child('users').hasChild(auth.uid) && !((data.child('users').child(auth.uid).hasChild('kick') && data.child('users').child(auth.uid).child('kick').val() > now) || data.child('users').child(auth.uid).hasChild('ban')))",
+        ".validate": "newData.hasChild('type')",
         "type": {
-          ".validate": "data.isString() && data.val().matches(/^(CHANNEL|GROUP|CONVERSATION)$/)"
+          ".validate": "newData.isString() && newData.val().matches(/^(CHANNEL|GROUP|CONVERSATION)$/)"
         },
         "users": {
           "$user": {
-            ".write": "(!data.exists() && data.parent().hasChild(auth.uid)) || (!newData.exists() && auth.uid == $user) || data.parent().child(auth.uid).val() == 'MODERATOR'",
-          	".validate": "data.isString() && data.val().matches(/^(USER|MODERATOR|BAN)$/)"
+            ".write": "data.parent().child(auth.uid).child('access').val() == 'MODERATOR'",
+          	".validate": "newData.hasChild('access')",
+            "access": {
+              ".write": "(!data.exists() && data.parent().hasChild(auth.uid)) || (!newData.exists() && auth.uid == $user && !((data.hasChild('kick') && data.child('kick').val() > now) || data.hasChild('ban')))",
+              ".validate": "newData.isString() && newData.val().matches(/^(USER|MODERATOR)$/)"
+            },
+            "kick": {
+              ".validate": "newData.isNumber() && newData.val() > now"
+            },
+            "ban": {
+              ".validate": "newData.isBoolean()"
+            }
           }
         }
       }
     },
     "users": {
       "$user": {
-        ".write": "$user == auth.uid",
-        "photoURL": {
-          ".write": "false",
+        ".validate": "newData.hasChildren(['displayName', 'photoURL'])",
+        "displayName": {
+          ".write": "$user == auth.uid",
+          ".validate": "newData.isString() && newData.val().length < 50"
+        },
+        "birthDate": {
+          ".write": "$user == auth.uid",
+          ".validate": "newData.isString() && newData.val().matches(/\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d\\.\\d+([+-][0-2]\\d:[0-5]\\d|Z)/)"
+        },
+        "biography": {
+          ".write": "$user == auth.uid",
+          ".validate": "newData.isString() && newData.val().length < 140"
         },
         "status": {
-          ".validate": "data.isString() && data.val().matches(/^(ONLINE|BUSY|AWAY|OFFLINE)$/)"
+          ".write": "$user == auth.uid",
+          ".validate": "newData.isString() && newData.val().matches(/^(ONLINE|BUSY|AWAY|OFFLINE)$/)"
+        },
+        "friends": {
+          "$friend": {
+            ".write": "$user == auth.uid || ($friend == auth.uid && !data.exists() && newData.val() == 'INVITE')",
+          ".validate": "newData.isString() && newData.val().matches(/^(FRIEND|BLOCK|INVITE)$/)"
+          }
         }
       }
     }

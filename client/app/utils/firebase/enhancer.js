@@ -34,30 +34,35 @@ export default (propsToPath: PropsToPath, valueToProps: ValueToProps) => (
             }
 
             componentDidMount() {
-                this.updateRef(propsToPath(this.props));
+                this.addListener(propsToPath(this.props));
             }
 
             componentWillReceiveProps(nextProps) {
-                this.updateRef(propsToPath(nextProps));
+                const nextPath = propsToPath(nextProps);
+                if (this.path !== nextPath) {
+                    this.removeListener();
+                    this.addListener(nextPath);
+                }
             }
 
-            async updateRef(nextPath) {
-                if (this.path !== nextPath) {
-                    if (this.ref) {
-                        this.ref.off('value', this.onValue);
-                        this.ref = null;
-                    }
-                    if (nextPath) {
-                        const { database } = await import(/* webpackChunkName: "firebase" */ './index');
-                        this.path = nextPath;
-                        this.ref = database.ref(nextPath);
-                        this.ref.on('value', this.onValue, this.onError);
-                    }
+            async addListener(path) {
+                this.path = path;
+                if (path) {
+                    const { database } = await import(/* webpackChunkName: "firebase" */ './index');
+                    this.ref = database.ref(this.path);
+                    this.ref.on('value', this.onValue, this.onError);
+                }
+            }
+
+            removeListener() {
+                if (this.ref) {
+                    this.ref.off('value', this.onValue);
+                    this.ref = null;
                 }
             }
 
             componentWillUnmount() {
-                this.updateRef(null);
+                this.removeListener();
             }
 
             path: ?string;

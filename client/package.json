@@ -10,7 +10,8 @@
     "build": "webpack --env=production --progress --profile --colors",
     "client": "electron ./app/main",
     "server": "webpack-dev-server",
-    "update": "ncu -u"
+    "update": "ncu -u",
+    "lint": "eslint app"
   },
   "bin": {
     "electron": "./node_modules/.bin/electron"

@@ -9,9 +9,8 @@ import NavigationMinimize from 'material-ui/svg-icons/navigation/expand-more';
 import NavigationMaximize from 'material-ui/svg-icons/navigation/fullscreen';
 import NavigationClose from 'material-ui/svg-icons/navigation/close';
 
-import AuthForm from 'components/input/auth';
-import RootNavigator from 'components/navigators/root';
-
+import AuthForm from './auth';
+import RootNavigator from './root';
 import styles from './app.css';
 
 const ACTIONS = [

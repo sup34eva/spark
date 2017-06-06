@@ -19,6 +19,7 @@ module.exports = {
         'no-plusplus': 'off',
         'class-methods-use-this': 'off',
         'no-console': 'off',
+        'no-restricted-syntax': 'off',
 
         'flowtype-errors/show-errors': 'error',
 

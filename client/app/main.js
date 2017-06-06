@@ -1,14 +1,15 @@
 const path = require('path');
+
 const {
     app, BrowserWindow, Menu,
 } = require('electron');
 
-const __DEV__ = process.argv.find(v => v.startsWith('dev')) !== undefined;
-if (__DEV__) {
+const DEV = process.argv.find(v => v.startsWith('dev')) !== undefined;
+if (DEV) {
+    // eslint-disable-next-line global-require, import/no-extraneous-dependencies
     require('electron-debug')();
-    const path = require('path');
     const p = path.join(__dirname, '..', 'app', 'node_modules');
-    require('module').globalPaths.push(p);
+    require('module').globalPaths.push(p); // eslint-disable-line global-require
 }
 
 app.on('window-all-closed', () => {
@@ -16,16 +17,17 @@ app.on('window-all-closed', () => {
 });
 
 function installExtensions(then) {
-    if (__DEV__) {
+    if (DEV) {
         const {
             default: installer,
             REACT_DEVELOPER_TOOLS,
             REDUX_DEVTOOLS,
             REACT_PERF,
+        // eslint-disable-next-line global-require, import/no-extraneous-dependencies
         } = require('electron-devtools-installer');
 
-        return () => {
-            Promise.all(
+        return async () => {
+            await Promise.all(
                 [
                     REACT_DEVELOPER_TOOLS,
                     REDUX_DEVTOOLS,
@@ -36,11 +38,13 @@ function installExtensions(then) {
                     .map(prom => prom.catch(
                         console.warn.bind(console)
                     ))
-            ).then(then);
+            );
+
+            then();
         };
-    } else {
-        return then;
     }
+
+    return then;
 }
 
 let mainWindow = null;
@@ -63,7 +67,7 @@ app.on('ready', installExtensions(() => {
         }]).popup(mainWindow);
     });
 
-    if (__DEV__) {
+    if (DEV) {
         mainWindow.openDevTools();
         mainWindow.loadURL('http://localhost:8080/');
     } else {
