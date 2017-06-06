@@ -32,6 +32,13 @@ const banUser = ({ channel, uid, closeMenu }) => async () => {
     database.ref(`/channels/${channel}/users/${uid}/ban`).set(true);
 };
 
+const makeModerator = ({ channel, uid, closeMenu }) => async () => {
+    closeMenu();
+
+    const { database } = await import(/* webpackChunkName: "firebase" */ '../../../../../../utils/firebase');
+    database.ref(`/channels/${channel}/users/${uid}/access`).set('MODERATOR');
+};
+
 const UserMenu = (props) => do {
     /* eslint-disable no-unused-expressions */
     if (props.access === 'MODERATOR') {
@@ -42,6 +49,7 @@ const UserMenu = (props) => do {
                 <Divider />
                 <MenuItem primaryText="Kick" onTouchTap={kickUser(props)} />
                 <MenuItem primaryText="Ban" onTouchTap={banUser(props)} />
+                <MenuItem primaryText="Make moderator" onTouchTap={makeModerator(props)} />
             </Menu>
         );
     } else {
@@ -118,9 +126,9 @@ class UserCard extends PureComponent {
             ...props
         } = this.props;
 
-        /* if (selfId === uid) {
+        if (selfId === uid) {
             return this.props.children;
-        }*/
+        }
 
         return (
             <div {...props}>
