@@ -7,6 +7,7 @@ admin.initializeApp(functions.config().firebase);
 exports.createUserProfile = functions.auth.user().onCreate(event => {
     const { uid, email, displayName, photoURL } = event.data;
     admin.database().ref('/users/' + uid).set({
+        type: 'USER',
         displayName: displayName || email,
         photoURL: photoURL || ('https:' + gravatar.url(email, { d: 'retro' })),
     });

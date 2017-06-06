@@ -25,12 +25,12 @@ exports.subscriptionWithClientSubscriptionId = config => {
         });
 
     const inputType = new GraphQLInputObjectType({
-        name: name + 'Input',
+        name: `${name}Input`,
         fields: augmentedInputFields,
     });
 
     const outputType = new GraphQLObjectType({
-        name: name + 'Message',
+        name: `${name}Message`,
         fields: outputFields,
     });
 

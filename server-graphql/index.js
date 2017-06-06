@@ -28,5 +28,5 @@ wss.on('connection', websocket(wss));
 
 const port = process.env.PORT || 8443;
 server.listen(port, () => {
-    console.log('Listening on port ' + port);
+    console.log(`Listening on port ${port}`);
 });

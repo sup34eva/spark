@@ -29,7 +29,11 @@
     },
     "users": {
       "$user": {
-        ".validate": "newData.hasChildren(['displayName', 'photoURL'])",
+        ".write": "!data.exists() && newData.child('type').val() == 'BOT'",
+        ".validate": "newData.hasChildren(['type', 'displayName', 'photoURL']) && newData.child('type').val() == 'USER'|| (newData.child('type').val() == 'BOT' && newData.hasChild('url'))",
+        "type": {
+          ".validate": "newData.isString() && newData.val().matches(/^(USER|BOT)$/)"
+        },
         "displayName": {
           ".write": "$user == auth.uid",
           ".validate": "newData.isString() && newData.val().length < 50"
@@ -49,7 +53,7 @@
         "friends": {
           "$friend": {
             ".write": "$user == auth.uid || ($friend == auth.uid && !data.exists() && newData.val() == 'INVITE')",
-          ".validate": "newData.isString() && newData.val().matches(/^(FRIEND|BLOCK|INVITE)$/)"
+            ".validate": "newData.isString() && newData.val().matches(/^(FRIEND|BLOCK|INVITE)$/)"
           }
         }
       }

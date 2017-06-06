@@ -16,6 +16,7 @@ const {
     sendMessage,
 } = require('../../utils/kafka');
 const { database, auth, exists } = require('../../utils/firebase');
+const runBot = require('../../utils/bot');
 
 const { channelKind, channelType, channelEdge } = require('../types/channel');
 const { messageEdge, messageKind } = require('../types/message');
@@ -43,7 +44,7 @@ module.exports = new GraphQLObjectType({
                 },
             },
             async mutateAndGetPayload({ name, type }, { token }) {
-                if(await exists('/channels/' + name)) {
+                if(await exists(`/channels/${name}`)) {
                     throw new Error(`Channel ${name} already exists`);
                 }
 
@@ -51,7 +52,7 @@ module.exports = new GraphQLObjectType({
 
                 await createChannel(name);
 
-                database.ref('/channels/' + name).set({
+                database.ref(`/channels/${name}`).set({
                     type,
                     users: {
                         [sub]: 'moderator',
@@ -106,11 +107,31 @@ module.exports = new GraphQLObjectType({
                 });
 
                 if(kind === 'TEXT') {
-                    database.ref('/channels/' + channel + '/subtext').set({
+                    database.ref(`/channels/${channel}/subtext`).set({
                         user: sub,
                         content,
                     });
                 }
+
+                database.ref(`/channels/${channel}/users`).once('value', snapshot => {
+                    const users = snapshot.val();
+                    Object.entries(users).forEach(([uid, { access, kick, ban }]) => {
+                        if(ban || kick > Date.now()) {
+                            return;
+                        }
+
+                        database.ref(`/users/${uid}`).once('value', async snapshot => {
+                            const { type, url } = snapshot.val();
+                            if (type === 'BOT') {
+                                try {
+                                    await runBot(channel, { uid, url, access }, value);
+                                } catch (err) {
+                                    console.error(url, err);
+                                }
+                            }
+                        });
+                    });
+                });
 
                 return {
                     channel,
