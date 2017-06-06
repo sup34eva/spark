@@ -18,8 +18,8 @@ module.exports = async (channel, { uid, url, access }, value) => {
         throw new Error(`${res.status} ${res.statusText}`);
     }
 
-    const { action, ...data } = await res.json();
-    switch(action.toUpperCase()) {
+    const data = await res.json();
+    switch(data.action.toUpperCase()) {
         case 'ANSWER': {
             await sendMessage({
                 key: uuid.v1(),

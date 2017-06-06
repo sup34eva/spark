@@ -5,7 +5,7 @@ import {
     cursorToOffset,
     offsetToCursor,
     toGlobalId,
- } from 'graphql-relay';
+} from 'graphql-relay';
 
 type Props = {
     kind: string,

@@ -1,6 +1,8 @@
 // @flow
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import compose from 'recompose/compose';
+import { connect } from 'react-redux';
 import Paper from 'material-ui/Paper';
 import Subheader from 'material-ui/Subheader';
 import { List, ListItem } from 'material-ui/List';
@@ -19,16 +21,17 @@ import CreateChannelDialog from './createChannel';
 type Props = {
     routeName: string,
     navigation: {
-        navigate: (string) => void,
-        dispatch: (Object) => void,
+        navigate: (string) => void, // eslint-disable-line react/no-unused-prop-types
+        dispatch: (Object) => void, // eslint-disable-line react/no-unused-prop-types
         state: {
             routeName: string,
-            params: ?{ // eslint-disable-line
+            params: ?{ // eslint-disable-line react/no-unused-prop-types
                 channel: string,
             },
         },
     },
 
+    uid: string,
     channels: ?Array<{
         name: string,
         subtext: ?string,
@@ -70,12 +73,20 @@ class Conversations extends PureComponent {
     };
 
     componentWillMount() {
-        this.selectChannel = channel => {
+        this.selectChannel = async channel => {
             this.props.navigation.navigate('ConvOpen');
             this.props.navigation.dispatch({
                 type: 'Navigation/SET_PARAMS',
                 key: 'ConvOpen',
                 params: { channel },
+            });
+
+            const { database } = await import(/* webpackChunkName: "firebase" */ '../../../../utils/firebase');
+            const userRef = database.ref(`/channels/${channel}/users/${this.props.uid}`);
+            userRef.once('value', snapshot => {
+                if (snapshot.val() === null) {
+                    userRef.child('access').set('USER');
+                }
             });
         };
         this.openModal = () => {
@@ -156,19 +167,26 @@ class Conversations extends PureComponent {
     }
 }
 
-const enhance = connectFirebase(
-    () => '/channels',
-    value => do {
-        /* eslint-disable no-unused-expressions */
-        if (value) {
-            ({
-                channels: Object.entries(value).map(([name, val]) => ({ name, ...val })),
-            });
-        } else {
-            null;
-        }
-        /* eslint-enable no-unused-expressions */
-    },
+const enhance = compose(
+    connect(
+        ({ auth }) => ({
+            uid: auth.user.uid,
+        }),
+    ),
+    connectFirebase(
+        () => '/channels',
+        value => do {
+            /* eslint-disable no-unused-expressions */
+            if (value) {
+                ({
+                    channels: Object.entries(value).map(([name, val]) => ({ name, ...val })),
+                });
+            } else {
+                null;
+            }
+            /* eslint-enable no-unused-expressions */
+        },
+    ),
 );
 
 export default enhance(Conversations);

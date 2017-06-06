@@ -48,32 +48,25 @@ export function runQuery(data: any): Promise<any> {
     });
 }
 
-type Subscription = {
-    subscription: string,
+type Request = {
+    query: string,
     variables: Object,
-
-    onNext: (Object) => void,
-    onError: (Error) => void,
 };
 
 let clientSubscriptionId = 0;
-export function subscribe(request: Subscription) {
+export function subscribe(onNext: (Object) => void, request: Request) {
     const id = clientSubscriptionId++;
-    socket.on(id, result => {
-        if (result.errors) {
-            result.errors
-                .forEach(err => request.onError(err));
-        }
-
-        request.onNext(result.data);
-    });
+    socket.on(id, onNext);
 
     return {
         request: runQuery({
-            query: request.subscription,
+            query: request.query,
             variables: {
                 ...request.variables,
-                clientSubscriptionId: id,
+                input: {
+                    ...request.variables.input,
+                    clientSubscriptionId: id,
+                },
             },
         }),
         connection: {

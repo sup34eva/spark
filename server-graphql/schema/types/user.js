@@ -8,6 +8,7 @@ const {
 } = require('graphql-relay');
 
 const { nodeInterface } = require('../node');
+const { database } = require('../../utils/firebase');
 
 const nodeType = exports.userType = new GraphQLObjectType({
     name: 'User',
@@ -19,9 +20,27 @@ const nodeType = exports.userType = new GraphQLObjectType({
         ),
         displayName: {
             type: GraphQLString,
+            resolve: ({ uid }) => new Promise((resolve, reject) => {
+                database.ref(`/users/${uid}/displayName`).once(
+                    'value',
+                    snapshot => {
+                        resolve(snapshot.val());
+                    },
+                    reject
+                );
+            }),
         },
         photoURL: {
             type: GraphQLString,
+            resolve: ({ uid }) => new Promise((resolve, reject) => {
+                database.ref(`/users/${uid}/photoURL`).once(
+                    'value',
+                    snapshot => {
+                        resolve(snapshot.val());
+                    },
+                    reject
+                );
+            }),
         },
     },
 });

@@ -38,7 +38,7 @@ module.exports = new GraphQLObjectType({
             },
             async start(publish, { channel }) {
                 const consumer = await createConsumer(channel);
-                consumer.on('message', ({ key, offset, value }) => {
+                consumer.on('message', ({ value, offset, key }) => {
                     const node = JSON.parse(value);
                     publish({
                         channel,

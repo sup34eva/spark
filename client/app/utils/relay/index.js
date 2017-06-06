@@ -14,11 +14,10 @@ const network = Network.create(
     },
     async (operation, variables, ignored, { onError, onNext }) => {
         const { subscribe } = await import(/* webpackChunkName: "websocket" */ '../websocket');
-        const { connection, request } = subscribe({
-            subscription: operation.text,
+
+        const { connection, request } = subscribe(onNext, {
+            query: operation.text,
             variables,
-            onNext,
-            onError,
         });
 
         (async () => {
@@ -29,7 +28,13 @@ const network = Network.create(
                 }
             } catch (err) {
                 const { errors } = err;
-                onError(new Error(errors[0]));
+                if (onError) {
+                    errors.forEach(r => {
+                        onError(new Error(r));
+                    });
+                } else {
+                    console.error(...errors);
+                }
             }
         })();
 

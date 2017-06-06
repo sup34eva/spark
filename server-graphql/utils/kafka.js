@@ -101,8 +101,6 @@ exports.listMessages = (topic, from, to) => Promise.race([
 
         const messages = [];
         consumer.on('message', ({ value, offset, key }) => {
-            console.log('message', value, offset, key);
-
             const node = JSON.parse(value);
             messages.push(Object.assign({}, node, {
                 id: `${topic}:${offset}`,

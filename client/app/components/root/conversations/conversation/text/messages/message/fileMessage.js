@@ -71,7 +71,7 @@ export default class File extends PureComponent {
                         (
                             <img
                                 src={content} alt={displayName}
-                                onLoad={this.handleImage} style={this.state.imageStyle} />
+                                onLoadStart={this.handleImage} style={this.state.imageStyle} />
                         );
                     } else {
                         (
