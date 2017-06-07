@@ -1,5 +1,6 @@
 {
   "name": "spark",
+  "productName": "Spark",
   "version": "0.1.0",
   "description": "",
   "main": "main.js",
@@ -8,10 +9,11 @@
     "start": "concurrently --kill-others -p \"[{name}]\" -n \"SERVER,CLIENT,RELAY\" -c \"bgRed.bold,bgBlue.bold,bgGreen.bold\" \"npm run server\" \"npm run client -- dev\" \"npm run relay -- --watch\"",
     "relay": "relay-compiler --src ./app --schema ../server-graphql/data/schema.graphql",
     "build": "webpack --env=production --progress --profile --colors",
-    "client": "electron ./app/main",
+    "client": "electron ./main",
     "server": "webpack-dev-server",
     "update": "ncu -u",
-    "lint": "eslint app"
+    "lint": "eslint app",
+    "bundle": "electron-packager ."
   },
   "bin": {
     "electron": "./node_modules/.bin/electron"
@@ -78,6 +80,7 @@
     "css-loader": "0.28.4",
     "electron-debug": "1.1.0",
     "electron-devtools-installer": "2.2.0",
+    "electron-packager": "^8.7.1",
     "eslint": "3.19.0",
     "eslint-config-airbnb": "15.0.1",
     "eslint-formatter-pretty": "1.1.0",

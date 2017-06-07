@@ -24,7 +24,6 @@ const MemberList = ({ channel, users }: Props, ctx) => (
                 <UserChip uid={uid} />
             </UserMenu>
         ))}
-        <div className={styles.dragBar} />
     </Paper>
 );
 

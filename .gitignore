@@ -6,3 +6,4 @@ key.pem
 server-graphql/utils/serviceAccountKey.json
 __generated__
 client/dist/
+client/Spark-*/

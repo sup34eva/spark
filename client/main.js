@@ -71,7 +71,7 @@ app.on('ready', installExtensions(() => {
         mainWindow.openDevTools();
         mainWindow.loadURL('http://localhost:8080/');
     } else {
-        mainWindow.loadURL(path.resolve(__dirname, '..', 'dist', 'index.html'));
+        mainWindow.loadURL(path.resolve(__dirname, 'dist', 'index.html'));
     }
 
     mainWindow.webContents.on('did-finish-load', () => {

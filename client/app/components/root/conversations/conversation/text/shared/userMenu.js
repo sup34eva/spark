@@ -11,7 +11,20 @@ import connectFirebase from 'utils/firebase/enhancer';
 
 import UserDialog from './userDialog';
 
-const addFriend = ({ selfId, uid, closeMenu }) => async () => {
+type MenuProps = {
+    /* eslint-disable react/no-unused-prop-types */
+    uid: string,
+    selfId: string,
+    channel: string,
+    closeMenu: () => void,
+    /* eslint-enable react/no-unused-prop-types */
+
+    access: null | 'USER' | 'MODERATOR',
+    friendStatus: ?string,
+    openProfile: () => void,
+};
+
+const addFriend = ({ selfId, uid, closeMenu }: MenuProps) => async () => {
     closeMenu();
 
     const { database } = await import(/* webpackChunkName: "firebase" */ '../../../../../../utils/firebase');
@@ -19,55 +32,48 @@ const addFriend = ({ selfId, uid, closeMenu }) => async () => {
     database.ref(`/users/${uid}/friends/${selfId}`).set('INVITE');
 };
 
-const kickUser = ({ channel, uid, closeMenu }) => async () => {
+const kickUser = ({ channel, uid, closeMenu }: MenuProps) => async () => {
     closeMenu();
 
     const { database } = await import(/* webpackChunkName: "firebase" */ '../../../../../../utils/firebase');
     database.ref(`/channels/${channel}/users/${uid}/kick`).set(Date.now() + 60000);
 };
 
-const banUser = ({ channel, uid, closeMenu }) => async () => {
+const banUser = ({ channel, uid, closeMenu }: MenuProps) => async () => {
     closeMenu();
 
     const { database } = await import(/* webpackChunkName: "firebase" */ '../../../../../../utils/firebase');
     database.ref(`/channels/${channel}/users/${uid}/ban`).set(true);
 };
 
-const makeModerator = ({ channel, uid, closeMenu }) => async () => {
+const makeModerator = ({ channel, uid, closeMenu }: MenuProps) => async () => {
     closeMenu();
 
     const { database } = await import(/* webpackChunkName: "firebase" */ '../../../../../../utils/firebase');
     database.ref(`/channels/${channel}/users/${uid}/access`).set('MODERATOR');
 };
 
-const UserMenu = (props) => do {
-    /* eslint-disable no-unused-expressions */
+const UserMenu = (props: MenuProps) => {
+    const items = [];
     if (props.access === 'MODERATOR') {
-        (
-            <Menu>
-                <MenuItem primaryText="See profile" onTouchTap={props.openProfile} />
-                <MenuItem
-                    primaryText="Add a contact"
-                    disabled={props.friendStatus !== null}
-                    onTouchTap={addFriend(props)} />
-                <Divider />
-                <MenuItem primaryText="Kick" onTouchTap={kickUser(props)} />
-                <MenuItem primaryText="Ban" onTouchTap={banUser(props)} />
-                <MenuItem primaryText="Make moderator" onTouchTap={makeModerator(props)} />
-            </Menu>
-        );
-    } else {
-        (
-            <Menu>
-                <MenuItem primaryText="See profile" onTouchTap={props.openProfile} />
-                <MenuItem
-                    primaryText="Add a contact"
-                    disabled={props.friendStatus !== null}
-                    onTouchTap={addFriend(props)} />
-            </Menu>
+        items.push(
+            <Divider key="div" />,
+            <MenuItem key="kick" primaryText="Kick" onTouchTap={kickUser(props)} />,
+            <MenuItem key="ban" primaryText="Ban" onTouchTap={banUser(props)} />,
+            <MenuItem key="mod" primaryText="Make moderator" onTouchTap={makeModerator(props)} />,
         );
     }
-    /* eslint-enable no-unused-expressions */
+
+    return (
+        <Menu>
+            <MenuItem primaryText="See profile" onTouchTap={props.openProfile} />
+            <MenuItem
+                primaryText="Add a contact"
+                disabled={props.friendStatus !== null}
+                onTouchTap={addFriend(props)} />
+            {items}
+        </Menu>
+    );
 };
 
 const enhanceMenu = compose(
