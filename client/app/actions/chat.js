@@ -55,14 +55,13 @@ export function setLocalStream(stream: MediaStream): Action {
 }
 
 // eslint-disable-next-line no-undef
-export function toggleMicro(): Action {
+export function setMicro(hasMicro: boolean): Action {
     return {
-        type: 'TOGGLE_MICRO',
+        type: 'SET_MICRO',
         // eslint-disable-next-line no-undef
-        payload: async (dispatch: Dispatch<Action>, getState: GetState) => {
+        payload: (dispatch: Dispatch<Action>, getState: GetState) => {
             const { stream } = getState();
 
-            const hasMicro = !stream.hasMicro;
             for (const track of stream.localStream.getAudioTracks()) {
                 track.enabled = hasMicro;
             }
@@ -73,14 +72,13 @@ export function toggleMicro(): Action {
 }
 
 // eslint-disable-next-line no-undef
-export function toggleCamera(): Action {
+export function setCamera(hasCamera: boolean): Action {
     return {
-        type: 'TOGGLE_CAMERA',
+        type: 'SET_CAMERA',
         // eslint-disable-next-line no-undef
-        payload: async (dispatch: Dispatch<Action>, getState: GetState) => {
+        payload: (dispatch: Dispatch<Action>, getState: GetState) => {
             const { stream } = getState();
 
-            const hasCamera = !stream.hasCamera;
             for (const track of stream.localStream.getVideoTracks()) {
                 track.enabled = hasCamera;
             }

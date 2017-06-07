@@ -23,10 +23,10 @@ export default (state: StreamState = new StreamState(), action: any) => {
         case 'LEAVE':
             return new StreamState();
 
-        case 'TOGGLE_MICRO':
+        case 'SET_MICRO':
             return state.set('hasMicro', action.payload);
 
-        case 'TOGGLE_CAMERA':
+        case 'SET_CAMERA':
             return state.set('hasCamera', action.payload);
 
         case 'LOCAL_STREAM':

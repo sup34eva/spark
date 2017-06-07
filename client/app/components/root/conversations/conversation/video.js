@@ -4,27 +4,37 @@ import { connect } from 'react-redux';
 import type { Map } from 'immutable';
 import { Toolbar, ToolbarGroup } from 'material-ui/Toolbar';
 import IconButton from 'material-ui/IconButton';
+import Checkbox from 'material-ui/Checkbox';
 import IconMic from 'material-ui/svg-icons/av/mic';
 import IconMicOff from 'material-ui/svg-icons/av/mic-off';
 import IconCam from 'material-ui/svg-icons/av/videocam';
 import IconCamOff from 'material-ui/svg-icons/av/videocam-off';
 import IconHangup from 'material-ui/svg-icons/communication/call-end';
 
-import { toggleMicro, toggleCamera, leaveCall } from 'actions/chat';
+import { setMicro, setCamera, leaveCall } from 'actions/chat';
 
 import styles from './conversation.css';
 
 type Props = {
     hasMicro: boolean,
     hasCamera: boolean,
-    toggleMicro: () => void,
-    toggleCamera: () => void,
+    setMicro: (Object, boolean) => void,
+    setCamera: (Object, boolean) => void,
     leaveCall: () => void,
 
     localStream: ?MediaStream,
     remotes: Map<string, {
         stream: ?MediaStream,
     }>,
+};
+
+const CB_STYLES = {
+    style: { width: 48, height: 48 },
+    inputStyle: { width: 48, height: 48 },
+    iconStyle: { width: 24, height: 24, margin: 12 },
+};
+const ICN_STYLE = {
+    margin: 0,
 };
 
 const Chat = ({ localStream, remotes, ...props }: Props) => (
@@ -47,12 +57,18 @@ const Chat = ({ localStream, remotes, ...props }: Props) => (
 
         <Toolbar className={styles.toolbar} style={{ backgroundColor: '#474C5B' }}>
             <ToolbarGroup>
-                <IconButton onTouchTap={props.toggleMicro}>
-                    {props.hasMicro ? <IconMic color="#F7F9FB" /> : <IconMicOff color="#F7F9FB" />}
-                </IconButton>
-                <IconButton onTouchTap={props.toggleCamera}>
-                    {props.hasCamera ? <IconCam color="#F7F9FB" /> : <IconCamOff color="#F7F9FB" />}
-                </IconButton>
+                <Checkbox
+                    {...CB_STYLES}
+                    checked={props.hasMicro}
+                    onCheck={props.setMicro}
+                    checkedIcon={<IconMic style={ICN_STYLE} />}
+                    uncheckedIcon={<IconMicOff style={ICN_STYLE} />} />
+                <Checkbox
+                    {...CB_STYLES}
+                    checked={props.hasCamera}
+                    onCheck={props.setCamera}
+                    checkedIcon={<IconCam style={ICN_STYLE} />}
+                    uncheckedIcon={<IconCamOff style={ICN_STYLE} />} />
                 <IconButton onTouchTap={props.leaveCall}>
                     <IconHangup color="#DAAB9C" />
                 </IconButton>
@@ -64,11 +80,11 @@ const Chat = ({ localStream, remotes, ...props }: Props) => (
 const enhance = connect(
     ({ stream }) => stream.toObject(),
     dispatch => ({
-        toggleMicro() {
-            dispatch(toggleMicro());
+        setMicro(evt, isChecked) {
+            dispatch(setMicro(isChecked));
         },
-        toggleCamera() {
-            dispatch(toggleCamera());
+        setCamera(evt, isChecked) {
+            dispatch(setCamera(isChecked));
         },
         leaveCall() {
             dispatch(leaveCall());
