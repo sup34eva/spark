@@ -55,7 +55,7 @@ module.exports = new GraphQLObjectType({
                 database.ref(`/channels/${name}`).set({
                     type,
                     users: {
-                        [sub]: 'moderator',
+                        [sub]: 'MODERATOR',
                     },
                 });
 
