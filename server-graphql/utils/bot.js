@@ -7,7 +7,11 @@ const { database } = require('./firebase');
 module.exports = async (channel, { uid, url, access }, value) => {
     const res = await fetch(url, {
         method: 'POST',
-        body: JSON.stringify(value),
+        body: JSON.stringify(
+            Object.assign({}, value, {
+                channel,
+            })
+        ),
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',

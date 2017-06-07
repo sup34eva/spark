@@ -38,7 +38,7 @@ class PostForm extends PureComponent {
     componentWillMount() {
         this.joinCall = () => {
             this.props.navigation.navigate('Video');
-            redux.dispatch(sendOffer());
+            redux.dispatch(sendOffer(this.props.channel));
         };
 
         this.onSubmit = async evt => {
