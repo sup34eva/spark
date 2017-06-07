@@ -18,7 +18,7 @@ import {
     wrapSignal,
 } from './index';
 
-const socket = io('wss://api.spark.leops.me:8443');
+const socket = io('wss://api.spark.leops.me');
 
 export class Remote {
     id: string;

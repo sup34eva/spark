@@ -13,7 +13,7 @@
     "server": "webpack-dev-server",
     "update": "ncu -u",
     "lint": "eslint app",
-    "bundle": "electron-packager ."
+    "bundle": "electron-packager . --ignore app --ignore flow-typed"
   },
   "bin": {
     "electron": "./node_modules/.bin/electron"
