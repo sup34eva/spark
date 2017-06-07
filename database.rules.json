@@ -11,10 +11,10 @@
         },
         "users": {
           "$user": {
-            ".write": "data.parent().child(auth.uid).child('access').val() == 'MODERATOR'",
+            ".write": "data.parent().child(auth.uid).child('access').val() == 'MODERATOR' || (!newData.exists() && auth.uid == $user && !((data.hasChild('kick') && data.child('kick').val() > now) || data.hasChild('ban')))",
           	".validate": "newData.hasChild('access')",
             "access": {
-              ".write": "(!data.exists() && (root.child('channels').child($channel).child('type').val() == 'CHANNEL' || data.parent().hasChild(auth.uid))) || (!newData.exists() && auth.uid == $user && !((data.hasChild('kick') && data.child('kick').val() > now) || data.hasChild('ban')))",
+              ".write": "!data.exists() && (root.child('channels').child($channel).child('type').val() == 'CHANNEL' || data.parent().parent().hasChild(auth.uid))",
               ".validate": "newData.isString() && (newData.val() == 'USER' || (newData.val() == 'MODERATOR' && data.parent().parent().child(auth.uid).child('access').val() == 'MODERATOR'))"
             },
             "kick": {

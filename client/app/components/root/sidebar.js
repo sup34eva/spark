@@ -47,16 +47,18 @@ const Sidebar = (props: Props, ctx: Context) => do {
             className={styles.sidebar} rounded={false}
             style={{ ...PAPER_STYLE, backgroundColor: primary2Color }}
             data-profile={state.key === 'Profile'}>
-            <ProfilePic
-                uid={props.uid} className={styles.self}
-                onTouchTap={() => navigate('Profile')} />
-            <IconButton onTouchTap={() => navigate('Channels')}>
+            <IconButton
+                className={styles.self} tooltip="Profile"
+                onTouchTap={() => navigate('Profile')}>
+                <ProfilePic uid={props.uid} />
+            </IconButton>
+            <IconButton onTouchTap={() => navigate('Channels')} tooltip="Channels">
                 <Channel color={state.key === 'Channels' ? primary3Color : disabledColor} />
             </IconButton>
-            <IconButton onTouchTap={() => navigate('Groups')}>
+            <IconButton onTouchTap={() => navigate('Groups')} tooltip="Groups">
                 <Group color={state.key === 'Groups' ? primary3Color : disabledColor} />
             </IconButton>
-            <IconButton onTouchTap={() => navigate('Friends')}>
+            <IconButton onTouchTap={() => navigate('Friends')} tooltip="Friends">
                 <Friend color={state.key === 'Friends' ? primary3Color : disabledColor} />
             </IconButton>
         </Paper>

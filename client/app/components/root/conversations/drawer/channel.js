@@ -1,8 +1,15 @@
 // @flow
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import compose from 'recompose/compose';
+import { connect } from 'react-redux';
 import { Map } from 'immutable';
 import { ListItem } from 'material-ui/List';
+import IconButton from 'material-ui/IconButton';
+import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
+import IconMenu from 'material-ui/IconMenu';
+import MenuItem from 'material-ui/MenuItem';
+import { grey400 } from 'material-ui/styles/colors';
 import { fade } from 'material-ui/utils/colorManipulator';
 
 import Mosaic from 'components/root/shared/avatars';
@@ -10,7 +17,9 @@ import connectFirebase from 'utils/firebase/enhancer';
 
 type Props = {
     displayName: ?string,
+
     /* eslint-disable react/no-unused-prop-types */
+    uid: string,
     channel: {
         name: string,
         subtext: ?{
@@ -43,6 +52,13 @@ class Channel extends PureComponent {
     state: {
         users: Map<string, string>,
     };
+
+    componentWillMount() {
+        this.leaveChannel = async () => {
+            const { database } = await import(/* webpackChunkName: "firebase" */ '../../../../utils/firebase');
+            database.ref(`/channels/${this.props.channel.name}/users/${this.props.uid}`).remove();
+        };
+    }
 
     componentDidMount() {
         if (this.props.channel.users) {
@@ -93,23 +109,41 @@ class Channel extends PureComponent {
             );
         }
 
+        // $FlowIssue
+        const avatar = <Mosaic images={this.state.users.toArray()} />;
+
+        const button = (
+            <IconButton touch tooltip="Options" tooltipPosition="bottom-left">
+                <MoreVertIcon color={grey400} />
+            </IconButton>
+        );
+        const menu = (
+            <IconMenu iconButtonElement={button}>
+                <MenuItem onTouchTap={this.leaveChannel}>Leave</MenuItem>
+            </IconMenu>
+        );
+
         return (
             <ListItem
                 style={{ backgroundColor: color }}
                 onTouchTap={this.props.onTouchTap}
-                leftAvatar={
-                    // $FlowIssue
-                    <Mosaic images={this.state.users.toArray()} />
-                }
+                leftAvatar={avatar} rightIconButton={menu}
                 primaryText={this.props.channel.name}
                 secondaryText={subtext} secondaryTextLines={2} />
         );
     }
 }
 
-const enhance = connectFirebase(
-    ({ channel }) => (channel.subtext ? `/users/${channel.subtext.user}/displayName` : null),
-    displayName => ({ displayName })
+const enhance = compose(
+    connect(
+        ({ auth }) => ({
+            uid: auth.user.uid,
+        }),
+    ),
+    connectFirebase(
+        ({ channel }) => (channel.subtext ? `/users/${channel.subtext.user}/displayName` : null),
+        displayName => ({ displayName })
+    ),
 );
 
 export default enhance(Channel);

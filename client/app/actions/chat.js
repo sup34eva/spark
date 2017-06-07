@@ -4,7 +4,6 @@ import type {
     Store as ReduxStore,
 } from 'redux';
 
-// import type { Remote } from 'utils/websocket';
 import * as RTC from 'utils/rtc';
 import {
     initCamera,
@@ -24,10 +23,68 @@ export function joinCall(): Action {
 }
 
 // eslint-disable-next-line no-undef
-export function localStream(stream: MediaStream): Action {
+export function leaveCall(): Action {
+    return {
+        type: 'LEAVE',
+        // eslint-disable-next-line no-undef
+        payload: async (dispatch: Dispatch<Action>, getState: GetState) => {
+            const { stream } = getState();
+
+            for (const { connection } of stream.remotes.values()) {
+                connection.close();
+            }
+
+            for (const track of stream.localStream.getTracks()) {
+                track.stop();
+            }
+
+            dispatch({
+                type: 'Navigation/NAVIGATE',
+                routeName: 'Conversation',
+            });
+        },
+    };
+}
+
+// eslint-disable-next-line no-undef
+export function setLocalStream(stream: MediaStream): Action {
     return {
         type: 'LOCAL_STREAM',
         payload: stream,
+    };
+}
+
+// eslint-disable-next-line no-undef
+export function setMicro(hasMicro: boolean): Action {
+    return {
+        type: 'SET_MICRO',
+        // eslint-disable-next-line no-undef
+        payload: (dispatch: Dispatch<Action>, getState: GetState) => {
+            const { stream } = getState();
+
+            for (const track of stream.localStream.getAudioTracks()) {
+                track.enabled = hasMicro;
+            }
+
+            return hasMicro;
+        },
+    };
+}
+
+// eslint-disable-next-line no-undef
+export function setCamera(hasCamera: boolean): Action {
+    return {
+        type: 'SET_CAMERA',
+        // eslint-disable-next-line no-undef
+        payload: (dispatch: Dispatch<Action>, getState: GetState) => {
+            const { stream } = getState();
+
+            for (const track of stream.localStream.getVideoTracks()) {
+                track.enabled = hasCamera;
+            }
+
+            return hasCamera;
+        },
     };
 }
 
@@ -52,7 +109,15 @@ export function remoteStream(remote: string, stream: MediaStream): Action {
 }
 
 // eslint-disable-next-line no-undef
-export function sendOffer(): Action {
+export function closeRemote(remote: string): Action {
+    return {
+        type: 'CLOSE_REMOTE',
+        payload: remote,
+    };
+}
+
+// eslint-disable-next-line no-undef
+export function sendOffer(channel: string): Action {
     return {
         type: 'SEND_OFFER',
         // eslint-disable-next-line no-undef
@@ -71,7 +136,7 @@ export function sendOffer(): Action {
                 Array<Remote>,
             ] = await Promise.all([
                 initCamera(streamState.localStream),
-                WS.joinRoom('default'),
+                WS.joinRoom(channel),
             ]);
 
             return Promise.all(
@@ -81,6 +146,20 @@ export function sendOffer(): Action {
                         const connection = createConnection(remote, stream);
 
                         dispatch(remoteConnection(remote.id, connection));
+
+                        connection.oniceconnectionstatechange = () => {
+                            switch (connection.iceConnectionState) {
+                                case 'failed':
+                                case 'closed':
+                                case 'disconnected':
+                                    dispatch(closeRemote(remote.id));
+                                    break;
+
+                                default:
+                                    console.log(connection.iceConnectionState);
+                                    break;
+                            }
+                        };
 
                         const reply = await remote.sendOffer(
                             await RTC.sendOffer(connection),

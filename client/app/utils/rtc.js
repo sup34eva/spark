@@ -22,9 +22,9 @@ export function createConnection(): Connection {
     });
 }
 
-export function createCamera(): Promise<MediaStream> {
+export async function createCamera(): Promise<Array<MediaStreamTrack>> {
     if (navigator.mediaDevices) {
-        return navigator.mediaDevices.getUserMedia({
+        const stream = await navigator.mediaDevices.getUserMedia({
             video: {
                 facingMode: 'user',
                 width: 640,
@@ -34,14 +34,27 @@ export function createCamera(): Promise<MediaStream> {
                     max: 15,
                 },
             },
+        });
+
+        return stream.getVideoTracks();
+    }
+
+    throw new Error('MediaDevices is unsupported');
+}
+
+export async function createMicro(): Promise<Array<MediaStreamTrack>> {
+    if (navigator.mediaDevices) {
+        const stream = await navigator.mediaDevices.getUserMedia({
             audio: {
                 echoCancellation: true,
                 channelCount: 1,
             },
         });
+
+        return stream.getAudioTracks();
     }
 
-    return Promise.reject('MediaDevices is unsupported');
+    throw new Error('MediaDevices is unsupported');
 }
 
 export function setStream(connection: Connection, stream: MediaStream) {

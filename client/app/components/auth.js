@@ -125,7 +125,7 @@ export default class AuthForm extends PureComponent {
                     Spark
                 </h1>
                 <TextField
-                    floatingLabelText="Username" errorText={this.state.userError}
+                    floatingLabelText="Email" type="mail" errorText={this.state.userError}
                     value={this.state.username} onChange={this.handleUsername} />
                 <TextField
                     floatingLabelText="Password" type="password" errorText={this.state.passError}

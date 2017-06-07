@@ -1,5 +1,5 @@
 // @flow
-import { localStream, remoteStream } from 'actions/chat';
+import { setLocalStream, remoteStream } from 'actions/chat';
 
 import store from '../store';
 
@@ -25,8 +25,13 @@ export function createConnection(remote: Remote, stream: MediaStream): Connectio
 export async function initCamera(currentStream: ?MediaStream): Promise<MediaStream> {
     if (!currentStream) {
         const camera = await RTC.createCamera();
-        store.dispatch(localStream(camera));
-        return camera;
+        const micro = await RTC.createMicro();
+        const stream = new MediaStream([
+            ...camera,
+            ...micro,
+        ]);
+        store.dispatch(setLocalStream(stream));
+        return stream;
     }
 
     return currentStream;

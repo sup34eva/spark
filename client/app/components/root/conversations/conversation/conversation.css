@@ -6,3 +6,25 @@
     overflow: hidden;
     min-width: 0;
 }
+
+.video {
+    background: #1b1d22 radial-gradient(circle farthest-corner at 50% 100%, rgba(247, 249, 251, 0.12) 0%, transparent 100%);
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+
+    & > video {
+        min-width: 10vmin;
+        min-height: 10vmin;
+        margin: 16px;
+        background: #474C5B;
+        border-radius: 4px;
+        box-shadow: 0 0 8px rgba(247, 249, 251, 0.12);
+    }
+
+    .toolbar {
+        position: absolute;
+        bottom: 16px;
+    }
+}

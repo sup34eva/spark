@@ -78,8 +78,6 @@ export function subscribe(onNext: (Object) => void, request: Request) {
 }
 
 export async function joinRoom(name: string): Promise<Array<Remote>> {
-    console.log('joinRoom', name);
-
     socket.on('offer', wrapMessage((id: string, offer: Offer) =>
         store.dispatch(acceptOffer(new Remote(id), offer))
     ));
@@ -89,7 +87,7 @@ export async function joinRoom(name: string): Promise<Array<Remote>> {
     ));
 
     const remotes = await wrapSignal(cb => {
-        socket.emit('start-call', cb);
+        socket.emit('start-call', name, cb);
     });
 
     return remotes.map(id => new Remote(id));

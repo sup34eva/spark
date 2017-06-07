@@ -8,6 +8,9 @@ export const Remote = Record({
 
 export const StreamState = Record({
     joined: false,
+    hasMicro: true,
+    hasCamera: true,
+
     localStream: null,
     remotes: new Map(),
 });
@@ -16,6 +19,15 @@ export default (state: StreamState = new StreamState(), action: any) => {
     switch (action.type) {
         case 'JOIN':
             return state.set('joined', true);
+
+        case 'LEAVE':
+            return new StreamState();
+
+        case 'SET_MICRO':
+            return state.set('hasMicro', action.payload);
+
+        case 'SET_CAMERA':
+            return state.set('hasCamera', action.payload);
 
         case 'LOCAL_STREAM':
             return state.set('localStream', action.payload);
@@ -32,6 +44,11 @@ export default (state: StreamState = new StreamState(), action: any) => {
                 ['remotes', action.payload.remote],
                 new Remote(),
                 remote => remote.set('stream', action.payload.stream),
+            );
+
+        case 'CLOSE_REMOTE':
+            return state.deleteIn(
+                ['remotes', action.payload],
             );
 
         default:
