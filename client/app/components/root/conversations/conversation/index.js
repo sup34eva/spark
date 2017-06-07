@@ -12,6 +12,8 @@ export const ConvRouter = new StackRouter({
     Video: {
         screen: VideoCall,
     },
+}, {
+    initialRouteName: 'Conversation',
 });
 
 export default class ConvNavigator extends Component {
@@ -37,6 +39,11 @@ export default class ConvNavigator extends Component {
         const childNavigation = addNavigationHelpers({ dispatch, state: route });
         const ChildComponent = ConvRouter.getComponentForRouteName(route.routeName);
 
-        return <ChildComponent channel={state.params.channel} navigation={childNavigation} />;
+        return (
+            <ChildComponent
+                key={route.key}
+                channel={state.params.channel}
+                navigation={childNavigation} />
+        );
     }
 }

@@ -82,6 +82,7 @@ class Conversations extends PureComponent {
     componentWillMount() {
         this.selectChannel = async channel => {
             this.props.navigation.navigate('ConvOpen');
+            this.props.navigation.navigate('Conversation');
             this.props.navigation.dispatch({
                 type: 'Navigation/SET_PARAMS',
                 key: 'ConvOpen',

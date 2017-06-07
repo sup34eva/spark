@@ -51,7 +51,7 @@ export default class RootNavigator extends Component {
         return (
             <div className={styles.rootNavigator}>
                 <Sidebar navigation={childNavigation} />
-                <ChildComponent navigation={childNavigation} />
+                <ChildComponent key={route.key} navigation={childNavigation} />
             </div>
         );
     }

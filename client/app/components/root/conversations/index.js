@@ -13,6 +13,8 @@ export const DetailsRouter = new TabRouter({
     ConvOpen: {
         screen: Conversation,
     },
+}, {
+    initialRouteName: 'ConvClose',
 });
 
 export default class DetailsNavigator extends Component {
@@ -42,7 +44,7 @@ export default class DetailsNavigator extends Component {
         return (
             <div className={styles.convNavigator}>
                 <Drawer routeName={state.routeName} navigation={childNavigation} />
-                <ChildComponent navigation={childNavigation} />
+                <ChildComponent key={route.key} navigation={childNavigation} />
             </div>
         );
     }

@@ -93,18 +93,23 @@ class Channel extends PureComponent {
     props: Props;
 
     render() {
+        const { uid, channel } = this.props;
+        if (channel.users && Object.keys(channel.users).indexOf(uid) === -1) {
+            return null;
+        }
+
         const { textColor } = this.context.muiTheme.palette;
         const color = this.props.selected ? fade(textColor, 0.2) : undefined;
 
         let subtext;
-        if (this.props.channel.subtext) {
+        if (channel.subtext) {
             subtext = (
                 <p>
                     <span style={{ color: textColor }}>
                         {this.props.displayName}
                     </span>
                     &nbsp;-&nbsp;
-                    {this.props.channel.subtext.content}
+                    {channel.subtext.content}
                 </p>
             );
         }
@@ -128,7 +133,7 @@ class Channel extends PureComponent {
                 style={{ backgroundColor: color }}
                 onTouchTap={this.props.onTouchTap}
                 leftAvatar={avatar} rightIconButton={menu}
-                primaryText={this.props.channel.name}
+                primaryText={channel.name}
                 secondaryText={subtext} secondaryTextLines={2} />
         );
     }
