@@ -15,7 +15,7 @@ type Props = {
     onTouchTap?: () => void,
 };
 
-class InviteItem extends PureComponent {
+class UserListitem extends PureComponent {
     props : Props;
 
     render() {
@@ -23,12 +23,13 @@ class InviteItem extends PureComponent {
             return null;
         }
         return (
-            <ListItem
+            <ListItem style={{ overflow: 'hidden' }}
                 onTouchTap={this.props.onTouchTap}
                 leftAvatar={
                     <ProfilePic uid={this.props.uid} />
                 }
-                primaryText={this.props.user.displayName} />
+                primaryText={this.props.user.displayName.substr(0, 22)}
+                title={this.props.user.displayName} />
         );
     }
 }
@@ -38,4 +39,4 @@ const enhance = connectFirebase(
     user => ({ user }),
 );
 
-export default enhance(InviteItem);
+export default enhance(UserListitem);

@@ -17,7 +17,7 @@ import styles from '../conversations.css';
 
 import Profile from './profile';
 import ChannelItem from './channel';
-import InviteItem from './invite';
+import UserListitem from './invite';
 import CreateChannelDialog from './createChannel';
 import HandleInviteDialog from './handleInvite';
 
@@ -127,7 +127,7 @@ class Conversations extends PureComponent {
                 ));
             }
 
-            return <ListItem primaryText="No friend channels" disabled />;
+            return '';
         }
 
         return <ListItem leftAvatar={<CircularProgress />} primaryText="Loading ..." disabled />;
@@ -136,7 +136,9 @@ class Conversations extends PureComponent {
     render() {
         let title;
         let category;
-        const requests = [];
+        const invites = [];
+        const friends = [];
+
         // eslint-disable-next-line default-case
         switch (this.props.routeName) {
             case 'Channels':
@@ -153,20 +155,29 @@ class Conversations extends PureComponent {
                 title = 'Friends';
                 category = 'PERSON';
                 if (this.props.friends) {
+                    invites.push(<Divider key="dividerInvites" />);
+                    invites.push(<Subheader>Invites</Subheader>);
+
                     Object.entries(this.props.friends).forEach(([key, value]) => {
                         if (value === 'INVITE') {
-                            requests.push(
-                                <InviteItem
+                            invites.push(
+                                <UserListitem
                                     onTouchTap={() => this.setState({ inviteUid: key })}
+                                    key={key}
+                                    uid={key} />,
+                            );
+                        } else if (value === 'FRIEND') {
+                            friends.push(
+                                <UserListitem
+                                    onTouchTap={() => console.log('tap')}
                                     key={key}
                                     uid={key} />,
                             );
                         }
                     });
+                    invites.push(<Divider key="dividerChannels" />);
+                    invites.push(<Subheader>Channels</Subheader>);
                 }
-                requests.push(
-                    <Divider key="divider0" />,
-                );
                 break;
         }
 
@@ -179,7 +190,8 @@ class Conversations extends PureComponent {
 
                 <List>
                     <Subheader className={styles.subheader}>{title}</Subheader>
-                    {requests}
+                    {friends}
+                    {invites}
                     {this.category(category)}
                 </List>
 
