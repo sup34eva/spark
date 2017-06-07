@@ -1,6 +1,7 @@
 .dialog {
     display: flex;
     flex-direction: row;
+    align-items: flex-start;
 
     .fields {
         flex: 1;

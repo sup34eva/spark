@@ -7,6 +7,7 @@ import Paper from 'material-ui/Paper';
 import Subheader from 'material-ui/Subheader';
 import { List, ListItem } from 'material-ui/List';
 import IconButton from 'material-ui/IconButton';
+import Divider from 'material-ui/Divider';
 import ContentAdd from 'material-ui/svg-icons/content/add';
 import CircularProgress from 'material-ui/CircularProgress';
 
@@ -16,7 +17,9 @@ import styles from '../conversations.css';
 
 import Profile from './profile';
 import ChannelItem from './channel';
+import InviteItem from './invite';
 import CreateChannelDialog from './createChannel';
+import HandleInviteDialog from './handleInvite';
 
 type Props = {
     routeName: string,
@@ -42,6 +45,9 @@ type Props = {
             },
         },
     }>,
+    friends: ?{
+        [key: string]: 'INVITE' | 'FRIEND',
+    },
 };
 
 const PAPER_STYLE = {
@@ -64,6 +70,7 @@ class Conversations extends PureComponent {
     constructor(props) {
         super(props);
         this.state = {
+            inviteUid: null,
             showModal: false,
         };
     }
@@ -95,6 +102,9 @@ class Conversations extends PureComponent {
         this.closeModal = () => {
             this.setState({ showModal: false });
         };
+        this.closeInviteModal = () => {
+            this.setState({ inviteUid: null });
+        };
     }
 
     props: Props;
@@ -117,7 +127,7 @@ class Conversations extends PureComponent {
                 ));
             }
 
-            return <ListItem primaryText="Empty" disabled />;
+            return <ListItem primaryText="No friend channels" disabled />;
         }
 
         return <ListItem leftAvatar={<CircularProgress />} primaryText="Loading ..." disabled />;
@@ -126,6 +136,7 @@ class Conversations extends PureComponent {
     render() {
         let title;
         let category;
+        const requests = [];
         // eslint-disable-next-line default-case
         switch (this.props.routeName) {
             case 'Channels':
@@ -141,6 +152,21 @@ class Conversations extends PureComponent {
             case 'Friends':
                 title = 'Friends';
                 category = 'PERSON';
+                if (this.props.friends) {
+                    Object.entries(this.props.friends).forEach(([key, value]) => {
+                        if (value === 'INVITE') {
+                            requests.push(
+                                <InviteItem
+                                    onTouchTap={() => this.setState({ inviteUid: key })}
+                                    key={key}
+                                    uid={key} />,
+                            );
+                        }
+                    });
+                }
+                requests.push(
+                    <Divider key="divider0" />,
+                );
                 break;
         }
 
@@ -153,6 +179,7 @@ class Conversations extends PureComponent {
 
                 <List>
                     <Subheader className={styles.subheader}>{title}</Subheader>
+                    {requests}
                     {this.category(category)}
                 </List>
 
@@ -162,6 +189,11 @@ class Conversations extends PureComponent {
                     type={category}
                     open={this.state.showModal}
                     onRequestClose={this.closeModal} />
+
+                <HandleInviteDialog
+                    inviteUid={this.state.inviteUid}
+                    closeModal={this.closeInviteModal}
+                    uid={this.props.uid} />
             </Paper>
         );
     }
@@ -186,6 +218,10 @@ const enhance = compose(
             }
             /* eslint-enable no-unused-expressions */
         },
+    ),
+    connectFirebase(
+        ({ uid, routeName }) => (routeName === 'Friends' ? `/users/${uid}/friends` : null),
+        friends => ({ friends }),
     ),
 );
 

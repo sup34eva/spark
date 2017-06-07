@@ -1,6 +1,7 @@
 // @flow
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
+import compose from 'recompose/compose';
 import Popover from 'material-ui/Popover/Popover';
 import Menu from 'material-ui/Menu';
 import MenuItem from 'material-ui/MenuItem';
@@ -45,7 +46,10 @@ const UserMenu = (props) => do {
         (
             <Menu>
                 <MenuItem primaryText="See profile" onTouchTap={props.openProfile} />
-                <MenuItem primaryText="Add a contact" onTouchTap={addFriend(props)} />
+                <MenuItem
+                    primaryText="Add a contact"
+                    disabled={props.friendStatus !== null}
+                    onTouchTap={addFriend(props)} />
                 <Divider />
                 <MenuItem primaryText="Kick" onTouchTap={kickUser(props)} />
                 <MenuItem primaryText="Ban" onTouchTap={banUser(props)} />
@@ -55,17 +59,26 @@ const UserMenu = (props) => do {
     } else {
         (
             <Menu>
-                <MenuItem primaryText="See profile" />
-                <MenuItem primaryText="Add a contact" onTouchTap={addFriend(props)} />
+                <MenuItem primaryText="See profile" onTouchTap={props.openProfile} />
+                <MenuItem
+                    primaryText="Add a contact"
+                    disabled={props.friendStatus !== null}
+                    onTouchTap={addFriend(props)} />
             </Menu>
         );
     }
     /* eslint-enable no-unused-expressions */
 };
 
-const enhanceMenu = connectFirebase(
-    ({ channel, selfId }) => (channel ? `/channels/${channel}/users/${selfId}/access` : null),
-    access => ({ access }),
+const enhanceMenu = compose(
+    connectFirebase(
+        ({ channel, selfId }) => (channel ? `/channels/${channel}/users/${selfId}/access` : null),
+        access => ({ access }),
+    ),
+    connectFirebase(
+        ({ uid, selfId }) => `/users/${uid}/friends/${selfId}`,
+        friendStatus => ({ friendStatus }),
+    ),
 );
 
 const EnhancedMenu = enhanceMenu(UserMenu);
