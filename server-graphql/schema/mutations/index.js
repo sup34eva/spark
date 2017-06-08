@@ -1,5 +1,6 @@
 const uuid = require('node-uuid');
 const {
+    GraphQLList,
     GraphQLString,
     GraphQLNonNull,
     GraphQLObjectType,
@@ -34,6 +35,9 @@ module.exports = new GraphQLObjectType({
                 type: {
                     type: new GraphQLNonNull(channelKind),
                 },
+                invite: {
+                    type: new GraphQLList(GraphQLString),
+                },
             },
             outputFields: {
                 channelEdge: {
@@ -43,7 +47,7 @@ module.exports = new GraphQLObjectType({
                     type: viewerType,
                 },
             },
-            async mutateAndGetPayload({ name, type }, { token }) {
+            async mutateAndGetPayload({ name, type, invite }, { token }) {
                 if(await exists(`/channels/${name}`)) {
                     throw new Error(`Channel ${name} already exists`);
                 }
@@ -52,11 +56,21 @@ module.exports = new GraphQLObjectType({
 
                 await createChannel(name);
 
+                const users = invite.reduce(
+                    (map, uid) => Object.assign({
+                        [uid]: {
+                            access: 'USER',
+                        },
+                    }, map),
+                    {
+                        [sub]: {
+                            access: 'MODERATOR',
+                        },
+                    }
+                );
+
                 database.ref(`/channels/${name}`).set({
-                    type,
-                    users: {
-                        [sub]: 'MODERATOR',
-                    },
+                    type, users,
                 });
 
                 return {
