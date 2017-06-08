@@ -27,7 +27,7 @@ type MenuProps = {
 const addFriend = ({ selfId, uid, closeMenu }: MenuProps) => async () => {
     closeMenu();
 
-    const { database } = await import(/* webpackChunkName: "firebase" */ '../../../../../../utils/firebase');
+    const { database } = await import(/* webpackChunkName: "firebase" */ '../../../../../utils/firebase');
     database.ref(`/users/${selfId}/friends/${uid}`).set('FRIEND');
     database.ref(`/users/${uid}/friends/${selfId}`).set('INVITE');
 };
@@ -35,21 +35,21 @@ const addFriend = ({ selfId, uid, closeMenu }: MenuProps) => async () => {
 const kickUser = ({ channel, uid, closeMenu }: MenuProps) => async () => {
     closeMenu();
 
-    const { database } = await import(/* webpackChunkName: "firebase" */ '../../../../../../utils/firebase');
+    const { database } = await import(/* webpackChunkName: "firebase" */ '../../../../../utils/firebase');
     database.ref(`/channels/${channel}/users/${uid}/kick`).set(Date.now() + 60000);
 };
 
 const banUser = ({ channel, uid, closeMenu }: MenuProps) => async () => {
     closeMenu();
 
-    const { database } = await import(/* webpackChunkName: "firebase" */ '../../../../../../utils/firebase');
+    const { database } = await import(/* webpackChunkName: "firebase" */ '../../../../../utils/firebase');
     database.ref(`/channels/${channel}/users/${uid}/ban`).set(true);
 };
 
 const makeModerator = ({ channel, uid, closeMenu }: MenuProps) => async () => {
     closeMenu();
 
-    const { database } = await import(/* webpackChunkName: "firebase" */ '../../../../../../utils/firebase');
+    const { database } = await import(/* webpackChunkName: "firebase" */ '../../../../../utils/firebase');
     database.ref(`/channels/${channel}/users/${uid}/access`).set('MODERATOR');
 };
 

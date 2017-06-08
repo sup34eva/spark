@@ -31,7 +31,7 @@ class MessageList extends PureComponent {
         this.onFileDrop = files => {
             const channel = this.props.viewer.channel.name;
             files.forEach(async blob => {
-                const { storage, database } = await import(/* webpackChunkName: "firebase" */ '../../../../../../utils/firebase');
+                const { storage, database } = await import(/* webpackChunkName: "firebase" */ '../../../../../utils/firebase');
                 const id = database.ref().push().key;
                 const ref = storage.ref(`${channel}/${id}`);
 

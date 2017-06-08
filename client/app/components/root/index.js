@@ -1,58 +1,20 @@
 // @flow
-import React, { Component } from 'react';
-import { TabRouter, addNavigationHelpers } from 'react-navigation';
+import React from 'react';
+import { Route } from 'react-router-dom';
 
 import styles from '../app.css';
 
 import Sidebar from './sidebar';
-import ConvNavigator from './conversations';
+import ConvRouter from './conversations';
 import Profile from './profile';
 
-export const RootRouter = new TabRouter({
-    Profile: {
-        screen: Profile,
-    },
-    Channels: {
-        screen: ConvNavigator,
-    },
-    Groups: {
-        screen: ConvNavigator,
-    },
-    Friends: {
-        screen: ConvNavigator,
-    },
-}, {
-    initialRouteName: 'Channels',
-});
+const AppRouter = () => (
+    <div className={styles.rootNavigator}>
+        <Sidebar />
 
-export default class RootNavigator extends Component {
-    static router = RootRouter;
+        <Route exact path="/" component={Profile} />
+        <Route path="/:type" component={ConvRouter} />
+    </div>
+);
 
-    props: {
-        navigation: {
-            dispatch: Function,
-            state: {
-                /* eslint-disable react/no-unused-prop-types */
-                index: number,
-                routes: Array<Object>,
-                /* eslint-enable react/no-unused-prop-types */
-            },
-        },
-    };
-
-    render() {
-        const { state, dispatch } = this.props.navigation;
-        const { routes, index } = state;
-
-        const route = routes[index];
-        const childNavigation = addNavigationHelpers({ dispatch, state: route });
-        const ChildComponent = RootRouter.getComponentForRouteName(route.routeName);
-
-        return (
-            <div className={styles.rootNavigator}>
-                <Sidebar navigation={childNavigation} />
-                <ChildComponent key={route.key} navigation={childNavigation} />
-            </div>
-        );
-    }
-}
+export default AppRouter;

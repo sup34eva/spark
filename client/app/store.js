@@ -3,7 +3,6 @@ import { createStore, applyMiddleware } from 'redux';
 import compose from 'recompose/compose';
 
 import * as chatActions from 'actions/chat';
-import * as navActions from 'actions/navigation';
 import thunk from 'utils/thunk';
 
 import rootReducer from './reducers';
@@ -30,7 +29,6 @@ const composeEnhancers = do {
         window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
             actionCreators: {
                 ...chatActions,
-                ...navActions,
             },
         });
     } else {

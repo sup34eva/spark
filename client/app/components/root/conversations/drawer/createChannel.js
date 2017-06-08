@@ -64,10 +64,10 @@ class ChannelModal extends PureComponent {
             this.setState({ search });
         };
 
-        this.handleInvite = user => {
+        this.handleInvite = ({ value }) => {
             this.setState(state => ({
                 search: '',
-                invite: state.invite.concat([user]),
+                invite: state.invite.concat([value]),
             }));
         };
 
@@ -122,24 +122,19 @@ class ChannelModal extends PureComponent {
         },
     };
 
-    updateNames({ friends: newFriends }) {
-        const oldFriends = Object.keys(this.friends);
+    updateNames({ friends }) {
+        const newFriends = new Set(friends);
+        const oldFriends = new Set(Object.keys(this.friends));
 
-        const intersection = new Set([...newFriends, ...oldFriends]);
+        const intersection = new Set([...newFriends].filter(x => oldFriends.has(x)));
         for (const id of intersection) {
-            const newIndex = newFriends.indexOf(id);
-            if (newIndex !== -1) {
-                newFriends.splice(newFriends, 1);
-            }
-
-            const oldIndex = oldFriends.indexOf(id);
-            if (oldIndex !== -1) {
-                oldFriends.splice(oldIndex, 1);
-            }
+            newFriends.delete(id);
+            oldFriends.delete(id);
         }
 
         newFriends.forEach(async id => {
             const onValue = snapshot => {
+                console.log(id, snapshot.val());
                 this.setState(state => ({
                     displayNames: state.displayNames.set(id, snapshot.val()),
                 }));
@@ -163,10 +158,10 @@ class ChannelModal extends PureComponent {
 
     props: Props;
 
-    deleteHandler(user) {
+    deleteHandler(uid) {
         return () => {
             this.setState(state => ({
-                invite: state.invite.filter(elem => elem !== user),
+                invite: state.invite.filter(elem => elem !== uid),
             }));
         };
     }
@@ -180,11 +175,16 @@ class ChannelModal extends PureComponent {
                     key="name"
                     floatingLabelText="Name" fullWidth
                     value={this.state.name} onChange={this.handleName} />,
-                <div key="invite">
-                    {this.state.invite.map(user => (
+                <div key="invite" style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'flex-end',
+                    flexWrap: 'wrap',
+                }}>
+                    {this.state.invite.map(uid => (
                         <UserChip
-                            key={user} user={user}
-                            onRequestDelete={this.deleteHandler(user)} />
+                            key={uid} uid={uid}
+                            onRequestDelete={this.deleteHandler(uid)} />
                     ))}
                     <AutoComplete
                         dataSource={

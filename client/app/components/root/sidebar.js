@@ -1,7 +1,9 @@
 // @flow
 import React from 'react';
 import PropTypes from 'prop-types';
+import compose from 'recompose/compose';
 import { connect } from 'react-redux';
+import { Route, withRouter } from 'react-router-dom';
 import Paper from 'material-ui/Paper';
 import IconButton from 'material-ui/IconButton';
 import Channel from 'material-ui/svg-icons/communication/forum';
@@ -12,24 +14,46 @@ import ProfilePic from 'components/root/shared/profilePic';
 
 import styles from '../app.css';
 
-type Props = {
-    uid: string,
-    navigation: {
-        navigate: (string) => void,
-        state: {
-            key: 'Profile' | 'Channels' | 'Groups' | 'Friends',
-        },
-    },
-};
-
 type Context = {
     muiTheme: {
         palette: {
+            primary2Color: string,
             primary3Color: string,
             canvasColor: string,
         }
     }
-}
+};
+
+type BtnProps = {
+    path: string,
+    tooltip: string,
+    children: ReactElement<*>, // eslint-disable-line no-undef
+};
+
+const Button = (props: BtnProps, ctx: Context) => do {
+    const { primary3Color, disabledColor } = ctx.muiTheme.palette;
+    /* eslint-disable no-unused-expressions */
+    (
+        <Route path={props.path}>
+            {({ history, match }) => (
+                <IconButton onTouchTap={() => history.push(props.path)} tooltip={props.tooltip}>
+                    {React.cloneElement(props.children, {
+                        color: match ? primary3Color : disabledColor,
+                    })}
+                </IconButton>
+            )}
+        </Route>
+    );
+    /* eslint-enable no-unused-expressions */
+};
+
+Button.contextTypes = {
+    muiTheme: PropTypes.object.isRequired,
+};
+
+type Props = {
+    uid: string,
+};
 
 const PAPER_STYLE = {
     position: 'relative',
@@ -38,29 +62,31 @@ const PAPER_STYLE = {
 };
 
 const Sidebar = (props: Props, ctx: Context) => do {
-    const { state, navigate } = props.navigation;
-    const { primary2Color, primary3Color, disabledColor } = ctx.muiTheme.palette;
+    const { primary2Color } = ctx.muiTheme.palette;
 
     /* eslint-disable no-unused-expressions, react/jsx-indent */
     (
         <Paper
             className={styles.sidebar} rounded={false}
-            style={{ ...PAPER_STYLE, backgroundColor: primary2Color }}
-            data-profile={state.key === 'Profile'}>
-            <IconButton
-                className={styles.self} tooltip="Profile"
-                onTouchTap={() => navigate('Profile')}>
-                <ProfilePic uid={props.uid} />
-            </IconButton>
-            <IconButton onTouchTap={() => navigate('Channels')} tooltip="Channels">
-                <Channel color={state.key === 'Channels' ? primary3Color : disabledColor} />
-            </IconButton>
-            <IconButton onTouchTap={() => navigate('Groups')} tooltip="Groups">
-                <Group color={state.key === 'Groups' ? primary3Color : disabledColor} />
-            </IconButton>
-            <IconButton onTouchTap={() => navigate('Friends')} tooltip="Friends">
-                <Friend color={state.key === 'Friends' ? primary3Color : disabledColor} />
-            </IconButton>
+            style={{ ...PAPER_STYLE, backgroundColor: primary2Color }}>
+            <Route path="/profile">
+                {({ history }) => (
+                    <IconButton
+                        className={styles.self} tooltip="Profile"
+                        onTouchTap={() => history.push('/profile')}>
+                        <ProfilePic uid={props.uid} />
+                    </IconButton>
+                )}
+            </Route>
+            <Button path="/channels" tooltip="Channels">
+                <Channel />
+            </Button>
+            <Button path="/groups" tooltip="Groups">
+                <Group />
+            </Button>
+            <Button path="/friends" tooltip="Friends">
+                <Friend />
+            </Button>
         </Paper>
     );
     /* eslint-enable no-unused-expressions, react/jsx-indent */
@@ -70,10 +96,13 @@ Sidebar.contextTypes = {
     muiTheme: PropTypes.object.isRequired,
 };
 
-const enhance = connect(
-    ({ auth }) => ({
-        uid: auth.user.uid,
-    }),
+const enhance = compose(
+    withRouter,
+    connect(
+        ({ auth }) => ({
+            uid: auth.user.uid,
+        }),
+    ),
 );
 
 export default enhance(Sidebar);

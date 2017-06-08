@@ -22,16 +22,13 @@ import CreateChannelDialog from './createChannel';
 import HandleInviteDialog from './handleInvite';
 
 type Props = {
-    routeName: string,
-    navigation: {
-        navigate: (string) => void, // eslint-disable-line react/no-unused-prop-types
-        dispatch: (Object) => void, // eslint-disable-line react/no-unused-prop-types
-        state: {
-            routeName: string,
-            params: ?{ // eslint-disable-line react/no-unused-prop-types
-                channel: string,
-            },
+    match: {
+        params: {
+            type: 'channels' | 'groups' | 'friends',
         },
+    },
+    history: {
+        push: (string) => void, // eslint-disable-line react/no-unused-prop-types
     },
 
     uid: string,
@@ -81,13 +78,7 @@ class Conversations extends PureComponent {
 
     componentWillMount() {
         this.selectChannel = async channel => {
-            this.props.navigation.navigate('ConvOpen');
-            this.props.navigation.navigate('Conversation');
-            this.props.navigation.dispatch({
-                type: 'Navigation/SET_PARAMS',
-                key: 'ConvOpen',
-                params: { channel },
-            });
+            this.props.history.push(`/${this.props.match.params.type}/${channel}`);
 
             const { database } = await import(/* webpackChunkName: "firebase" */ '../../../../utils/firebase');
             const userRef = database.ref(`/channels/${channel}/users/${this.props.uid}`);
@@ -111,9 +102,8 @@ class Conversations extends PureComponent {
     props: Props;
 
     category(type) {
-        const { channels, navigation } = this.props;
-        const { params } = navigation.state;
-        const channel = params && params.channel;
+        const { channels, match } = this.props;
+        const { channel } = match.params;
 
         if (channels) {
             const filtered = channels.filter(node => node.type === type);
@@ -141,18 +131,18 @@ class Conversations extends PureComponent {
         const friends = [];
 
         // eslint-disable-next-line default-case
-        switch (this.props.routeName) {
-            case 'Channels':
+        switch (this.props.match.params.type) {
+            case 'channels':
                 title = 'Channels';
                 category = 'CHANNEL';
                 break;
 
-            case 'Groups':
+            case 'groups':
                 title = 'Groups';
                 category = 'GROUP';
                 break;
 
-            case 'Friends':
+            case 'friends':
                 title = 'Friends';
                 category = 'PERSON';
                 if (this.props.friends) {

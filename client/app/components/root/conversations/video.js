@@ -13,7 +13,7 @@ import IconHangup from 'material-ui/svg-icons/communication/call-end';
 
 import { setMicro, setCamera, leaveCall } from 'actions/chat';
 
-import styles from './conversation.css';
+import styles from './conversations.css';
 
 type Props = {
     hasMicro: boolean,
@@ -90,7 +90,7 @@ class Chat extends PureComponent {
 
 const enhance = connect(
     ({ stream }) => stream.toObject(),
-    dispatch => ({
+    (dispatch, { history, match }) => ({
         setMicro(evt, isChecked) {
             dispatch(setMicro(isChecked));
         },
@@ -98,6 +98,7 @@ const enhance = connect(
             dispatch(setCamera(isChecked));
         },
         leaveCall() {
+            history.push(`/${match.params.type}/${match.params.channel}`);
             dispatch(leaveCall());
         },
     })

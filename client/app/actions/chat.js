@@ -37,11 +37,6 @@ export function leaveCall(): Action {
             for (const track of stream.localStream.getTracks()) {
                 track.stop();
             }
-
-            dispatch({
-                type: 'Navigation/NAVIGATE',
-                routeName: 'Conversation',
-            });
         },
     };
 }

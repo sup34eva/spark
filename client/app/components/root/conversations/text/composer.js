@@ -1,8 +1,10 @@
 // @flow
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import compose from 'recompose/compose';
 import { connect } from 'react-redux';
 import { toGlobalId } from 'graphql-relay';
+import { withRouter } from 'react-router-dom';
 import Paper from 'material-ui/Paper';
 import IconButton from 'material-ui/IconButton';
 import VideoCall from 'material-ui/svg-icons/av/video-call';
@@ -18,8 +20,11 @@ import styles from './text.css';
 type Props = {
     uid: string, // eslint-disable-line react/no-unused-prop-types
     channel: string,
-    navigation: {
-        navigate: (string) => void, // eslint-disable-line react/no-unused-prop-types
+    location: {
+        pathname: string,
+    },
+    history: {
+        push: (string) => void, // eslint-disable-line react/no-unused-prop-types
     },
 };
 
@@ -37,7 +42,7 @@ class PostForm extends PureComponent {
 
     componentWillMount() {
         this.joinCall = () => {
-            this.props.navigation.navigate('Video');
+            this.props.history.push(`${this.props.location.pathname}/video`);
             redux.dispatch(sendOffer(this.props.channel));
         };
 
@@ -46,7 +51,7 @@ class PostForm extends PureComponent {
             if (this.state.message.trim().length > 0) {
                 const id = toGlobalId('Channel', this.props.channel);
 
-                const { store } = await import(/* webpackChunkName: "relay" */ '../../../../../utils/relay');
+                const { store } = await import(/* webpackChunkName: "relay" */ '../../../../utils/relay');
                 const { data } = store.lookup({
                     dataID: id,
                     node: {
@@ -123,10 +128,13 @@ class PostForm extends PureComponent {
 
 }
 
-const enhance = connect(
-    ({ auth }) => ({
-        uid: auth.user.uid,
-    }),
+const enhance = compose(
+    withRouter,
+    connect(
+        ({ auth }) => ({
+            uid: auth.user.uid,
+        }),
+    ),
 );
 
 export default enhance(PostForm);

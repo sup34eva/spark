@@ -44,7 +44,7 @@ export default class File extends PureComponent {
 
     // $FlowIssue
     async componentDidMount() {
-        const { storage } = await import(/* webpackChunkName: "firebase" */ '../../../../../../../utils/firebase');
+        const { storage } = await import(/* webpackChunkName: "firebase" */ '../../../../../../utils/firebase');
         const ref = storage.ref(`${this.props.channel}/${this.props.content}`);
         const content = await ref.getDownloadURL();
         const metadata = await ref.getMetadata();

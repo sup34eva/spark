@@ -2,6 +2,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import compose from 'recompose/compose';
+import { Route, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Map } from 'immutable';
 import { ListItem } from 'material-ui/List';
@@ -20,6 +21,11 @@ type Props = {
 
     /* eslint-disable react/no-unused-prop-types */
     uid: string,
+    match: {
+        params: {
+            type: string,
+        },
+    },
     channel: {
         name: string,
         subtext: ?{
@@ -32,9 +38,6 @@ type Props = {
         },
     },
     /* eslint-enable react/no-unused-prop-types */
-
-    selected: boolean,
-    onTouchTap?: () => void,
 };
 
 class Channel extends PureComponent {
@@ -99,7 +102,6 @@ class Channel extends PureComponent {
         }
 
         const { textColor } = this.context.muiTheme.palette;
-        const color = this.props.selected ? fade(textColor, 0.2) : undefined;
 
         let subtext;
         if (channel.subtext) {
@@ -128,18 +130,29 @@ class Channel extends PureComponent {
             </IconMenu>
         );
 
+        const path = `/${this.props.match.params.type}/${this.props.channel.name}`;
+
         return (
-            <ListItem
-                style={{ backgroundColor: color }}
-                onTouchTap={this.props.onTouchTap}
-                leftAvatar={avatar} rightIconButton={menu}
-                primaryText={channel.name}
-                secondaryText={subtext} secondaryTextLines={2} />
+            <Route path={path}>
+                {({ history, match }) => {
+                    const color = match ? fade(textColor, 0.2) : undefined;
+
+                    return (
+                        <ListItem
+                            style={{ backgroundColor: color }}
+                            onTouchTap={() => history.push(path)}
+                            leftAvatar={avatar} rightIconButton={menu}
+                            primaryText={channel.name}
+                            secondaryText={subtext} secondaryTextLines={2} />
+                    );
+                }}
+            </Route>
         );
     }
 }
 
 const enhance = compose(
+    withRouter,
     connect(
         ({ auth }) => ({
             uid: auth.user.uid,

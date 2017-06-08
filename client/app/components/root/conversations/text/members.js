@@ -5,7 +5,7 @@ import Paper from 'material-ui/Paper';
 
 import connectFirebase from 'utils/firebase/enhancer';
 
-import UserChip from '../../shared/user';
+import UserChip from '../shared/user';
 
 import UserMenu from './shared/userMenu';
 import styles from './text.css';

@@ -1,51 +1,18 @@
 // @flow
-import React, { Component } from 'react';
-import { TabRouter, addNavigationHelpers } from 'react-navigation';
+import React from 'react';
+import { Route } from 'react-router-dom';
 
 import Drawer from './drawer';
-import Conversation from './conversation';
+import TextConv from './text';
+import VideoCall from './video';
 import styles from './conversations.css';
 
-export const DetailsRouter = new TabRouter({
-    ConvClose: {
-        screen: () => null,
-    },
-    ConvOpen: {
-        screen: Conversation,
-    },
-}, {
-    initialRouteName: 'ConvClose',
-});
+const ConvRouter = (props: Object) => (
+    <div className={styles.navigator}>
+        <Drawer {...props} />
+        <Route exact path="/:type/:channel" component={TextConv} />
+        <Route path="/:type/:channel/video" component={VideoCall} />
+    </div>
+);
 
-export default class DetailsNavigator extends Component {
-    static router = DetailsRouter;
-
-    props: {
-        navigation: {
-            /* eslint-disable react/no-unused-prop-types */
-            dispatch: Function,
-            state: {
-                index: number,
-                routes: Array<Object>,
-            },
-            /* eslint-enable react/no-unused-prop-types */
-        },
-    };
-
-    render() {
-        const rootNavigation = this.props.navigation;
-        const { state, dispatch } = rootNavigation;
-        const { routes, index } = state;
-
-        const route = routes[index];
-        const childNavigation = addNavigationHelpers({ dispatch, state: route });
-        const ChildComponent = DetailsRouter.getComponentForRouteName(route.routeName);
-
-        return (
-            <div className={styles.convNavigator}>
-                <Drawer routeName={state.routeName} navigation={childNavigation} />
-                <ChildComponent key={route.key} navigation={childNavigation} />
-            </div>
-        );
-    }
-}
+export default ConvRouter;
