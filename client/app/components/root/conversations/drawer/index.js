@@ -223,7 +223,7 @@ const enhance = compose(
         },
     ),
     connectFirebase(
-        ({ uid, routeName }) => (routeName === 'Friends' ? `/users/${uid}/friends` : null),
+        ({ uid, match }) => (match.params.type === 'friends' ? `/users/${uid}/friends` : null),
         friends => ({ friends }),
     ),
 );
